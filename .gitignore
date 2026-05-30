@@ -1,0 +1,10 @@
+node_modules
+.next
+.turbo
+.env
+.env.local
+dist
+build
+coverage
+.DS_Store
+pnpm-lock.yaml
