@@ -1,0 +1,24 @@
+{
+  "name": "@web-monitor/worker",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'add eslint later'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.48.1",
+    "cheerio": "^1.0.0",
+    "commander": "^12.1.0",
+    "crawlee": "^3.12.2",
+    "dotenv": "^16.4.7",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
