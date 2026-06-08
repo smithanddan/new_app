@@ -1,0 +1,15 @@
+{
+  "name": "labmind",
+  "private": true,
+  "packageManager": "pnpm@9.12.0",
+  "scripts": {
+    "dev": "pnpm --filter @labmind/web dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint"
+  },
+  "devDependencies": {
+    "turbo": "latest",
+    "typescript": "^5.6.3"
+  }
+}

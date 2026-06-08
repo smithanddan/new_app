@@ -1,0 +1,15 @@
+{
+  "name": "@labmind/document-parser",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "echo 'lint document-parser'"
+  },
+  "dependencies": { "@labmind/shared": "workspace:*" },
+  "devDependencies": { "typescript": "^5.6.3" }
+}

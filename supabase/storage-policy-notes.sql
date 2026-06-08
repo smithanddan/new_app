@@ -1,0 +1,5 @@
+-- Create a private bucket in Supabase dashboard or via CLI:
+-- bucket name: lab-documents
+-- public: false
+-- Use signed URLs only.
+-- Add storage.objects RLS policies after bucket creation.
