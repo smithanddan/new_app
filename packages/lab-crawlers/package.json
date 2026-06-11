@@ -1,0 +1,26 @@
+{
+  "name": "@labmind/lab-crawlers",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "echo 'lint lab-crawlers'",
+    "smoke:dnkom": "pnpm build && node dist/scripts/smoke-dnkom.js",
+    "test:dnkom-fixtures": "pnpm build && node dist/scripts/test-dnkom-fixtures.js",
+    "sync:dnkom": "pnpm build && node dist/scripts/sync-dnkom.js",
+    "compare:db": "pnpm build && node dist/scripts/compare-db.js"
+  },
+  "dependencies": {
+    "@labmind/shared": "workspace:*",
+    "@supabase/supabase-js": "^2.49.1",
+    "playwright": "^1.51.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "typescript": "^5.6.3"
+  }
+}

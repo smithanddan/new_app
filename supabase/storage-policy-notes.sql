@@ -1,0 +1,12 @@
+-- Storage policy notes
+--
+-- The private `lab-documents` bucket and storage.objects RLS policies are
+-- managed by the migration:
+--   supabase/migrations/20260611083058_harden_core_storage_and_api_access.sql
+--
+-- Expected object path:
+--   {user_id}/{document_id}/{filename}
+--
+-- Client-side access is limited to authenticated users whose auth.uid() matches
+-- the first path segment. Server-side parser workers must use the service role
+-- key and must never expose it to the web app.
