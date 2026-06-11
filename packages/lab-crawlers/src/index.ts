@@ -287,6 +287,22 @@ export {
 } from './catalog-comparison.js';
 export { DnkomScraper } from './adapters/dnkom.scraper.js';
 export { DnkomLiveScraper } from './adapters/dnkom-live.scraper.js';
+export {
+  DNKOM_ACTIONS_URL,
+  DNKOM_BASE_URL,
+  DNKOM_CATALOG_URL,
+  extractDnkomCurrentCity,
+  parseDnkomActionDetailHtml,
+  parseDnkomActionLinks,
+  parseDnkomActionsHtml,
+  parseDnkomCatalogDetailHtml,
+  parseDnkomCatalogHtml,
+  parseDnkomCatalogLinks,
+  parseDnkomProductInfo,
+  type DnkomActionsParseResult,
+  type DnkomCatalogParseResult,
+  type DnkomProductInfo,
+} from './adapters/dnkom.parser.js';
 export { GemotestScraper } from './adapters/gemotest.scraper.js';
 export { InvitroScraper } from './adapters/invitro.scraper.js';
 export type {
@@ -312,3 +328,14 @@ export {
   type PromotionSyncResult,
   type ScraperContext,
 } from './provider-scraper.js';
+export { createLabCrawlerSupabaseClient, type LabCrawlerSupabaseClient } from './supabase-client.js';
+export {
+  LabCatalogRepository,
+  type DbCanonicalPriceComparison,
+  type DbPriceComparisonOffer,
+  type DbUnmatchedProviderTestSuggestion,
+  type PriceInsertResult,
+  type ProviderRegionIds,
+  type ScraperRunResult,
+  type UpsertResult,
+} from './supabase-lab-catalog.repository.js';
