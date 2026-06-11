@@ -15,7 +15,6 @@
     "compare:db": "pnpm build && node dist/scripts/compare-db.js"
   },
   "dependencies": {
-    "@labmind/shared": "workspace:*",
     "@supabase/supabase-js": "^2.49.1",
     "playwright": "^1.51.1"
   },
