@@ -1,23 +1,22 @@
-import type {
-  LabPromotionItemRecord,
-  LabPromotionRecord,
-  ProviderRegionProbeResult,
-  ProviderTestPriceRecord,
-  ProviderTestRecord,
-} from '../catalog-types.js';
+import { mkdir, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import type { ProviderRegionProbeResult, ProviderTestPriceRecord, ProviderTestRecord } from '../catalog-types.js';
 import {
-  effectivePriceRub,
-  normalizeProviderName,
-  toRubles,
+  DNKOM_ACTIONS_URL,
+  DNKOM_CATALOG_URL,
+  extractDnkomCurrentCity,
+  parseDnkomActionLinks,
+  parseDnkomActionsHtml,
+  parseDnkomCatalogHtml,
+  parseDnkomCatalogLinks,
+} from './dnkom.parser.js';
+import {
   type CatalogSyncResult,
   type PromotionSyncResult,
   type ProviderScraper,
   type ScraperContext,
 } from '../provider-scraper.js';
-
-const DNKOM_BASE_URL = 'https://dnkom.ru';
-const DNKOM_CATALOG_URL = `${DNKOM_BASE_URL}/analizy-i-tseny/po-tipu/`;
-const DNKOM_ACTIONS_URL = `${DNKOM_BASE_URL}/actions/`;
 
 type PlaywrightModule = typeof import('playwright');
 
@@ -28,6 +27,7 @@ type DnkomLiveScraperOptions = {
   fixtureActionsHtml?: string;
   fixtureDetailHtmlByUrl?: Record<string, string>;
   useFixturesOnly?: boolean;
+  snapshotDir?: string;
 };
 
 type DnkomPageResult = {
@@ -35,17 +35,13 @@ type DnkomPageResult = {
   url: string;
 };
 
-type DnkomProductInfo = {
-  id?: string;
-  name?: string;
-  price?: number;
-  sourceUrl?: string;
-};
-
-type RequiredDnkomProductInfo = DnkomProductInfo & {
-  id: string;
-  name: string;
-  price: number;
+type DnkomSession = {
+  mode: 'playwright' | 'fixture';
+  catalogHtml?: string;
+  actionsHtml?: string;
+  probe: ProviderRegionProbeResult;
+  getHtml(url: string): Promise<string | undefined>;
+  close(): Promise<void>;
 };
 
 export class DnkomLiveScraper implements ProviderScraper {
@@ -57,6 +53,7 @@ export class DnkomLiveScraper implements ProviderScraper {
   private readonly fixtureActionsHtml?: string;
   private readonly fixtureDetailHtmlByUrl: Record<string, string>;
   private readonly useFixturesOnly: boolean;
+  private readonly snapshotDir: string;
   private lastProbe?: ProviderRegionProbeResult;
 
   constructor(options: DnkomLiveScraperOptions = {}) {
@@ -66,6 +63,10 @@ export class DnkomLiveScraper implements ProviderScraper {
     this.fixtureActionsHtml = options.fixtureActionsHtml;
     this.fixtureDetailHtmlByUrl = options.fixtureDetailHtmlByUrl ?? {};
     this.useFixturesOnly = options.useFixturesOnly ?? false;
+    this.snapshotDir = options.snapshotDir ?? path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      '../../fixtures/dnkom',
+    );
   }
 
   async syncCatalog(context: ScraperContext): Promise<CatalogSyncResult> {
@@ -79,27 +80,38 @@ export class DnkomLiveScraper implements ProviderScraper {
         throw new Error('DnkomLiveScraper could not load catalog HTML and no fixture was provided');
       }
 
-      const productItems = parseCatalogProducts(catalogHtml, DNKOM_CATALOG_URL, context, fetchedAt)
-        .slice(0, this.maxCatalogItems);
-      const links = productItems.length === 0 ? parseCatalogLinks(catalogHtml).slice(0, this.maxCatalogItems) : [];
-      const detailPages = productItems.length === 0 ? await this.loadDetailPages(session, links, { closeSession: false }) : [];
-      const detailItems = detailPages
-        .map((page) => parseCatalogDetail(page.html, page.url, context, fetchedAt))
-        .filter((item): item is { test: ProviderTestRecord; price: ProviderTestPriceRecord } => item !== undefined);
-      const parsedItems = productItems.length > 0 ? productItems : detailItems;
+      const catalog = parseDnkomCatalogHtml(catalogHtml, context, {
+        fetchedAt,
+        maxItems: this.maxCatalogItems,
+        sourceUrl: DNKOM_CATALOG_URL,
+      });
+      const links = catalog.productsSeen === 0
+        ? parseDnkomCatalogLinks(catalogHtml).slice(0, this.maxCatalogItems)
+        : [];
+      const detailPages = catalog.productsSeen === 0
+        ? await this.loadDetailPages(session, links)
+        : [];
+      const parsedCatalog = catalog.productsSeen > 0
+        ? catalog
+        : parseDnkomCatalogHtml(catalogHtml, context, {
+          fetchedAt,
+          maxItems: this.maxCatalogItems,
+          sourceUrl: DNKOM_CATALOG_URL,
+          detailHtmlByUrl: Object.fromEntries(detailPages.map((page) => [page.url, page.html])),
+        });
 
       return {
         providerCode: this.providerCode,
         regionCode: context.region.code,
         fetchedAt,
-        tests: parsedItems.map((item) => item.test),
-        prices: parsedItems.map((item) => item.price),
+        tests: parsedCatalog.tests,
+        prices: parsedCatalog.prices,
         rawPayload: {
           mode: session.mode,
           catalogUrl: DNKOM_CATALOG_URL,
-          productsSeen: productItems.length,
+          productsSeen: parsedCatalog.productsSeen,
           linksSeen: links.length,
-          parsedCount: parsedItems.length,
+          parsedCount: parsedCatalog.parsedCount,
           probe: this.lastProbe,
         },
       };
@@ -118,32 +130,39 @@ export class DnkomLiveScraper implements ProviderScraper {
   async syncPromotions(context: ScraperContext): Promise<PromotionSyncResult> {
     const fetchedAt = context.fetchedAt ?? new Date().toISOString();
     const session = await this.createSession(context);
-    const actionsHtml = session.actionsHtml ?? this.fixtureActionsHtml;
 
-    if (!actionsHtml) {
-      throw new Error('DnkomLiveScraper could not load actions HTML and no fixture was provided');
+    try {
+      const actionsHtml = session.actionsHtml ?? this.fixtureActionsHtml;
+
+      if (!actionsHtml) {
+        throw new Error('DnkomLiveScraper could not load actions HTML and no fixture was provided');
+      }
+
+      const actionLinks = parseDnkomActionLinks(actionsHtml).slice(0, this.maxPromotionItems);
+      const actionPages = await this.loadDetailPages(session, actionLinks);
+      const parsed = parseDnkomActionsHtml(actionsHtml, context, {
+        fetchedAt,
+        maxItems: this.maxPromotionItems,
+        detailHtmlByUrl: Object.fromEntries(actionPages.map((page) => [page.url, page.html])),
+      });
+
+      return {
+        providerCode: this.providerCode,
+        regionCode: context.region.code,
+        fetchedAt,
+        promotions: parsed.promotions,
+        promotionItems: parsed.promotionItems,
+        rawPayload: {
+          mode: session.mode,
+          actionsUrl: DNKOM_ACTIONS_URL,
+          linksSeen: parsed.links.length,
+          parsedCount: parsed.parsedCount,
+          probe: this.lastProbe,
+        },
+      };
+    } finally {
+      await session.close();
     }
-
-    const actionLinks = parseActionLinks(actionsHtml).slice(0, this.maxPromotionItems);
-    const actionPages = await this.loadDetailPages(session, actionLinks);
-    const parsed = actionPages
-      .map((page) => parseActionDetail(page.html, page.url, context, fetchedAt))
-      .filter((item): item is { promotion: LabPromotionRecord; items: LabPromotionItemRecord[] } => item !== undefined);
-
-    return {
-      providerCode: this.providerCode,
-      regionCode: context.region.code,
-      fetchedAt,
-      promotions: parsed.map((item) => item.promotion),
-      promotionItems: parsed.flatMap((item) => item.items),
-      rawPayload: {
-        mode: session.mode,
-        actionsUrl: DNKOM_ACTIONS_URL,
-        linksSeen: actionLinks.length,
-        parsedCount: parsed.length,
-        probe: this.lastProbe,
-      },
-    };
   }
 
   async probeRegion(context: ScraperContext): Promise<ProviderRegionProbeResult> {
@@ -155,14 +174,7 @@ export class DnkomLiveScraper implements ProviderScraper {
     }
   }
 
-  private async createSession(context: ScraperContext): Promise<{
-    mode: 'playwright' | 'fixture';
-    catalogHtml?: string;
-    actionsHtml?: string;
-    probe: ProviderRegionProbeResult;
-    getHtml(url: string): Promise<string | undefined>;
-    close(): Promise<void>;
-  }> {
+  private async createSession(context: ScraperContext): Promise<DnkomSession> {
     if (this.useFixturesOnly) {
       const probe = createFixtureProbe(context, 'fixtures_only');
       this.lastProbe = probe;
@@ -206,11 +218,13 @@ export class DnkomLiveScraper implements ProviderScraper {
       await page.getByText('Да').first().click({ timeout: 3_000 }).catch(() => undefined);
       await page.waitForTimeout(500);
       const catalogHtml = await page.content();
+      await this.saveSnapshot('catalog-live.html', catalogHtml);
 
       await page.goto(DNKOM_ACTIONS_URL, { waitUntil: 'commit', timeout: 15_000 });
       await page.waitForLoadState('domcontentloaded', { timeout: 10_000 }).catch(() => undefined);
       await page.waitForTimeout(500);
       const actionsHtml = await page.content();
+      await this.saveSnapshot('actions-live.html', actionsHtml);
 
       const cookies = await browserContext.cookies();
       const localStorage = await page.evaluate(() => {
@@ -227,7 +241,7 @@ export class DnkomLiveScraper implements ProviderScraper {
       const probe: ProviderRegionProbeResult = {
         providerCode: this.providerCode,
         regionCode: context.region.code,
-        detectedCity: extractCurrentCity(catalogHtml) ?? context.region.city,
+        detectedCity: extractDnkomCurrentCity(catalogHtml) ?? context.region.city,
         cookies: cookies
           .filter((cookie) => /geoip|city|location|region/i.test(cookie.name))
           .map((cookie) => ({
@@ -241,8 +255,6 @@ export class DnkomLiveScraper implements ProviderScraper {
         rawPayload: { mode: 'playwright' },
       };
       this.lastProbe = probe;
-      const activeBrowser = browser;
-      const activeBrowserContext = browserContext;
 
       return {
         mode: 'playwright',
@@ -254,8 +266,8 @@ export class DnkomLiveScraper implements ProviderScraper {
           return response.ok() ? response.text() : undefined;
         },
         close: async () => {
-          await activeBrowserContext.close().catch(() => undefined);
-          await activeBrowser.close().catch(() => undefined);
+          await browserContext.close().catch(() => undefined);
+          await browser?.close().catch(() => undefined);
         },
       };
     } catch (error) {
@@ -274,26 +286,28 @@ export class DnkomLiveScraper implements ProviderScraper {
   }
 
   private async loadDetailPages(
-    session: { getHtml(url: string): Promise<string | undefined>; close(): Promise<void> },
+    session: Pick<DnkomSession, 'getHtml'>,
     links: Array<{ url: string; text: string }>,
-    options: { closeSession?: boolean } = {},
   ): Promise<DnkomPageResult[]> {
     const pages: DnkomPageResult[] = [];
 
-    try {
-      for (const link of links) {
-        const html = await session.getHtml(link.url);
-        if (html) {
-          pages.push({ html, url: link.url });
-        }
-      }
-    } finally {
-      if (options.closeSession ?? true) {
-        await session.close();
+    for (const link of links) {
+      const html = await session.getHtml(link.url);
+      if (html) {
+        pages.push({ html, url: link.url });
       }
     }
 
     return pages;
+  }
+
+  private async saveSnapshot(fileName: string, html: string): Promise<void> {
+    if (this.useFixturesOnly) {
+      return;
+    }
+
+    await mkdir(this.snapshotDir, { recursive: true });
+    await writeFile(path.join(this.snapshotDir, fileName), html, 'utf8');
   }
 }
 
@@ -318,299 +332,6 @@ function createFixtureProbe(context: ScraperContext, reason: string): ProviderRe
     notes: [`Using Dnkom HTML fixtures: ${reason}`],
     rawPayload: { mode: 'fixture', reason },
   };
-}
-
-function parseCatalogLinks(html: string): Array<{ url: string; text: string }> {
-  const seen = new Set<string>();
-  return extractLinks(html)
-    .filter((link) => link.href.startsWith('/analizy-i-tseny/po-tipu/'))
-    .filter((link) => link.href !== '/analizy-i-tseny/po-tipu/')
-    .filter((link) => link.text.length > 8)
-    .map((link) => ({ url: new URL(link.href, DNKOM_BASE_URL).toString(), text: link.text }))
-    .filter((link) => {
-      if (seen.has(link.url)) {
-        return false;
-      }
-      seen.add(link.url);
-      return true;
-    });
-}
-
-function parseActionLinks(html: string): Array<{ url: string; text: string }> {
-  const seen = new Set<string>();
-  return extractLinks(html)
-    .filter((link) => /^\/actions\/[^/]+\/$/.test(link.href))
-    .filter((link) => link.text.length > 5)
-    .map((link) => ({ url: new URL(link.href, DNKOM_BASE_URL).toString(), text: link.text }))
-    .filter((link) => {
-      if (seen.has(link.url)) {
-        return false;
-      }
-      seen.add(link.url);
-      return true;
-    });
-}
-
-function parseCatalogProducts(
-  html: string,
-  url: string,
-  context: ScraperContext,
-  fetchedAt: string,
-): Array<{ test: ProviderTestRecord; price: ProviderTestPriceRecord }> {
-  return extractProductInfos(html)
-    .filter(hasRequiredProductFields)
-    .map((product) => {
-      const sourceUrl = product.sourceUrl ?? url;
-      const regularPriceRub = toRubles(product.price);
-      const price: ProviderTestPriceRecord = {
-        providerCode: 'dnkom',
-        regionCode: context.region.code,
-        city: context.region.city,
-        externalId: product.id,
-        externalCode: product.id,
-        currency: 'RUB',
-        regularPriceRub,
-        effectivePriceRub: effectivePriceRub({ regularPriceRub }),
-        offerType: 'regular',
-        sourceUrl,
-        fetchedAt,
-        rawPayload: {
-          parser: 'dnkom-live-catalog-product',
-          product,
-          detectedCity: extractCurrentCity(html),
-        },
-      };
-
-      return {
-        test: {
-          providerCode: 'dnkom',
-          regionCode: context.region.code,
-          externalId: product.id,
-          externalCode: product.id,
-          name: product.name,
-          normalizedName: normalizeProviderName(product.name),
-          kind: 'analysis',
-          sourceUrl,
-          matchStatus: 'unmatched',
-          fetchedAt,
-          rawPayload: {
-            parser: 'dnkom-live-catalog-product',
-            price,
-            product,
-          },
-        },
-        price,
-      };
-    });
-}
-
-function parseCatalogDetail(
-  html: string,
-  url: string,
-  context: ScraperContext,
-  fetchedAt: string,
-): { test: ProviderTestRecord; price: ProviderTestPriceRecord } | undefined {
-  const product = extractFirstProductInfo(html);
-  const name = cleanText(
-    product?.name
-      ?? matchFirst(html, /<h1[^>]*class=["'][^"']*header[^"']*["'][^>]*>([\s\S]*?)<\/h1>/i)
-      ?? matchFirst(html, /<h1[^>]*>([\s\S]*?)<\/h1>/i)
-      ?? '',
-  ).replace(/\s+в Москве$/i, '');
-  const externalCode = product?.id ?? cleanText(matchFirst(html, /<div[^>]*class=["'][^"']*code data[^"']*["'][^>]*>([\s\S]*?)<\/div>/i) ?? '');
-  const regularPriceRub = toRubles(
-    product?.price
-      ?? matchFirst(html, /<meta\s+itemprop=["']price["']\s+content=["']([^"']+)["']/i)
-      ?? matchFirst(html, /<div[^>]*class=["'][^"']*price-value[^"']*["'][^>]*>([\s\S]*?)<\/div>/i),
-  );
-
-  if (!name || regularPriceRub === undefined) {
-    return undefined;
-  }
-
-  const effective = effectivePriceRub({ regularPriceRub });
-  const price: ProviderTestPriceRecord = {
-    providerCode: 'dnkom',
-    regionCode: context.region.code,
-    city: context.region.city,
-    externalId: externalCode || url,
-    externalCode: externalCode || undefined,
-    currency: 'RUB',
-    regularPriceRub,
-    effectivePriceRub: effective,
-    offerType: 'regular',
-    sourceUrl: url,
-    fetchedAt,
-    rawPayload: {
-      parser: 'dnkom-live-detail',
-      product,
-      detectedCity: extractCurrentCity(html),
-    },
-  };
-
-  return {
-    test: {
-      providerCode: 'dnkom',
-      regionCode: context.region.code,
-      externalId: price.externalId,
-      externalCode: price.externalCode,
-      name,
-      normalizedName: normalizeProviderName(name),
-      kind: 'analysis',
-      sourceUrl: url,
-      matchStatus: 'unmatched',
-      fetchedAt,
-      rawPayload: {
-        parser: 'dnkom-live-detail',
-        price,
-        product,
-      },
-    },
-    price,
-  };
-}
-
-function parseActionDetail(
-  html: string,
-  url: string,
-  context: ScraperContext,
-  fetchedAt: string,
-): { promotion: LabPromotionRecord; items: LabPromotionItemRecord[] } | undefined {
-  const title = cleanText(
-    matchFirst(html, /<h1[^>]*class=["'][^"']*(?:banner-heading|heading)[^"']*["'][^>]*>([\s\S]*?)<\/h1>/i)
-      ?? matchFirst(html, /<h1[^>]*>([\s\S]*?)<\/h1>/i)
-      ?? matchFirst(html, /<title[^>]*>([\s\S]*?)<\/title>/i)
-      ?? '',
-  ).replace(/\s+в Москве.*$/i, '');
-  const validTo = parseRussianDate(matchFirst(html, /до\s+(\d{2}\.\d{2}\.\d{4})/i));
-  const product = extractFirstProductInfo(html);
-  const itemName = cleanText(
-    product?.name
-      ?? matchFirst(html, /<div[^>]*class=["'][^"']*item-main-title[^"']*["'][^>]*>([\s\S]*?)<\/div>/i)
-      ?? title,
-  );
-  const promoPriceRub = toRubles(
-    product?.price
-      ?? matchFirst(html, /<div[^>]*class=["'][^"']*item-price[^"']*["'][^>]*>([\s\S]*?)<\/div>/i),
-  );
-  const externalCode = product?.id ?? cleanText(matchFirst(html, /<span[^>]*class=["'][^"']*item-main-code[^"']*["'][^>]*>([\s\S]*?)<\/span>/i) ?? '');
-
-  if (!title) {
-    return undefined;
-  }
-
-  const promotion: LabPromotionRecord = {
-    providerCode: 'dnkom',
-    regionCode: context.region.code,
-    externalId: url,
-    title,
-    offerType: 'promo',
-    endsOn: validTo,
-    regionScope: context.region.city,
-    sourceUrl: url,
-    fetchedAt,
-    rawPayload: {
-      parser: 'dnkom-live-action',
-      product,
-      detectedCity: extractCurrentCity(html),
-    },
-  };
-
-  const items: LabPromotionItemRecord[] = promoPriceRub === undefined ? [] : [{
-    promotionExternalId: promotion.externalId,
-    providerCode: 'dnkom',
-    regionCode: context.region.code,
-    externalId: externalCode || url,
-    originalName: itemName || title,
-    promoPriceRub,
-    effectivePriceRub: promoPriceRub,
-    sourceUrl: url,
-    rawPayload: {
-      parser: 'dnkom-live-action-item',
-      product,
-    },
-  }];
-
-  return { promotion, items };
-}
-
-function extractLinks(html: string): Array<{ href: string; text: string }> {
-  return [...html.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)]
-    .map((match) => ({
-      href: decodeHtml(match[1]),
-      text: cleanText(match[2]),
-    }));
-}
-
-function extractFirstProductInfo(html: string): DnkomProductInfo | undefined {
-  return extractProductInfos(html)[0];
-}
-
-function extractProductInfos(html: string): DnkomProductInfo[] {
-  return [...html.matchAll(/data-product-info=(["'])([\s\S]*?)\1/gi)]
-    .map<DnkomProductInfo | undefined>((match) => {
-      const raw = match[2];
-      const sourceUrl = extractNearestHrefBefore(html, match.index ?? 0);
-      try {
-        const parsed = JSON.parse(decodeHtml(raw));
-        const item = Array.isArray(parsed) ? parsed[0] : parsed;
-        return {
-          id: item.id === undefined ? undefined : String(item.id),
-          name: item.name === undefined ? undefined : String(item.name),
-          price: item.price === undefined ? undefined : Number(item.price),
-          sourceUrl,
-        };
-      } catch {
-        return undefined;
-      }
-    })
-    .filter((item): item is DnkomProductInfo => item !== undefined);
-}
-
-function hasRequiredProductFields(product: DnkomProductInfo): product is RequiredDnkomProductInfo {
-  return Boolean(product.id && product.name && product.price !== undefined);
-}
-
-function extractNearestHrefBefore(html: string, index: number): string | undefined {
-  const nearby = html.slice(Math.max(0, index - 2_000), index);
-  const links = [...nearby.matchAll(/href=["']([^"']+)["']/gi)];
-  const href = links.at(-1)?.[1];
-  return href?.startsWith('/') ? new URL(href, DNKOM_BASE_URL).toString() : href;
-}
-
-function extractCurrentCity(html: string): string | undefined {
-  return cleanText(
-    matchFirst(html, /<span[^>]*class=["'][^"']*(?:current-city|city-name)[^"']*["'][^>]*>([\s\S]*?)<\/span>/i) ?? '',
-  ) || undefined;
-}
-
-function parseRussianDate(value: string | undefined): string | undefined {
-  if (!value) {
-    return undefined;
-  }
-
-  const match = value.match(/(\d{2})\.(\d{2})\.(\d{4})/);
-  return match ? `${match[3]}-${match[2]}-${match[1]}` : undefined;
-}
-
-function matchFirst(html: string, pattern: RegExp, group = 1): string | undefined {
-  return html.match(pattern)?.[group];
-}
-
-function cleanText(value: string): string {
-  return decodeHtml(value.replace(/<[^>]+>/g, ' '))
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function decodeHtml(value: string): string {
-  return value
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&nbsp;/g, ' ');
 }
 
 function isPricePayload(value: unknown): value is { price: ProviderTestPriceRecord } {
