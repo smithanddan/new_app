@@ -35,6 +35,29 @@ type DbPriceRow = {
   source_url?: string | null;
   fetched_at: string;
 };
+type DbPromotionItemRow = {
+  id: string;
+  promotion_id: string;
+  provider_test_id?: string | null;
+  provider_test_code?: string | null;
+  original_name: string;
+  regular_price_rub?: number | null;
+  promo_price_rub?: number | null;
+  effective_price_rub?: number | null;
+  biomaterial_price_rub?: number | null;
+  source_url?: string | null;
+  created_at: string;
+};
+type DbPromotionRow = {
+  id: string;
+  provider_id: string;
+  lab_region_id?: string | null;
+  title: string;
+  starts_on?: string | null;
+  ends_on?: string | null;
+  source_url?: string | null;
+  fetched_at: string;
+};
 type DbProviderRow = {
   id: string;
   code: string;
@@ -81,6 +104,11 @@ export type DbPriceComparisonOffer = {
   provider_test_id: string;
   provider_test_name: string;
   provider_test_code?: string;
+  offer_type: 'regular' | 'promo';
+  offer_source: 'provider_test_prices' | 'lab_promotion_items';
+  promotion_title?: string;
+  valid_from?: string;
+  valid_to?: string;
   regular_price_rub?: number;
   promo_price_rub?: number;
   effective_price_rub?: number;
@@ -399,13 +427,14 @@ export class LabCatalogRepository {
     const providersById = new Map(providerRows.map((provider) => [provider.id, provider]));
     const regionsById = new Map(regions.map((region) => [region.id, region]));
     const testsById = new Map(providerTests.map((test) => [test.id, test]));
+    const aliases = getCanonicalAliases(canonical);
     const latestPrices = providerTests.length === 0 || regions.length === 0
       ? []
       : await this.getLatestPrices({
         providerTestIds: providerTests.map((test) => test.id),
         labRegionIds: regions.map((region) => region.id),
       });
-    const offers = latestPrices
+    const regularOffers = latestPrices
       .map<DbPriceComparisonOffer | undefined>((price) => {
         const test = testsById.get(price.provider_test_id);
         const provider = providersById.get(price.provider_id);
@@ -431,6 +460,8 @@ export class LabCatalogRepository {
           provider_test_id: test.id,
           provider_test_name: test.name,
           provider_test_code: test.external_code ?? undefined,
+          offer_type: 'regular',
+          offer_source: 'provider_test_prices',
           regular_price_rub: price.regular_price_rub ?? undefined,
           promo_price_rub: price.promo_price_rub ?? undefined,
           effective_price_rub: effectivePriceRub,
@@ -442,9 +473,19 @@ export class LabCatalogRepository {
           fetched_at: price.fetched_at,
         };
       })
-      .filter((offer): offer is DbPriceComparisonOffer => offer !== undefined)
+      .filter((offer): offer is DbPriceComparisonOffer => offer !== undefined);
+    const promoOffers = regions.length === 0
+      ? []
+      : await this.getPromotionItemOffersForCanonical({
+        aliases,
+        regions,
+        providersById,
+        regionsById,
+        providerTestsById: testsById,
+      });
+    const offers = [...regularOffers, ...promoOffers]
       .sort((a, b) => (a.total_price_rub ?? Number.POSITIVE_INFINITY) - (b.total_price_rub ?? Number.POSITIVE_INFINITY));
-    const unmatchedProviderTests = providerTests.length > 0 ? [] : await this.findUnmatchedProviderTestsForCanonical(canonical, providersById);
+    const unmatchedProviderTests = offers.length > 0 ? [] : await this.findUnmatchedProviderTestsForCanonical(canonical, providersById);
 
     return {
       canonical_test: mapCanonicalTest(canonical),
@@ -620,14 +661,85 @@ export class LabCatalogRepository {
     return [...latestByTestAndRegion.values()];
   }
 
+  private async getPromotionItemOffersForCanonical(input: {
+    aliases: Array<{ raw: string; normalized: string }>;
+    regions: Array<DbRegionRow & { provider_id: string }>;
+    providersById: Map<string, DbProviderRow>;
+    regionsById: Map<string, DbRegionRow & { provider_id: string }>;
+    providerTestsById: Map<string, DbProviderTestRow>;
+  }): Promise<DbPriceComparisonOffer[]> {
+    const regionIds = input.regions.map((region) => region.id);
+    const { data: promotionsData, error: promotionsError } = await this.supabase
+      .from('lab_promotions')
+      .select('id, provider_id, lab_region_id, title, starts_on, ends_on, source_url, fetched_at')
+      .in('lab_region_id', regionIds);
+    assertNoError(promotionsError, 'select lab_promotions for comparison');
+
+    const promotions = (promotionsData ?? []) as DbPromotionRow[];
+    if (promotions.length === 0) {
+      return [];
+    }
+
+    const promotionsById = new Map(promotions.map((promotion) => [promotion.id, promotion]));
+    const { data: itemsData, error: itemsError } = await this.supabase
+      .from('lab_promotion_items')
+      .select('id, promotion_id, provider_test_id, provider_test_code, original_name, regular_price_rub, promo_price_rub, effective_price_rub, biomaterial_price_rub, source_url, created_at')
+      .in('promotion_id', promotions.map((promotion) => promotion.id));
+    assertNoError(itemsError, 'select lab_promotion_items for comparison');
+
+    return ((itemsData ?? []) as DbPromotionItemRow[])
+      .map<DbPriceComparisonOffer | undefined>((item) => {
+        const promotion = promotionsById.get(item.promotion_id);
+        const region = promotion?.lab_region_id ? input.regionsById.get(promotion.lab_region_id) : undefined;
+        const provider = promotion ? input.providersById.get(promotion.provider_id) : undefined;
+        const providerTest = item.provider_test_id ? input.providerTestsById.get(item.provider_test_id) : undefined;
+        const normalizedName = normalizeProviderName(item.original_name);
+        const matchedAlias = input.aliases.find((alias) => normalizedName.includes(alias.normalized));
+        const effectivePriceRub = item.effective_price_rub ?? item.promo_price_rub ?? item.regular_price_rub ?? undefined;
+
+        if (!promotion || !region || !provider || !matchedAlias) {
+          return undefined;
+        }
+
+        return {
+          provider: {
+            id: provider.id,
+            code: provider.code,
+            name: provider.display_name ?? provider.name,
+          },
+          region: {
+            id: region.id,
+            code: region.code,
+            name: region.name,
+            city: region.city,
+          },
+          provider_test_id: item.provider_test_id ?? `promotion-item:${item.id}`,
+          provider_test_name: providerTest?.name ?? item.original_name,
+          provider_test_code: providerTest?.external_code ?? item.provider_test_code ?? undefined,
+          offer_type: 'promo',
+          offer_source: 'lab_promotion_items',
+          promotion_title: promotion.title,
+          valid_from: promotion.starts_on ?? undefined,
+          valid_to: promotion.ends_on ?? undefined,
+          regular_price_rub: item.regular_price_rub ?? undefined,
+          promo_price_rub: item.promo_price_rub ?? undefined,
+          effective_price_rub: effectivePriceRub,
+          biomaterial_price_rub: item.biomaterial_price_rub ?? undefined,
+          total_price_rub: effectivePriceRub === undefined
+            ? undefined
+            : effectivePriceRub + (item.biomaterial_price_rub ?? 0),
+          source_url: item.source_url ?? promotion.source_url ?? undefined,
+          fetched_at: promotion.fetched_at ?? item.created_at,
+        };
+      })
+      .filter((offer): offer is DbPriceComparisonOffer => offer !== undefined);
+  }
+
   private async findUnmatchedProviderTestsForCanonical(
     canonical: DbCanonicalTestRow,
     existingProvidersById: Map<string, DbProviderRow>,
   ): Promise<DbUnmatchedProviderTestSuggestion[]> {
-    const aliases = [canonical.code, canonical.name_ru, canonical.name_en ?? '', ...(canonical.aliases ?? [])]
-      .filter(Boolean)
-      .map((value) => ({ raw: value, normalized: normalizeProviderName(value) }))
-      .filter((value) => value.normalized.length > 1);
+    const aliases = getCanonicalAliases(canonical);
     const { data, error } = await this.supabase
       .from('provider_tests')
       .select('id, provider_id, external_code, name, normalized_name, source_url')
@@ -691,4 +803,11 @@ function mapCanonicalTest(row: DbCanonicalTestRow): DbCanonicalPriceComparison['
     name_en: row.name_en,
     aliases: row.aliases ?? [],
   };
+}
+
+function getCanonicalAliases(canonical: DbCanonicalTestRow): Array<{ raw: string; normalized: string }> {
+  return [canonical.code, canonical.name_ru, canonical.name_en ?? '', ...(canonical.aliases ?? [])]
+    .filter(Boolean)
+    .map((value) => ({ raw: value, normalized: normalizeProviderName(value) }))
+    .filter((value) => value.normalized.length > 1);
 }
