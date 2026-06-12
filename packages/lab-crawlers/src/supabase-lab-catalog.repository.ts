@@ -900,7 +900,7 @@ export class LabCatalogRepository {
     return rows
       .map<DbUnmatchedProviderTestSuggestion | undefined>((test) => {
         const normalizedName = test.normalized_name ?? normalizeProviderName(test.name);
-        const matchedAlias = aliases.find((alias) => normalizedName.includes(alias.normalized));
+        const matchedAlias = aliases.find((alias) => isSafeAliasMatch(normalizedName, alias.normalized));
         const provider = providersById.get(test.provider_id);
 
         if (!matchedAlias || !provider) {
@@ -966,7 +966,7 @@ function findCanonicalMatchForName(
   }
 
   for (const canonical of canonicalTests) {
-    const matchedAlias = getCanonicalAliases(canonical).find((alias) => normalizedName.includes(alias.normalized));
+    const matchedAlias = getCanonicalAliases(canonical).find((alias) => isSafeAliasMatch(normalizedName, alias.normalized));
     if (matchedAlias) {
       return {
         canonical,
@@ -977,4 +977,12 @@ function findCanonicalMatchForName(
   }
 
   return undefined;
+}
+
+function isSafeAliasMatch(normalizedName: string, normalizedAlias: string): boolean {
+  if (normalizedName === normalizedAlias) {
+    return true;
+  }
+
+  return normalizedName.startsWith(`${normalizedAlias} `);
 }
