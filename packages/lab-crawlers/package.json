@@ -12,7 +12,8 @@
     "smoke:dnkom": "pnpm build && node dist/scripts/smoke-dnkom.js",
     "test:dnkom-fixtures": "pnpm build && node dist/scripts/test-dnkom-fixtures.js",
     "sync:dnkom": "pnpm build && node dist/scripts/sync-dnkom.js",
-    "compare:db": "pnpm build && node dist/scripts/compare-db.js"
+    "compare:db": "pnpm build && node dist/scripts/compare-db.js",
+    "match:db": "pnpm build && node dist/scripts/match-db.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

@@ -333,6 +333,8 @@ export {
   LabCatalogRepository,
   type DbCanonicalPriceComparison,
   type DbPriceComparisonOffer,
+  type DbProviderTestMatchCandidate,
+  type DbProviderTestMatchResult,
   type DbUnmatchedProviderTestSuggestion,
   type PriceInsertResult,
   type ProviderRegionIds,

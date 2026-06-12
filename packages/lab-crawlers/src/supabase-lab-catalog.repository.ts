@@ -145,6 +145,34 @@ export type DbCanonicalPriceComparison = {
   auto_match_suggestion?: string;
 };
 
+export type DbProviderTestMatchCandidate = {
+  provider: {
+    id: string;
+    code: string;
+    name: string;
+  };
+  provider_test_id: string;
+  provider_test_name: string;
+  provider_test_code?: string;
+  source_url?: string;
+  canonical_test: {
+    id: string;
+    code: string;
+    name_ru: string;
+  };
+  confidence: number;
+  reason: string;
+};
+
+export type DbProviderTestMatchResult = {
+  provider: string;
+  city?: string;
+  mode: 'dry-run' | 'write';
+  candidates: DbProviderTestMatchCandidate[];
+  matched_count: number;
+  updated_count: number;
+};
+
 export class LabCatalogRepository {
   constructor(private readonly supabase: LabCrawlerSupabaseClient) {}
 
@@ -498,6 +526,77 @@ export class LabCatalogRepository {
     };
   }
 
+  async autoMatchProviderTestsFromDb(input: {
+    providerCode: string;
+    cityName?: string;
+    write?: boolean;
+    limit?: number;
+  }): Promise<DbProviderTestMatchResult> {
+    const provider = await this.selectSingle<DbProviderRow>('lab_providers', 'id, code, name, display_name', { code: input.providerCode });
+    const canonicalTests = await this.getCanonicalTests();
+    const providerTests = await this.getUnmatchedProviderTestsByProvider({
+      providerId: provider.id,
+      cityName: input.cityName,
+      limit: input.limit ?? 200,
+    });
+    const candidates = providerTests
+      .map<DbProviderTestMatchCandidate | undefined>((test) => {
+        const normalizedName = test.normalized_name ?? normalizeProviderName(test.name);
+        const match = findCanonicalMatchForName(normalizedName, canonicalTests);
+
+        if (!match) {
+          return undefined;
+        }
+
+        return {
+          provider: {
+            id: provider.id,
+            code: provider.code,
+            name: provider.display_name ?? provider.name,
+          },
+          provider_test_id: test.id,
+          provider_test_name: test.name,
+          provider_test_code: test.external_code ?? undefined,
+          source_url: test.source_url ?? undefined,
+          canonical_test: {
+            id: match.canonical.id,
+            code: match.canonical.code,
+            name_ru: match.canonical.name_ru,
+          },
+          confidence: match.confidence,
+          reason: match.reason,
+        };
+      })
+      .filter((candidate): candidate is DbProviderTestMatchCandidate => candidate !== undefined);
+    let updatedCount = 0;
+
+    if (input.write) {
+      for (const candidate of candidates) {
+        const { error } = await this.supabase
+          .from('provider_tests')
+          .update({
+            canonical_test_id: candidate.canonical_test.id,
+            match_status: 'auto_matched',
+            match_confidence: candidate.confidence,
+            matched_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', candidate.provider_test_id);
+        assertNoError(error, 'update provider_tests auto-match');
+        updatedCount += 1;
+      }
+    }
+
+    return {
+      provider: input.providerCode,
+      city: input.cityName,
+      mode: input.write ? 'write' : 'dry-run',
+      candidates,
+      matched_count: candidates.length,
+      updated_count: updatedCount,
+    };
+  }
+
   private async findProviderTest(input: {
     providerId: string;
     externalCode?: string;
@@ -607,6 +706,14 @@ export class LabCatalogRepository {
     return requireRow<DbCanonicalTestRow>(data, 'select canonical_tests');
   }
 
+  private async getCanonicalTests(): Promise<DbCanonicalTestRow[]> {
+    const { data, error } = await this.supabase
+      .from('canonical_tests')
+      .select('id, code, name_ru, name_en, aliases');
+    assertNoError(error, 'select canonical_tests');
+    return (data ?? []) as DbCanonicalTestRow[];
+  }
+
   private async getRegionsByCity(cityName: string): Promise<Array<DbRegionRow & { provider_id: string }>> {
     const { data, error } = await this.supabase
       .from('lab_regions')
@@ -623,6 +730,42 @@ export class LabCatalogRepository {
       .eq('canonical_test_id', canonicalTestId);
     assertNoError(error, 'select provider_tests by canonical');
     return (data ?? []) as DbProviderTestRow[];
+  }
+
+  private async getUnmatchedProviderTestsByProvider(input: {
+    providerId: string;
+    cityName?: string;
+    limit: number;
+  }): Promise<DbProviderTestRow[]> {
+    let query = this.supabase
+      .from('provider_tests')
+      .select('id, provider_id, canonical_test_id, external_code, name, normalized_name, source_url')
+      .eq('provider_id', input.providerId)
+      .is('canonical_test_id', null)
+      .limit(input.limit);
+
+    const { data, error } = await query;
+    assertNoError(error, 'select unmatched provider_tests by provider');
+    const providerTests = (data ?? []) as DbProviderTestRow[];
+
+    if (!input.cityName || providerTests.length === 0) {
+      return providerTests;
+    }
+
+    const regions = await this.getRegionsByCity(input.cityName);
+    const regionIds = new Set(regions.map((region) => region.id));
+    const { data: pricesData, error: pricesError } = await this.supabase
+      .from('provider_test_prices')
+      .select('provider_test_id, lab_region_id')
+      .in('provider_test_id', providerTests.map((test) => test.id));
+    assertNoError(pricesError, 'select provider_test_prices for match city filter');
+    const providerTestIdsWithCityPrices = new Set(
+      ((pricesData ?? []) as Array<{ provider_test_id: string; lab_region_id: string }>)
+        .filter((price) => regionIds.has(price.lab_region_id))
+        .map((price) => price.provider_test_id),
+    );
+
+    return providerTests.filter((test) => providerTestIdsWithCityPrices.has(test.id));
   }
 
   private async getProvidersByIds(providerIds: string[]): Promise<DbProviderRow[]> {
@@ -810,4 +953,28 @@ function getCanonicalAliases(canonical: DbCanonicalTestRow): Array<{ raw: string
     .filter(Boolean)
     .map((value) => ({ raw: value, normalized: normalizeProviderName(value) }))
     .filter((value) => value.normalized.length > 1);
+}
+
+function findCanonicalMatchForName(
+  normalizedName: string,
+  canonicalTests: DbCanonicalTestRow[],
+): { canonical: DbCanonicalTestRow; confidence: number; reason: string } | undefined {
+  for (const canonical of canonicalTests) {
+    if (normalizeProviderName(canonical.name_ru) === normalizedName) {
+      return { canonical, confidence: 1, reason: 'exact_name' };
+    }
+  }
+
+  for (const canonical of canonicalTests) {
+    const matchedAlias = getCanonicalAliases(canonical).find((alias) => normalizedName.includes(alias.normalized));
+    if (matchedAlias) {
+      return {
+        canonical,
+        confidence: 0.86,
+        reason: `alias:${matchedAlias.raw}`,
+      };
+    }
+  }
+
+  return undefined;
 }
