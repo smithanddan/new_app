@@ -32,6 +32,7 @@ type DbPriceRow = {
   promo_price_rub?: number | null;
   effective_price_rub?: number | null;
   biomaterial_price_rub?: number | null;
+  offer_type?: 'regular' | 'promo' | 'cashback' | 'package' | 'unknown' | null;
   source_url?: string | null;
   fetched_at: string;
 };
@@ -488,7 +489,7 @@ export class LabCatalogRepository {
           provider_test_id: test.id,
           provider_test_name: test.name,
           provider_test_code: test.external_code ?? undefined,
-          offer_type: 'regular',
+          offer_type: price.offer_type === 'promo' ? 'promo' : 'regular',
           offer_source: 'provider_test_prices',
           regular_price_rub: price.regular_price_rub ?? undefined,
           promo_price_rub: price.promo_price_rub ?? undefined,
@@ -787,7 +788,7 @@ export class LabCatalogRepository {
   }): Promise<DbPriceRow[]> {
     const { data, error } = await this.supabase
       .from('provider_test_prices')
-      .select('provider_test_id, provider_id, lab_region_id, regular_price_rub, promo_price_rub, effective_price_rub, biomaterial_price_rub, source_url, fetched_at')
+      .select('provider_test_id, provider_id, lab_region_id, regular_price_rub, promo_price_rub, effective_price_rub, biomaterial_price_rub, offer_type, source_url, fetched_at')
       .in('provider_test_id', input.providerTestIds)
       .in('lab_region_id', input.labRegionIds)
       .order('fetched_at', { ascending: false });
@@ -837,7 +838,7 @@ export class LabCatalogRepository {
         const provider = promotion ? input.providersById.get(promotion.provider_id) : undefined;
         const providerTest = item.provider_test_id ? input.providerTestsById.get(item.provider_test_id) : undefined;
         const normalizedName = normalizeProviderName(item.original_name);
-        const matchedAlias = input.aliases.find((alias) => normalizedName.includes(alias.normalized));
+        const matchedAlias = input.aliases.find((alias) => isSafeAliasMatch(normalizedName, alias.normalized));
         const effectivePriceRub = item.effective_price_rub ?? item.promo_price_rub ?? item.regular_price_rub ?? undefined;
 
         if (!promotion || !region || !provider || !matchedAlias) {
@@ -984,5 +985,10 @@ function isSafeAliasMatch(normalizedName: string, normalizedAlias: string): bool
     return true;
   }
 
-  return normalizedName.startsWith(`${normalizedAlias} `);
+  if (!normalizedName.startsWith(`${normalizedAlias} `)) {
+    return false;
+  }
+
+  const nextWord = normalizedName.slice(normalizedAlias.length).trim().split(/\s+/)[0];
+  return nextWord !== 'и';
 }

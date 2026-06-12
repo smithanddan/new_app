@@ -305,6 +305,15 @@ export {
   type DnkomProductInfo,
 } from './adapters/dnkom.parser.js';
 export { GemotestScraper } from './adapters/gemotest.scraper.js';
+export { GemotestLiveScraper } from './adapters/gemotest-live.scraper.js';
+export {
+  GEMOTEST_BASE_URL,
+  GEMOTEST_MOSCOW_CATALOG_URL,
+  parseGemotestCatalogHtml,
+  parseGemotestProductCard,
+  type GemotestCatalogParseResult,
+  type GemotestProductCard,
+} from './adapters/gemotest.parser.js';
 export { InvitroScraper } from './adapters/invitro.scraper.js';
 export type {
   CanonicalTestKind,

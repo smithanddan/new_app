@@ -127,7 +127,7 @@ export function matchProviderTestToCanonical(
     const aliases = [canonical.code, canonical.nameRu, canonical.nameEn ?? '', ...canonical.aliases].filter(Boolean);
     const matchedAlias = aliases.find((alias) => {
       const normalizedAlias = normalizeProviderName(alias);
-      return normalizedAlias.length > 1 && normalizedName.includes(normalizedAlias);
+      return normalizedAlias.length > 1 && isSafeAliasMatch(normalizedName, normalizedAlias);
     });
 
     if (matchedAlias) {
@@ -141,6 +141,19 @@ export function matchProviderTestToCanonical(
   }
 
   return { confidence: 0, status: 'unmatched', reason: 'no_alias_match' };
+}
+
+function isSafeAliasMatch(normalizedName: string, normalizedAlias: string): boolean {
+  if (normalizedName === normalizedAlias) {
+    return true;
+  }
+
+  if (!normalizedName.startsWith(`${normalizedAlias} `)) {
+    return false;
+  }
+
+  const nextWord = normalizedName.slice(normalizedAlias.length).trim().split(/\s+/)[0];
+  return nextWord !== 'и';
 }
 
 export function autoMatchProviderTests(
