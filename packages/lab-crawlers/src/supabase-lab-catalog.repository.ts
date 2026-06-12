@@ -163,6 +163,26 @@ export type DbProviderTestMatchCandidate = {
   };
   confidence: number;
   reason: string;
+  status: 'exact_name' | 'safe_alias';
+};
+
+export type DbProviderTestBlockedCandidate = {
+  provider: {
+    id: string;
+    code: string;
+    name: string;
+  };
+  provider_test_id: string;
+  provider_test_name: string;
+  provider_test_code?: string;
+  source_url?: string;
+  canonical_test: {
+    id: string;
+    code: string;
+    name_ru: string;
+  };
+  confidence: number;
+  reason: 'blocked_complex_candidate';
 };
 
 export type DbProviderTestMatchResult = {
@@ -170,7 +190,9 @@ export type DbProviderTestMatchResult = {
   city?: string;
   mode: 'dry-run' | 'write';
   candidates: DbProviderTestMatchCandidate[];
+  blocked_candidates: DbProviderTestBlockedCandidate[];
   matched_count: number;
+  blocked_count: number;
   updated_count: number;
 };
 
@@ -540,8 +562,8 @@ export class LabCatalogRepository {
       cityName: input.cityName,
       limit: input.limit ?? 200,
     });
-    const candidates = providerTests
-      .map<DbProviderTestMatchCandidate | undefined>((test) => {
+    const matches = providerTests
+      .map<DbProviderTestMatchCandidate | DbProviderTestBlockedCandidate | undefined>((test) => {
         const normalizedName = test.normalized_name ?? normalizeProviderName(test.name);
         const match = findCanonicalMatchForName(normalizedName, canonicalTests);
 
@@ -566,9 +588,12 @@ export class LabCatalogRepository {
           },
           confidence: match.confidence,
           reason: match.reason,
+          status: match.status,
         };
       })
-      .filter((candidate): candidate is DbProviderTestMatchCandidate => candidate !== undefined);
+      .filter((candidate): candidate is DbProviderTestMatchCandidate | DbProviderTestBlockedCandidate => candidate !== undefined);
+    const candidates = matches.filter((candidate): candidate is DbProviderTestMatchCandidate => candidate.reason !== 'blocked_complex_candidate');
+    const blockedCandidates = matches.filter((candidate): candidate is DbProviderTestBlockedCandidate => candidate.reason === 'blocked_complex_candidate');
     let updatedCount = 0;
 
     if (input.write) {
@@ -593,7 +618,9 @@ export class LabCatalogRepository {
       city: input.cityName,
       mode: input.write ? 'write' : 'dry-run',
       candidates,
+      blocked_candidates: blockedCandidates,
       matched_count: candidates.length,
+      blocked_count: blockedCandidates.length,
       updated_count: updatedCount,
     };
   }
@@ -755,13 +782,9 @@ export class LabCatalogRepository {
 
     const regions = await this.getRegionsByCity(input.cityName);
     const regionIds = new Set(regions.map((region) => region.id));
-    const { data: pricesData, error: pricesError } = await this.supabase
-      .from('provider_test_prices')
-      .select('provider_test_id, lab_region_id')
-      .in('provider_test_id', providerTests.map((test) => test.id));
-    assertNoError(pricesError, 'select provider_test_prices for match city filter');
+    const pricesData = await this.selectPriceRegionRowsByProviderTestIds(providerTests.map((test) => test.id));
     const providerTestIdsWithCityPrices = new Set(
-      ((pricesData ?? []) as Array<{ provider_test_id: string; lab_region_id: string }>)
+      pricesData
         .filter((price) => regionIds.has(price.lab_region_id))
         .map((price) => price.provider_test_id),
     );
@@ -780,6 +803,25 @@ export class LabCatalogRepository {
       .in('id', providerIds);
     assertNoError(error, 'select lab_providers by ids');
     return (data ?? []) as DbProviderRow[];
+  }
+
+  private async selectPriceRegionRowsByProviderTestIds(
+    providerTestIds: string[],
+  ): Promise<Array<{ provider_test_id: string; lab_region_id: string }>> {
+    const rows: Array<{ provider_test_id: string; lab_region_id: string }> = [];
+    const batchSize = 100;
+
+    for (let index = 0; index < providerTestIds.length; index += batchSize) {
+      const batch = providerTestIds.slice(index, index + batchSize);
+      const { data, error } = await this.supabase
+        .from('provider_test_prices')
+        .select('provider_test_id, lab_region_id')
+        .in('provider_test_id', batch);
+      assertNoError(error, 'select provider_test_prices for match city filter');
+      rows.push(...((data ?? []) as Array<{ provider_test_id: string; lab_region_id: string }>));
+    }
+
+    return rows;
   }
 
   private async getLatestPrices(input: {
@@ -959,20 +1001,35 @@ function getCanonicalAliases(canonical: DbCanonicalTestRow): Array<{ raw: string
 function findCanonicalMatchForName(
   normalizedName: string,
   canonicalTests: DbCanonicalTestRow[],
-): { canonical: DbCanonicalTestRow; confidence: number; reason: string } | undefined {
+): {
+  canonical: DbCanonicalTestRow;
+  confidence: number;
+  reason: string | 'blocked_complex_candidate';
+  status: 'exact_name' | 'safe_alias';
+} | undefined {
   for (const canonical of canonicalTests) {
     if (normalizeProviderName(canonical.name_ru) === normalizedName) {
-      return { canonical, confidence: 1, reason: 'exact_name' };
+      return { canonical, confidence: 1, reason: 'exact_name', status: 'exact_name' };
     }
   }
 
   for (const canonical of canonicalTests) {
-    const matchedAlias = getCanonicalAliases(canonical).find((alias) => isSafeAliasMatch(normalizedName, alias.normalized));
+    const matchedAlias = getCanonicalAliases(canonical).find((alias) => isAliasPrefixMatch(normalizedName, alias.normalized));
     if (matchedAlias) {
+      if (hasComplexMarkerAfterAlias(normalizedName, matchedAlias.normalized)) {
+        return {
+          canonical,
+          confidence: 0,
+          reason: 'blocked_complex_candidate',
+          status: 'safe_alias',
+        };
+      }
+
       return {
         canonical,
         confidence: 0.86,
-        reason: `alias:${matchedAlias.raw}`,
+        reason: `safe_alias:${matchedAlias.raw}`,
+        status: 'safe_alias',
       };
     }
   }
@@ -981,14 +1038,26 @@ function findCanonicalMatchForName(
 }
 
 function isSafeAliasMatch(normalizedName: string, normalizedAlias: string): boolean {
+  return isAliasPrefixMatch(normalizedName, normalizedAlias) && !hasComplexMarkerAfterAlias(normalizedName, normalizedAlias);
+}
+
+function isAliasPrefixMatch(normalizedName: string, normalizedAlias: string): boolean {
   if (normalizedName === normalizedAlias) {
     return true;
   }
 
-  if (!normalizedName.startsWith(`${normalizedAlias} `)) {
+  return normalizedName.startsWith(`${normalizedAlias} `);
+}
+
+function hasComplexMarkerAfterAlias(normalizedName: string, normalizedAlias: string): boolean {
+  const rest = normalizedName === normalizedAlias
+    ? ''
+    : normalizedName.slice(normalizedAlias.length).trim();
+
+  if (!rest) {
     return false;
   }
 
-  const nextWord = normalizedName.slice(normalizedAlias.length).trim().split(/\s+/)[0];
-  return nextWord !== 'и';
+  return /^(и|плюс|моча|кал|слюна)(\s|$)/.test(rest)
+    || /\+|(^|\s)(комплекс|чек ап|профиль|панель|набор|обмен|расширенное|расширенный)(\s|$)/.test(rest);
 }

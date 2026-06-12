@@ -127,15 +127,19 @@ export function matchProviderTestToCanonical(
     const aliases = [canonical.code, canonical.nameRu, canonical.nameEn ?? '', ...canonical.aliases].filter(Boolean);
     const matchedAlias = aliases.find((alias) => {
       const normalizedAlias = normalizeProviderName(alias);
-      return normalizedAlias.length > 1 && isSafeAliasMatch(normalizedName, normalizedAlias);
+      return normalizedAlias.length > 1 && isAliasPrefixMatch(normalizedName, normalizedAlias);
     });
 
     if (matchedAlias) {
+      if (hasComplexMarkerAfterAlias(normalizedName, normalizeProviderName(matchedAlias))) {
+        return { confidence: 0, status: 'unmatched', reason: 'blocked_complex_candidate' };
+      }
+
       return {
         canonicalCode: canonical.code,
         confidence: 0.86,
         status: 'auto_matched',
-        reason: `alias:${matchedAlias}`,
+        reason: `safe_alias:${matchedAlias}`,
       };
     }
   }
@@ -144,16 +148,28 @@ export function matchProviderTestToCanonical(
 }
 
 function isSafeAliasMatch(normalizedName: string, normalizedAlias: string): boolean {
+  return isAliasPrefixMatch(normalizedName, normalizedAlias) && !hasComplexMarkerAfterAlias(normalizedName, normalizedAlias);
+}
+
+function isAliasPrefixMatch(normalizedName: string, normalizedAlias: string): boolean {
   if (normalizedName === normalizedAlias) {
     return true;
   }
 
-  if (!normalizedName.startsWith(`${normalizedAlias} `)) {
+  return normalizedName.startsWith(`${normalizedAlias} `);
+}
+
+function hasComplexMarkerAfterAlias(normalizedName: string, normalizedAlias: string): boolean {
+  const rest = normalizedName === normalizedAlias
+    ? ''
+    : normalizedName.slice(normalizedAlias.length).trim();
+
+  if (!rest) {
     return false;
   }
 
-  const nextWord = normalizedName.slice(normalizedAlias.length).trim().split(/\s+/)[0];
-  return nextWord !== 'и';
+  return /^(и|плюс|моча|кал|слюна)(\s|$)/.test(rest)
+    || /\+|(^|\s)(комплекс|чек ап|профиль|панель|набор|обмен|расширенное|расширенный)(\s|$)/.test(rest);
 }
 
 export function autoMatchProviderTests(

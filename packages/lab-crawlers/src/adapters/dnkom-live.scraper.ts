@@ -315,7 +315,9 @@ export class DnkomLiveScraper implements ProviderScraper {
     const seenUrls = new Set<string>([DNKOM_CATALOG_URL]);
     let currentHtml = firstHtml;
 
-    while (pages.length < 10) {
+    const maxPages = Math.max(10, Math.ceil(this.maxCatalogItems / 30) + 2);
+
+    while (pages.length < maxPages) {
       const parsed = mergeCatalogPages(pages, context, fetchedAt, this.maxCatalogItems);
       if (parsed.tests.length >= this.maxCatalogItems) {
         break;
