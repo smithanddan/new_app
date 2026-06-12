@@ -10,6 +10,7 @@ import {
   parseDnkomActionsHtml,
   parseDnkomCatalogHtml,
   parseDnkomCatalogLinks,
+  parseDnkomNextCatalogPageUrl,
 } from './dnkom.parser.js';
 import {
   type CatalogSyncResult,
@@ -80,11 +81,8 @@ export class DnkomLiveScraper implements ProviderScraper {
         throw new Error('DnkomLiveScraper could not load catalog HTML and no fixture was provided');
       }
 
-      const catalog = parseDnkomCatalogHtml(catalogHtml, context, {
-        fetchedAt,
-        maxItems: this.maxCatalogItems,
-        sourceUrl: DNKOM_CATALOG_URL,
-      });
+      const catalogPages = await this.loadCatalogPages(session, catalogHtml, context, fetchedAt);
+      const catalog = mergeCatalogPages(catalogPages, context, fetchedAt, this.maxCatalogItems);
       const links = catalog.productsSeen === 0
         ? parseDnkomCatalogLinks(catalogHtml).slice(0, this.maxCatalogItems)
         : [];
@@ -109,6 +107,7 @@ export class DnkomLiveScraper implements ProviderScraper {
         rawPayload: {
           mode: session.mode,
           catalogUrl: DNKOM_CATALOG_URL,
+          catalogPagesSeen: catalogPages.length,
           productsSeen: parsedCatalog.productsSeen,
           linksSeen: links.length,
           parsedCount: parsedCatalog.parsedCount,
@@ -262,8 +261,13 @@ export class DnkomLiveScraper implements ProviderScraper {
         actionsHtml,
         probe,
         getHtml: async (url: string) => {
-          const response = await browserContext.request.get(url, { timeout: 12_000 });
-          return response.ok() ? response.text() : undefined;
+          return page.evaluate(async (targetUrl) => {
+            const response = await fetch(targetUrl, {
+              credentials: 'include',
+              headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            return response.ok ? response.text() : undefined;
+          }, url).catch(() => undefined);
         },
         close: async () => {
           await browserContext.close().catch(() => undefined);
@@ -296,6 +300,40 @@ export class DnkomLiveScraper implements ProviderScraper {
       if (html) {
         pages.push({ html, url: link.url });
       }
+    }
+
+    return pages;
+  }
+
+  private async loadCatalogPages(
+    session: Pick<DnkomSession, 'getHtml'>,
+    firstHtml: string,
+    context: ScraperContext,
+    fetchedAt: string,
+  ): Promise<DnkomPageResult[]> {
+    const pages: DnkomPageResult[] = [{ html: firstHtml, url: DNKOM_CATALOG_URL }];
+    const seenUrls = new Set<string>([DNKOM_CATALOG_URL]);
+    let currentHtml = firstHtml;
+
+    while (pages.length < 10) {
+      const parsed = mergeCatalogPages(pages, context, fetchedAt, this.maxCatalogItems);
+      if (parsed.tests.length >= this.maxCatalogItems) {
+        break;
+      }
+
+      const nextUrl = parseDnkomNextCatalogPageUrl(currentHtml);
+      if (!nextUrl || seenUrls.has(nextUrl)) {
+        break;
+      }
+
+      const html = await session.getHtml(nextUrl);
+      if (!html) {
+        break;
+      }
+
+      pages.push({ html, url: nextUrl });
+      seenUrls.add(nextUrl);
+      currentHtml = html;
     }
 
     return pages;
@@ -336,4 +374,62 @@ function createFixtureProbe(context: ScraperContext, reason: string): ProviderRe
 
 function isPricePayload(value: unknown): value is { price: ProviderTestPriceRecord } {
   return typeof value === 'object' && value !== null && 'price' in value;
+}
+
+function mergeCatalogPages(
+  pages: DnkomPageResult[],
+  context: ScraperContext,
+  fetchedAt: string,
+  maxItems: number,
+): ReturnType<typeof parseDnkomCatalogHtml> {
+  const tests: ProviderTestRecord[] = [];
+  const prices: ProviderTestPriceRecord[] = [];
+  const links: Array<{ url: string; text: string }> = [];
+  const seenTests = new Set<string>();
+  let productsSeen = 0;
+
+  for (const page of pages) {
+    const parsed = parseDnkomCatalogHtml(page.html, context, {
+      fetchedAt,
+      maxItems,
+      sourceUrl: page.url,
+    });
+    productsSeen += parsed.productsSeen;
+    links.push(...parsed.links);
+
+    for (let index = 0; index < parsed.tests.length; index += 1) {
+      const test = parsed.tests[index];
+      const price = parsed.prices[index];
+      const key = test.externalCode ?? test.externalId ?? test.sourceUrl ?? test.name;
+
+      if (seenTests.has(key)) {
+        continue;
+      }
+
+      seenTests.add(key);
+      tests.push(test);
+
+      if (price) {
+        prices.push(price);
+      }
+
+      if (tests.length >= maxItems) {
+        return {
+          tests,
+          prices,
+          productsSeen,
+          links,
+          parsedCount: tests.length,
+        };
+      }
+    }
+  }
+
+  return {
+    tests,
+    prices,
+    productsSeen,
+    links,
+    parsedCount: tests.length,
+  };
 }

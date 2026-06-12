@@ -298,6 +298,7 @@ export {
   parseDnkomCatalogDetailHtml,
   parseDnkomCatalogHtml,
   parseDnkomCatalogLinks,
+  parseDnkomNextCatalogPageUrl,
   parseDnkomProductInfo,
   type DnkomActionsParseResult,
   type DnkomCatalogParseResult,

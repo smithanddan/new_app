@@ -137,6 +137,11 @@ export function parseDnkomCatalogLinks(html: string): Array<{ url: string; text:
   return parseCatalogLinks(html);
 }
 
+export function parseDnkomNextCatalogPageUrl(html: string): string | undefined {
+  const nextUrl = matchFirst(html, /AskronUtil\.loadAjaxPage\(['"]([^'"]*PAGEN_2=\d+[^'"]*)['"]\)/i);
+  return nextUrl ? new URL(decodeHtml(nextUrl), DNKOM_BASE_URL).toString() : undefined;
+}
+
 export function parseDnkomActionLinks(html: string): Array<{ url: string; text: string }> {
   return parseActionLinks(html);
 }

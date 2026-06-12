@@ -6,6 +6,7 @@ import {
   DNKOM_ACTIONS_URL,
   parseDnkomActionsHtml,
   parseDnkomCatalogHtml,
+  parseDnkomNextCatalogPageUrl,
   parseDnkomProductInfo,
 } from '../adapters/dnkom.parser.js';
 
@@ -42,6 +43,11 @@ const actions = parseDnkomActionsHtml(actionsHtml, context, {
 assert.equal(catalog.tests.length, 25, 'catalog fixture should parse first 25 provider tests');
 assert.equal(catalog.prices.length, 25, 'catalog fixture should parse first 25 prices');
 assert.equal(actions.promotions.length, 8, 'actions fixture should parse first 8 promotions');
+assert.equal(
+  parseDnkomNextCatalogPageUrl(catalogHtml),
+  'https://dnkom.ru/analizy-i-tseny/po-tipu/?PAGEN_2=2',
+  'catalog fixture should expose the next AJAX page URL',
+);
 
 const firstTest = catalog.tests[0];
 const firstPrice = catalog.prices[0];
