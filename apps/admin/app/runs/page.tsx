@@ -34,6 +34,7 @@ export default async function RunsPage({ searchParams }: PageProps) {
                 <th className="px-3 py-3">Provider</th>
                 <th className="px-3 py-3">Region</th>
                 <th className="px-3 py-3">Type</th>
+                <th className="px-3 py-3">Source</th>
                 <th className="px-3 py-3">Status</th>
                 <th className="px-3 py-3">Stats</th>
                 <th className="px-3 py-3">Error</th>
@@ -46,6 +47,7 @@ export default async function RunsPage({ searchParams }: PageProps) {
                   <td className="px-3 py-3 font-medium">{run.provider?.display_name || run.provider?.name || run.provider?.code || "-"}</td>
                   <td className="px-3 py-3">{run.region?.name || run.region?.code || "-"}</td>
                   <td className="px-3 py-3">{run.run_type}</td>
+                  <td className="px-3 py-3">{run.run_source || "-"}</td>
                   <td className="px-3 py-3">{run.status}</td>
                   <td className="px-3 py-3">
                     <code className="whitespace-pre-wrap text-xs">{JSON.stringify(run.stats, null, 2)}</code>
@@ -55,7 +57,7 @@ export default async function RunsPage({ searchParams }: PageProps) {
               ))}
               {runs.length === 0 && (
                 <tr>
-                  <td className="px-3 py-6 text-slate-600" colSpan={7}>Нет запусков</td>
+                  <td className="px-3 py-6 text-slate-600" colSpan={8}>Нет запусков</td>
                 </tr>
               )}
             </tbody>

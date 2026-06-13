@@ -4,6 +4,7 @@ import {
   createLabCrawlerSupabaseClient,
   type CrawlerRunMode,
   type CrawlerRunProviderInput,
+  type ScraperRunSource,
 } from '../index.js';
 
 const args = parseArgs(process.argv.slice(2));
@@ -21,6 +22,9 @@ const report = await runner.run({
   provider: args.provider,
   region: args.region,
   mode: args.mode,
+  runSource: args.runSource,
+  triggeredBy: process.env.GITHUB_ACTOR,
+  workflowRunId: process.env.GITHUB_RUN_ID,
   command: 'crawler:run',
 });
 
@@ -30,15 +34,18 @@ function parseArgs(values: string[]): {
   provider: CrawlerRunProviderInput;
   region: string;
   mode: CrawlerRunMode;
+  runSource: ScraperRunSource;
   withRepository: boolean;
 } {
   const parsed: {
     provider?: CrawlerRunProviderInput;
     region?: string;
     mode: CrawlerRunMode;
+    runSource: ScraperRunSource;
     withRepository: boolean;
   } = {
     mode: 'dry-run',
+    runSource: 'manual',
     withRepository: false,
   };
 
@@ -59,6 +66,13 @@ function parseArgs(values: string[]): {
     } else if (value === '--write') {
       parsed.mode = 'write';
       parsed.withRepository = true;
+    } else if (value === '--run-source') {
+      const runSource = values[index + 1];
+      if (runSource !== 'manual' && runSource !== 'scheduled' && runSource !== 'backfill' && runSource !== 'ci') {
+        throw new Error('--run-source must be manual, scheduled, backfill, or ci');
+      }
+      parsed.runSource = runSource;
+      index += 1;
     }
   }
 
@@ -74,6 +88,7 @@ function parseArgs(values: string[]): {
     provider: parsed.provider,
     region: parsed.region,
     mode: parsed.mode,
+    runSource: parsed.runSource,
     withRepository: parsed.withRepository,
   };
 }

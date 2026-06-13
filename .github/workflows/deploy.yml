@@ -1,0 +1,26 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy-prod:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Trigger Timeweb App Platform deploy
+        env:
+          TIMEWEB_DEPLOY_WEBHOOK_URL: ${{ secrets.TIMEWEB_DEPLOY_WEBHOOK_URL }}
+        run: |
+          if [ -z "$TIMEWEB_DEPLOY_WEBHOOK_URL" ]; then
+            echo "TIMEWEB_DEPLOY_WEBHOOK_URL is not configured."
+            echo "Create the Timeweb App Platform app for smithanddan/new_app and store its deploy webhook URL in the prod environment secret."
+            exit 0
+          fi
+
+          curl -fsS -X POST "$TIMEWEB_DEPLOY_WEBHOOK_URL"

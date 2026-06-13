@@ -39,11 +39,13 @@ The repository started as a generic web-monitor starter, but the current directi
 ```
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full architecture.
+See [docs/PRODUCTION.md](docs/PRODUCTION.md) for CI/CD, Timeweb deploy, scheduled crawlers, and run safety.
 
 ## Key CLI Commands
 
 ```bash
 pnpm --filter @labmind/lab-crawlers crawler:run -- --provider dnkom --region moscow --dry-run
+pnpm --filter @labmind/lab-crawlers crawler:run -- --provider dnkom --region moscow --write --run-source scheduled
 pnpm --filter @labmind/lab-crawlers compare:matrix -- --test "Ферритин" --city "Москва"
 pnpm --filter @labmind/lab-crawlers cheapest:basket -- --tests "Глюкоза,ТТГ,Ферритин" --city "Москва"
 pnpm --filter @labmind/lab-crawlers compare:market -- --test "Ферритин" --city "Москва"

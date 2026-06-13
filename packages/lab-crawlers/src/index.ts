@@ -397,5 +397,6 @@ export {
   type PriceInsertResult,
   type ProviderRegionIds,
   type ScraperRunResult,
+  type ScraperRunSource,
   type UpsertResult,
 } from './supabase-lab-catalog.repository.js';

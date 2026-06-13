@@ -85,12 +85,15 @@ export type UpsertResult = {
 };
 
 export type PriceInsertResult = {
-  id: string;
+  id: string | null;
+  action: 'inserted' | 'skipped_duplicate';
 };
 
 export type ScraperRunResult = {
   id: string;
 };
+
+export type ScraperRunSource = 'manual' | 'scheduled' | 'backfill' | 'ci';
 
 export type DbPriceComparisonOffer = {
   provider: {
@@ -261,6 +264,7 @@ export type DbScraperRunListItem = {
     city?: string;
   } | null;
   run_type: string;
+  run_source?: ScraperRunSource | null;
   status: string;
   started_at: string;
   finished_at?: string | null;
@@ -369,12 +373,16 @@ export class LabCatalogRepository {
         valid_to: input.price.validTo,
         source_url: input.price.sourceUrl,
         fetched_at: input.price.fetchedAt,
+        snapshot_on: toSnapshotDate(input.price.fetchedAt),
         raw_payload: input.price.rawPayload,
       })
       .select('id')
       .single();
+    if (isUniqueViolation(error)) {
+      return { id: null, action: 'skipped_duplicate' };
+    }
     assertNoError(error, 'insert provider_test_prices');
-    return { id: requireRow<DbIdRow>(data, 'insert provider_test_prices').id };
+    return { id: requireRow<DbIdRow>(data, 'insert provider_test_prices').id, action: 'inserted' };
   }
 
   async upsertPromotion(input: {
@@ -472,6 +480,10 @@ export class LabCatalogRepository {
     providerId: string;
     labRegionId: string;
     runType: 'sync_catalog' | 'sync_prices' | 'sync_promotions' | 'manual_json_import' | 'region_probe';
+    runSource?: ScraperRunSource;
+    triggeredBy?: string;
+    workflowRunId?: string;
+    lockKey?: string;
     rawPayload?: unknown;
   }): Promise<ScraperRunResult> {
     const { data, error } = await this.supabase
@@ -480,6 +492,10 @@ export class LabCatalogRepository {
         provider_id: input.providerId,
         lab_region_id: input.labRegionId,
         run_type: input.runType,
+        run_source: input.runSource ?? 'manual',
+        triggered_by: input.triggeredBy,
+        workflow_run_id: input.workflowRunId,
+        lock_key: input.lockKey,
         status: 'started',
         raw_payload: input.rawPayload,
       })
@@ -487,6 +503,55 @@ export class LabCatalogRepository {
       .single();
     assertNoError(error, 'insert scraper_runs');
     return { id: requireRow<DbIdRow>(data, 'insert scraper_runs').id };
+  }
+
+  async acquireCrawlerRunLock(input: {
+    lockKey: string;
+    providerId: string;
+    labRegionId: string;
+    ownerToken: string;
+    runSource: ScraperRunSource;
+    expiresAt: string;
+    rawPayload?: unknown;
+  }): Promise<boolean> {
+    const now = new Date().toISOString();
+    const { error: deleteError } = await this.supabase
+      .from('crawler_run_locks')
+      .delete()
+      .eq('lock_key', input.lockKey)
+      .lt('expires_at', now);
+    assertNoError(deleteError, 'delete expired crawler_run_locks');
+
+    const { error } = await this.supabase
+      .from('crawler_run_locks')
+      .insert({
+        lock_key: input.lockKey,
+        provider_id: input.providerId,
+        lab_region_id: input.labRegionId,
+        owner_token: input.ownerToken,
+        run_source: input.runSource,
+        expires_at: input.expiresAt,
+        raw_payload: input.rawPayload,
+      });
+
+    if (isUniqueViolation(error)) {
+      return false;
+    }
+
+    assertNoError(error, 'insert crawler_run_locks');
+    return true;
+  }
+
+  async releaseCrawlerRunLock(input: {
+    lockKey: string;
+    ownerToken: string;
+  }): Promise<void> {
+    const { error } = await this.supabase
+      .from('crawler_run_locks')
+      .delete()
+      .eq('lock_key', input.lockKey)
+      .eq('owner_token', input.ownerToken);
+    assertNoError(error, 'delete crawler_run_locks');
   }
 
   async finishScraperRun(input: {
@@ -883,6 +948,7 @@ export class LabCatalogRepository {
       .select(`
         id,
         run_type,
+        run_source,
         status,
         started_at,
         finished_at,
@@ -898,6 +964,7 @@ export class LabCatalogRepository {
     return ((data ?? []) as Array<{
       id: string;
       run_type: string;
+      run_source?: ScraperRunSource | null;
       status: string;
       started_at: string;
       finished_at?: string | null;
@@ -910,6 +977,7 @@ export class LabCatalogRepository {
       provider: run.lab_providers,
       region: run.lab_regions,
       run_type: run.run_type,
+      run_source: run.run_source,
       status: run.status,
       started_at: run.started_at,
       finished_at: run.finished_at,
@@ -1340,6 +1408,19 @@ function assertNoError(error: { message?: string } | null, action: string): void
   if (error) {
     throw new Error(`${action} failed: ${error.message ?? JSON.stringify(error)}`);
   }
+}
+
+function isUniqueViolation(error: { code?: string; message?: string } | null): boolean {
+  return error?.code === '23505' || /duplicate key value violates unique constraint/i.test(error?.message ?? '');
+}
+
+function toSnapshotDate(value: string): string {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  return parsed.toISOString().slice(0, 10);
 }
 
 function countBy(values: string[]): Record<string, number> {
