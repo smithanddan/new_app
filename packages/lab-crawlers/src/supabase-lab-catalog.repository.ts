@@ -13,6 +13,7 @@ type DbCanonicalTestRow = {
   code: string;
   name_ru: string;
   name_en?: string | null;
+  kind?: 'analysis' | 'panel' | 'profile' | 'service' | null;
   aliases?: string[] | null;
 };
 type DbProviderTestRow = {
@@ -164,6 +165,7 @@ export type DbProviderTestMatchCandidate = {
   };
   confidence: number;
   reason: string;
+  provider_test_kind: ProviderTestNameKind;
   status: 'exact_name' | 'safe_alias';
 };
 
@@ -184,7 +186,10 @@ export type DbProviderTestBlockedCandidate = {
   };
   confidence: number;
   reason: 'blocked_complex_candidate';
+  provider_test_kind: ProviderTestNameKind;
 };
+
+export type ProviderTestNameKind = 'analysis' | 'panel' | 'complex' | 'unknown';
 
 export type DbProviderTestMatchResult = {
   provider: string;
@@ -530,7 +535,7 @@ export class LabCatalogRepository {
   async findCanonicalTestBySearch(testSearch: string): Promise<DbCanonicalPriceComparison['canonical_test'] | undefined> {
     const { data, error } = await this.supabase
       .from('canonical_tests')
-      .select('id, code, name_ru, name_en, aliases');
+      .select('id, code, name_ru, name_en, kind, aliases');
     assertNoError(error, 'select canonical_tests by search');
 
     const normalizedSearch = normalizeProviderName(testSearch);
@@ -645,7 +650,8 @@ export class LabCatalogRepository {
     const matches = providerTests
       .map<DbProviderTestMatchCandidate | DbProviderTestBlockedCandidate | undefined>((test) => {
         const normalizedName = test.normalized_name ?? normalizeProviderName(test.name);
-        const match = findCanonicalMatchForName(normalizedName, canonicalTests);
+        const providerTestKind = classifyProviderTestName(normalizedName);
+        const match = findCanonicalMatchForName(normalizedName, canonicalTests, providerTestKind);
 
         if (!match) {
           return undefined;
@@ -668,6 +674,7 @@ export class LabCatalogRepository {
           },
           confidence: match.confidence,
           reason: match.reason,
+          provider_test_kind: providerTestKind,
           status: match.status,
         };
       })
@@ -1076,7 +1083,7 @@ export class LabCatalogRepository {
   private async getCanonicalTest(canonicalTestId: string): Promise<DbCanonicalTestRow> {
     const { data, error } = await this.supabase
       .from('canonical_tests')
-      .select('id, code, name_ru, name_en, aliases')
+      .select('id, code, name_ru, name_en, kind, aliases')
       .eq('id', canonicalTestId)
       .single();
     assertNoError(error, 'select canonical_tests');
@@ -1086,7 +1093,7 @@ export class LabCatalogRepository {
   private async getCanonicalTests(): Promise<DbCanonicalTestRow[]> {
     const { data, error } = await this.supabase
       .from('canonical_tests')
-      .select('id, code, name_ru, name_en, aliases');
+      .select('id, code, name_ru, name_en, kind, aliases');
     assertNoError(error, 'select canonical_tests');
     return (data ?? []) as DbCanonicalTestRow[];
   }
@@ -1098,7 +1105,7 @@ export class LabCatalogRepository {
 
     const { data, error } = await this.supabase
       .from('canonical_tests')
-      .select('id, code, name_ru, name_en, aliases')
+      .select('id, code, name_ru, name_en, kind, aliases')
       .in('id', ids);
     assertNoError(error, 'select canonical_tests by ids');
     return (data ?? []) as DbCanonicalTestRow[];
@@ -1374,6 +1381,7 @@ function getCanonicalAliases(canonical: DbCanonicalTestRow): Array<{ raw: string
 function findCanonicalMatchForName(
   normalizedName: string,
   canonicalTests: DbCanonicalTestRow[],
+  providerTestKind: ProviderTestNameKind = classifyProviderTestName(normalizedName),
 ): {
   canonical: DbCanonicalTestRow;
   confidence: number;
@@ -1382,6 +1390,9 @@ function findCanonicalMatchForName(
 } | undefined {
   for (const canonical of canonicalTests) {
     if (normalizeProviderName(canonical.name_ru) === normalizedName) {
+      if (shouldBlockKindMatch(providerTestKind, canonical)) {
+        return { canonical, confidence: 0, reason: 'blocked_complex_candidate', status: 'exact_name' };
+      }
       return { canonical, confidence: 1, reason: 'exact_name', status: 'exact_name' };
     }
   }
@@ -1389,7 +1400,7 @@ function findCanonicalMatchForName(
   for (const canonical of canonicalTests) {
     const matchedAlias = getCanonicalAliases(canonical).find((alias) => isAliasPrefixMatch(normalizedName, alias.normalized));
     if (matchedAlias) {
-      if (hasComplexMarkerAfterAlias(normalizedName, matchedAlias.normalized)) {
+      if (hasComplexMarkerAfterAlias(normalizedName, matchedAlias.normalized) || shouldBlockKindMatch(providerTestKind, canonical)) {
         return {
           canonical,
           confidence: 0,
@@ -1408,6 +1419,26 @@ function findCanonicalMatchForName(
   }
 
   return undefined;
+}
+
+function classifyProviderTestName(normalizedName: string): ProviderTestNameKind {
+  if (/(^|\s)(комплекс|чек ап|чекап|профиль|панель|набор|скрининг)(\s|$)/.test(normalizedName)) {
+    return 'panel';
+  }
+
+  if (/\+|(^|\s)(и|плюс)(\s|$)/.test(normalizedName)) {
+    return 'complex';
+  }
+
+  if (normalizedName.length > 1) {
+    return 'analysis';
+  }
+
+  return 'unknown';
+}
+
+function shouldBlockKindMatch(providerTestKind: ProviderTestNameKind, canonical: DbCanonicalTestRow): boolean {
+  return (providerTestKind === 'panel' || providerTestKind === 'complex') && (canonical.kind ?? 'analysis') === 'analysis';
 }
 
 function isSafeAliasMatch(normalizedName: string, normalizedAlias: string): boolean {

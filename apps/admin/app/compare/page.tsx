@@ -58,6 +58,15 @@ export default async function ComparePage({ searchParams }: PageProps) {
                 </div>
                 <div className="mt-1 text-slate-700">{formatRub(marketSummary.cheapest.total_price_rub)}</div>
               </div>
+              <div className="mt-4 border-t border-slate-200 pt-3 text-sm">
+                <div className="text-slate-500">Spread</div>
+                <div className="mt-1 font-medium">
+                  {formatRub(marketSummary.price_spread_rub)} · {marketSummary.price_spread_percent ?? 0}%
+                </div>
+                <div className="mt-1 text-slate-700">
+                  Promo effect: {marketSummary.promo_effect_rub === null ? "-" : formatRub(marketSummary.promo_effect_rub)}
+                </div>
+              </div>
             </div>
 
             <div className="overflow-x-auto border border-slate-200 bg-white">

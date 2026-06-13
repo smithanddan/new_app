@@ -1,15 +1,13 @@
 import {
   LabCatalogRepository,
   createLabCrawlerSupabaseClient,
-  getBasket,
+  getBasketOptimization,
   parseTestList,
 } from '../index.js';
 import type {
-  BasketMode,
-  BasketSelectedItem,
-  PerTestBasket,
-  ProviderBasketOption,
-  SingleProviderBasket,
+  BasketOptimizationResult,
+  BasketRouteOption,
+  BasketRouteProviderGroup,
 } from '../product-layer.js';
 
 type OutputFormat = 'table' | 'json';
@@ -17,36 +15,46 @@ type OutputFormat = 'table' | 'json';
 const args = parseArgs(process.argv.slice(2));
 
 if (!args.city || args.tests.length === 0) {
-  throw new Error('Usage: pnpm --filter @labmind/lab-crawlers cheapest:basket -- --city "Москва" --tests "Глюкоза,ТТГ,Ферритин" [--mode per-test|single-provider] [--format table|json]');
+  throw new Error('Usage: pnpm --filter @labmind/lab-crawlers cheapest:basket -- --city "Москва" --tests "Глюкоза,ТТГ,Ферритин" [--provider-penalty-rub 300] [--format table|json]');
 }
 
 const repository = new LabCatalogRepository(createLabCrawlerSupabaseClient());
-const output = await getBasket({
+const output = await getBasketOptimization({
   repository,
   city: args.city,
   tests: args.tests,
-  mode: args.mode,
+  providerPenaltyRub: args.providerPenaltyRub,
 });
 
 if (args.format === 'json') {
   console.log(JSON.stringify(output, null, 2));
-} else if (output.mode === 'single-provider') {
-  printSingleProviderBasketTable(output);
 } else {
-  printPerTestBasketTable(output);
+  printBasketOptimization(output);
 }
 
-function printPerTestBasketTable(output: PerTestBasket) {
+function printBasketOptimization(output: BasketOptimizationResult) {
   console.log(`Корзина: ${output.requested_tests.join(', ')}`);
   console.log(`Город: ${output.city}`);
-  console.log(`Режим: ${output.mode}`);
-  printSelectedRows(output.selected);
-  console.log(`TOTAL PER TEST: ${output.total_price_rub ?? '-'} RUB`);
-  console.log(`TOTAL SINGLE PROVIDER: ${output.single_provider_best?.total_price_rub ?? '-'} RUB`);
-  console.log(`SAVINGS: ${output.savings_vs_single_provider_rub ?? '-'} RUB`);
+  console.log(`Route penalty: ${output.provider_penalty_rub} RUB per extra provider`);
+
+  printRouteOption('OPTION A — SINGLE PROVIDER', output.single_provider_option);
+  printRouteOption('OPTION B — SPLIT PROVIDERS', output.split_provider_option);
+
+  const singleTotal = output.single_provider_option.total_rub;
+  const splitTotal = output.split_provider_option.total_rub;
+  const savings = singleTotal !== null && splitTotal !== null ? singleTotal - splitTotal : output.recommendation.savings_rub;
+
+  console.log('\nFINAL RECOMMENDATION');
+  printRows([{
+    'Best option': formatStrategy(output.recommendation.strategy),
+    'Total': formatRub(output.recommendation.total_rub ?? undefined),
+    'Savings': formatRub(savings ?? undefined),
+    'Route penalty': formatRub(output.recommendation.route_penalty_rub),
+    'Why': output.recommendation.why,
+  }]);
 
   if (output.missing.length > 0) {
-    console.log('\nНе найдено:');
+    console.log('\nMissing');
     printRows(output.missing.map((item) => ({
       'Анализ': item.test,
       'Причина': item.error,
@@ -54,46 +62,39 @@ function printPerTestBasketTable(output: PerTestBasket) {
   }
 }
 
-function printSingleProviderBasketTable(output: SingleProviderBasket) {
-  console.log(`Корзина: ${output.requested_tests.join(', ')}`);
-  console.log(`Город: ${output.city}`);
-  console.log(`Режим: ${output.mode}`);
+function printRouteOption(title: string, option: BasketRouteOption) {
+  console.log(`\n${title}`);
 
-  const selectedProvider = output.selected_provider;
-  if (!selectedProvider) {
-    console.log('Нет лаборатории, которая покрывает всю корзину.');
-  } else {
-    console.log(`Выбрана лаборатория: ${formatProviderName(selectedProvider.provider)}`);
-    printSelectedRows(selectedProvider.selected);
-    console.log(`TOTAL SINGLE PROVIDER: ${selectedProvider.total_price_rub ?? '-'} RUB`);
-    console.log(`TOTAL PER TEST: ${output.per_test_total_price_rub ?? '-'} RUB`);
-    console.log(`SAVINGS: ${output.savings_vs_single_provider_rub ?? '-'} RUB`);
+  if (!option.available) {
+    console.log('Недоступно для полного набора.');
+    if (option.missing.length > 0) {
+      printRows(option.missing.map((item) => ({
+        'Анализ': item.test,
+        'Причина': item.error,
+      })));
+    }
+    return;
   }
 
-  console.log('\nВарианты по лабораториям:');
-  printProviderOptions(output.provider_options, output.requested_tests.length);
+  printRows([{
+    'Total': formatRub(option.total_rub ?? undefined),
+    'Tests': formatRub(option.tests_total_rub ?? undefined),
+    'Biomaterial': formatRub(option.biomaterial_total_rub ?? undefined),
+    'Providers': String(option.provider_count),
+  }]);
+  printRows(option.groups.map(formatProviderGroup));
 }
 
-function printSelectedRows(selected: BasketSelectedItem[]) {
-  printRows(selected.map((item) => ({
-    'Анализ': item.test,
-    'Лаборатория': item.offer.provider.name,
-    'Позиция': item.offer.provider_test_name,
-    'Код': item.offer.provider_test_code ?? '-',
-    'Анализ цена': formatRub(item.offer.effective_price_rub),
-    'Забор': formatRub(item.offer.biomaterial_price_rub),
-    'Итого': formatRub(item.offer.total_price_rub),
-    'URL': item.offer.source_url ?? '-',
-  })));
-}
-
-function printProviderOptions(options: ProviderBasketOption[], testsCount: number) {
-  printRows(options.map((providerOption) => ({
-    'Лаборатория': formatProviderName(providerOption.provider),
-    'Итого': formatRub(providerOption.total_price_rub ?? undefined),
-    'Покрытие': `${providerOption.selected.length}/${testsCount}`,
-    'Не хватает': providerOption.missing.map((item) => item.test).join(', ') || '-',
-  })));
+function formatProviderGroup(group: BasketRouteProviderGroup): Record<string, string> {
+  return {
+    'Lab': group.provider.name,
+    'Tests': group.items.map((item) => item.test).join(', '),
+    'Total': formatRub(group.total_rub),
+    'Breakdown': [
+      `tests ${formatRub(group.tests_total_rub)}`,
+      `biomaterial ${formatRub(group.biomaterial_fee_rub)}`,
+    ].join(' + '),
+  };
 }
 
 function printRows(rows: Array<Record<string, string>>) {
@@ -116,18 +117,33 @@ function printRows(rows: Array<Record<string, string>>) {
   }
 }
 
-function formatProviderName(provider: { code: string; name?: string }): string {
-  return provider.name ?? provider.code;
+function formatStrategy(strategy: string): string {
+  if (strategy === 'single_provider') {
+    return 'single provider';
+  }
+  if (strategy === 'split_provider') {
+    return 'split providers';
+  }
+  return 'unavailable';
 }
 
 function formatRub(value: number | undefined): string {
-  return value === undefined ? '-' : `${value}`;
+  return value === undefined ? '-' : `${value} RUB`;
 }
 
-function parseArgs(values: string[]): { city?: string; tests: string[]; mode: BasketMode; format: OutputFormat } {
-  const parsed: { city?: string; tests: string[]; mode: BasketMode; format: OutputFormat } = {
+function parseArgs(values: string[]): {
+  city?: string;
+  tests: string[];
+  providerPenaltyRub?: number;
+  format: OutputFormat;
+} {
+  const parsed: {
+    city?: string;
+    tests: string[];
+    providerPenaltyRub?: number;
+    format: OutputFormat;
+  } = {
     tests: [],
-    mode: 'per-test',
     format: 'table',
   };
 
@@ -139,12 +155,10 @@ function parseArgs(values: string[]): { city?: string; tests: string[]; mode: Ba
     } else if (value === '--tests') {
       parsed.tests = parseTestList(values[index + 1]);
       index += 1;
+    } else if (value === '--provider-penalty-rub') {
+      parsed.providerPenaltyRub = Number(values[index + 1]);
+      index += 1;
     } else if (value === '--mode') {
-      const mode = values[index + 1];
-      if (mode !== 'per-test' && mode !== 'single-provider') {
-        throw new Error('--mode must be either per-test or single-provider');
-      }
-      parsed.mode = mode;
       index += 1;
     } else if (value === '--format') {
       const format = values[index + 1];

@@ -2,6 +2,7 @@ import "server-only";
 
 import {
   getBasket,
+  getBasketOptimization,
   getCompareMatrix,
   getQualityReport,
   parseTestList,
@@ -31,6 +32,15 @@ export async function getBasketPageData(input: { tests?: string; city?: string; 
   const repository = getRepository();
   const city = input.city || DEFAULT_CITY;
   const tests = parseTestList(input.tests || "Глюкоза,ТТГ,Ферритин");
+
+  if (!input.mode || input.mode === "optimization") {
+    return getBasketOptimization({
+      repository,
+      city,
+      tests,
+    });
+  }
+
   const mode: BasketMode = input.mode === "single-provider" ? "single-provider" : "per-test";
 
   return getBasket({

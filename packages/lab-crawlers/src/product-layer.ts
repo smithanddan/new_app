@@ -77,6 +77,10 @@ export type ProductMarketSummary = {
   regular_offers_count: number;
   promo_ratio: number;
   cheapest: ProductOffer;
+  most_expensive: ProductOffer;
+  price_spread_rub: number;
+  price_spread_percent: number | null;
+  promo_effect_rub: number | null;
   provider_distribution: Array<{
     provider: ProductOffer['provider'];
     offers_count: number;
@@ -125,6 +129,62 @@ export type ProviderBasketOption = {
   total_price_rub: number | null;
   missing: BasketMissingItem[];
   complete: boolean;
+};
+
+export type BasketCostMatrixRow = {
+  test: string;
+  canonical_test: DbCanonicalPriceComparison['canonical_test'] | null;
+  provider: ProductOffer['provider'];
+  offer: ProductOffer;
+  test_price_rub: number;
+  biomaterial_price_rub: number;
+  line_total_rub: number;
+};
+
+export type BasketRouteItem = {
+  test: string;
+  canonical_test: DbCanonicalPriceComparison['canonical_test'] | null;
+  offer: ProductOffer;
+  test_price_rub: number;
+  biomaterial_price_rub: number;
+};
+
+export type BasketRouteProviderGroup = {
+  provider: ProductOffer['provider'];
+  items: BasketRouteItem[];
+  tests_total_rub: number;
+  biomaterial_fee_rub: number;
+  total_rub: number;
+};
+
+export type BasketRouteOption = {
+  strategy: 'single_provider' | 'split_provider';
+  available: boolean;
+  provider_count: number;
+  total_rub: number | null;
+  tests_total_rub: number | null;
+  biomaterial_total_rub: number | null;
+  groups: BasketRouteProviderGroup[];
+  missing: BasketMissingItem[];
+};
+
+export type BasketOptimizationRecommendation = {
+  strategy: 'single_provider' | 'split_provider' | 'unavailable';
+  total_rub: number | null;
+  savings_rub: number | null;
+  route_penalty_rub: number;
+  why: string;
+};
+
+export type BasketOptimizationResult = {
+  city: string;
+  requested_tests: string[];
+  provider_penalty_rub: number;
+  cost_matrix: BasketCostMatrixRow[];
+  single_provider_option: BasketRouteOption;
+  split_provider_option: BasketRouteOption;
+  recommendation: BasketOptimizationRecommendation;
+  missing: BasketMissingItem[];
 };
 
 export type ProductQualityReport = {
@@ -244,6 +304,38 @@ export async function getBasket(input: {
     ...perTestBasket,
     single_provider_best: singleProviderBasket.selected_provider,
     savings_vs_single_provider_rub: savings,
+  };
+}
+
+export async function getBasketOptimization(input: {
+  repository: LabCatalogRepository;
+  city: string;
+  tests: string[];
+  providerPenaltyRub?: number;
+}): Promise<BasketOptimizationResult> {
+  const providerPenaltyRub = input.providerPenaltyRub ?? 300;
+  const comparisons = await getBasketComparisons(input.repository, input.city, input.tests);
+  const costMatrix = buildCostMatrix(comparisons);
+  const missing = comparisons
+    .filter((comparison) => comparison.offers.length === 0)
+    .map<BasketMissingItem>((comparison) => ({
+      test: comparison.test,
+      canonical_test: comparison.canonical_test,
+      error: comparison.error ?? 'no_offers',
+    }));
+  const singleProviderOption = buildSingleProviderRouteOption(comparisons);
+  const splitProviderOption = buildSplitProviderRouteOption(comparisons);
+  const recommendation = buildBasketRecommendation(singleProviderOption, splitProviderOption, providerPenaltyRub);
+
+  return {
+    city: input.city,
+    requested_tests: input.tests,
+    provider_penalty_rub: providerPenaltyRub,
+    cost_matrix: costMatrix,
+    single_provider_option: singleProviderOption,
+    split_provider_option: splitProviderOption,
+    recommendation,
+    missing,
   };
 }
 
@@ -406,6 +498,8 @@ function buildMarketSummary(input: {
   }
 
   const totals = pricedOffers.map((offer) => offer.total_price_rub as number);
+  const cheapest = pricedOffers[0];
+  const mostExpensive = pricedOffers[pricedOffers.length - 1];
   const provider_distribution = groupOffersByProvider(pricedOffers).map((group) => {
     const providerTotals = group.offers.map((offer) => offer.total_price_rub as number);
     return {
@@ -429,8 +523,194 @@ function buildMarketSummary(input: {
     promo_offers_count: pricedOffers.filter(isPromoOffer).length,
     regular_offers_count: pricedOffers.filter((offer) => !isPromoOffer(offer)).length,
     promo_ratio: ratio(pricedOffers.filter(isPromoOffer).length, pricedOffers.length),
-    cheapest: pricedOffers[0],
+    cheapest,
+    most_expensive: mostExpensive,
+    price_spread_rub: (mostExpensive.total_price_rub as number) - (cheapest.total_price_rub as number),
+    price_spread_percent: (cheapest.total_price_rub ?? 0) === 0
+      ? null
+      : Math.round((((mostExpensive.total_price_rub as number) - (cheapest.total_price_rub as number)) / (cheapest.total_price_rub as number)) * 100),
+    promo_effect_rub: calculatePromoEffect(pricedOffers),
     provider_distribution,
+  };
+}
+
+function buildCostMatrix(comparisons: BasketComparison[]): BasketCostMatrixRow[] {
+  return comparisons.flatMap((comparison) => comparison.offers.map((offer) => ({
+    test: comparison.test,
+    canonical_test: comparison.canonical_test,
+    provider: offer.provider,
+    offer,
+    test_price_rub: offer.effective_price_rub ?? 0,
+    biomaterial_price_rub: offer.biomaterial_price_rub,
+    line_total_rub: (offer.effective_price_rub ?? 0) + offer.biomaterial_price_rub,
+  })));
+}
+
+function buildSingleProviderRouteOption(comparisons: BasketComparison[]): BasketRouteOption {
+  const providerCodes = new Set<string>();
+  for (const comparison of comparisons) {
+    for (const offer of comparison.offers) {
+      providerCodes.add(offer.provider.code);
+    }
+  }
+
+  const options = [...providerCodes]
+    .map((providerCode) => buildRouteOption({
+      strategy: 'single_provider',
+      comparisons,
+      selectOffer: (comparison) => comparison.offers.find((offer) => offer.provider.code === providerCode),
+    }))
+    .filter((option) => option.available)
+    .sort((a, b) => (a.total_rub ?? Number.POSITIVE_INFINITY) - (b.total_rub ?? Number.POSITIVE_INFINITY));
+
+  return options[0] ?? emptyRouteOption('single_provider', comparisons);
+}
+
+function buildSplitProviderRouteOption(comparisons: BasketComparison[]): BasketRouteOption {
+  return buildRouteOption({
+    strategy: 'split_provider',
+    comparisons,
+    selectOffer: (comparison) => comparison.offers[0],
+  });
+}
+
+function buildRouteOption(input: {
+  strategy: BasketRouteOption['strategy'];
+  comparisons: BasketComparison[];
+  selectOffer: (comparison: BasketComparison) => ProductOffer | undefined;
+}): BasketRouteOption {
+  const selected: BasketRouteItem[] = [];
+  const missing: BasketMissingItem[] = [];
+
+  for (const comparison of input.comparisons) {
+    const offer = input.selectOffer(comparison);
+    if (!offer) {
+      missing.push({
+        test: comparison.test,
+        canonical_test: comparison.canonical_test,
+        error: comparison.error ?? 'provider_missing_offer',
+      });
+      continue;
+    }
+
+    selected.push({
+      test: comparison.test,
+      canonical_test: comparison.canonical_test,
+      offer,
+      test_price_rub: offer.effective_price_rub ?? 0,
+      biomaterial_price_rub: offer.biomaterial_price_rub,
+    });
+  }
+
+  const groups = groupRouteItemsByProvider(selected);
+  const testsTotal = groups.reduce((sum, group) => sum + group.tests_total_rub, 0);
+  const biomaterialTotal = groups.reduce((sum, group) => sum + group.biomaterial_fee_rub, 0);
+
+  return {
+    strategy: input.strategy,
+    available: missing.length === 0 && selected.length > 0,
+    provider_count: groups.length,
+    total_rub: missing.length === 0 ? testsTotal + biomaterialTotal : null,
+    tests_total_rub: missing.length === 0 ? testsTotal : null,
+    biomaterial_total_rub: missing.length === 0 ? biomaterialTotal : null,
+    groups,
+    missing,
+  };
+}
+
+function groupRouteItemsByProvider(items: BasketRouteItem[]): BasketRouteProviderGroup[] {
+  const byProvider = new Map<string, BasketRouteItem[]>();
+  for (const item of items) {
+    byProvider.set(item.offer.provider.code, [...(byProvider.get(item.offer.provider.code) ?? []), item]);
+  }
+
+  return [...byProvider.values()].map((providerItems) => {
+    const testsTotal = providerItems.reduce((sum, item) => sum + item.test_price_rub, 0);
+    const biomaterialFee = Math.max(0, ...providerItems.map((item) => item.biomaterial_price_rub));
+    return {
+      provider: providerItems[0].offer.provider,
+      items: providerItems,
+      tests_total_rub: testsTotal,
+      biomaterial_fee_rub: biomaterialFee,
+      total_rub: testsTotal + biomaterialFee,
+    };
+  }).sort((a, b) => a.provider.name.localeCompare(b.provider.name));
+}
+
+function emptyRouteOption(strategy: BasketRouteOption['strategy'], comparisons: BasketComparison[]): BasketRouteOption {
+  return {
+    strategy,
+    available: false,
+    provider_count: 0,
+    total_rub: null,
+    tests_total_rub: null,
+    biomaterial_total_rub: null,
+    groups: [],
+    missing: comparisons.map((comparison) => ({
+      test: comparison.test,
+      canonical_test: comparison.canonical_test,
+      error: comparison.error ?? 'no_offers',
+    })),
+  };
+}
+
+function buildBasketRecommendation(
+  singleProvider: BasketRouteOption,
+  splitProvider: BasketRouteOption,
+  providerPenaltyRub: number,
+): BasketOptimizationRecommendation {
+  if (!singleProvider.available && !splitProvider.available) {
+    return {
+      strategy: 'unavailable',
+      total_rub: null,
+      savings_rub: null,
+      route_penalty_rub: 0,
+      why: 'Нет полного покрытия корзины по текущим данным.',
+    };
+  }
+
+  if (!singleProvider.available) {
+    return {
+      strategy: 'split_provider',
+      total_rub: splitProvider.total_rub,
+      savings_rub: null,
+      route_penalty_rub: Math.max(0, splitProvider.provider_count - 1) * providerPenaltyRub,
+      why: 'Single-provider маршрут недоступен, выбран split с доступным покрытием.',
+    };
+  }
+
+  if (!splitProvider.available) {
+    return {
+      strategy: 'single_provider',
+      total_rub: singleProvider.total_rub,
+      savings_rub: null,
+      route_penalty_rub: 0,
+      why: 'Split маршрут недоступен, выбран single-provider.',
+    };
+  }
+
+  const routePenalty = Math.max(0, splitProvider.provider_count - 1) * providerPenaltyRub;
+  const savings = (singleProvider.total_rub as number) - (splitProvider.total_rub as number);
+  const effectiveSplitTotal = (splitProvider.total_rub as number) + routePenalty;
+
+  if (effectiveSplitTotal < (singleProvider.total_rub as number)) {
+    return {
+      strategy: 'split_provider',
+      total_rub: splitProvider.total_rub,
+      savings_rub: savings,
+      route_penalty_rub: routePenalty,
+      why: `Split дешевле даже с route penalty ${routePenalty} RUB.`,
+    };
+  }
+
+  return {
+    strategy: 'single_provider',
+    total_rub: singleProvider.total_rub,
+    savings_rub: savings,
+    route_penalty_rub: routePenalty,
+    why: savings > 0
+      ? `Экономия split ${savings} RUB не превышает route penalty ${routePenalty} RUB.`
+      : 'Single-provider дешевле или равен split и проще для пациента.',
   };
 }
 
@@ -593,4 +873,21 @@ function ratio(part: number, total: number): number {
 
 function isPromoOffer(offer: ProductOffer): boolean {
   return offer.offer_type === 'promo' || offer.promo_price_rub !== undefined;
+}
+
+function calculatePromoEffect(offers: ProductOffer[]): number | null {
+  const promoTotals = offers
+    .filter(isPromoOffer)
+    .map((offer) => offer.total_price_rub)
+    .filter((value): value is number => value !== undefined);
+  const regularTotals = offers
+    .filter((offer) => !isPromoOffer(offer))
+    .map((offer) => offer.total_price_rub)
+    .filter((value): value is number => value !== undefined);
+
+  if (promoTotals.length === 0 || regularTotals.length === 0) {
+    return null;
+  }
+
+  return Math.min(...regularTotals) - Math.min(...promoTotals);
 }

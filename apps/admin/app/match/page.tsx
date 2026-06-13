@@ -50,6 +50,7 @@ export default async function MatchPage({ searchParams }: PageProps) {
                   <th className="px-3 py-3">Статус</th>
                   <th className="px-3 py-3">Provider code</th>
                   <th className="px-3 py-3">Provider name</th>
+                  <th className="px-3 py-3">Kind</th>
                   <th className="px-3 py-3">Suggestion</th>
                   <th className="px-3 py-3">CLI</th>
                 </tr>
@@ -64,6 +65,7 @@ export default async function MatchPage({ searchParams }: PageProps) {
                       <td className="px-3 py-3 font-medium">{status}</td>
                       <td className="px-3 py-3">{item.provider_test_code || "-"}</td>
                       <td className="px-3 py-3">{item.provider_test_name}</td>
+                      <td className="px-3 py-3">{candidate?.provider_test_kind ?? blocked?.provider_test_kind ?? "-"}</td>
                       <td className="px-3 py-3">
                         {candidate ? `${candidate.canonical_test.name_ru} (${candidate.reason})` : blocked ? `${blocked.canonical_test.name_ru} (${blocked.reason})` : "-"}
                       </td>

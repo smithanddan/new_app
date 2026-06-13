@@ -85,6 +85,26 @@ function printMarketSummary(summary: ProductMarketSummary | null, test: string, 
     'Max': formatRub(provider.max_price_rub),
     'Avg': formatRub(provider.avg_price_rub),
   })));
+
+  console.log('\nMarket insights:');
+  printRows([
+    {
+      'Insight': 'cheapest provider',
+      'Value': `${summary.cheapest.provider.name} / ${formatRub(summary.cheapest.total_price_rub)}`,
+    },
+    {
+      'Insight': 'most expensive provider',
+      'Value': `${summary.most_expensive.provider.name} / ${formatRub(summary.most_expensive.total_price_rub)}`,
+    },
+    {
+      'Insight': 'price spread',
+      'Value': `${formatRub(summary.price_spread_rub)} (${summary.price_spread_percent ?? 0}%)`,
+    },
+    {
+      'Insight': 'promo effect',
+      'Value': summary.promo_effect_rub === null ? '-' : formatRub(summary.promo_effect_rub),
+    },
+  ]);
 }
 
 function printRows(rows: Array<Record<string, string>>) {
