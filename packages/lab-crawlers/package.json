@@ -17,6 +17,7 @@
     "sync:gemotest": "pnpm build && node dist/scripts/sync-gemotest.js",
     "compare:db": "pnpm build && node dist/scripts/compare-db.js",
     "compare:matrix": "pnpm build && node dist/scripts/compare-matrix.js",
+    "compare:market": "pnpm build && node dist/scripts/compare-market.js",
     "match:db": "pnpm build && node dist/scripts/match-db.js",
     "match:manual": "pnpm build && node dist/scripts/match-manual.js",
     "cheapest:basket": "pnpm build && node dist/scripts/cheapest-basket.js"

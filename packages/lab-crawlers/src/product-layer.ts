@@ -34,6 +34,13 @@ export type ProductOffer = {
   total_price_rub?: number;
   source_url?: string;
   fetched_at: string;
+  is_cheapest: boolean;
+};
+
+export type ProductProviderGroup = {
+  provider: ProductOffer['provider'];
+  offers: ProductOffer[];
+  cheapest: ProductOffer;
 };
 
 export type ProductCompareRow = {
@@ -42,6 +49,8 @@ export type ProductCompareRow = {
   offers_count: number;
   cheapest: ProductOffer | null;
   offers: ProductOffer[];
+  provider_groups: ProductProviderGroup[];
+  market_summary: ProductMarketSummary | null;
   unmatched_provider_tests: DbCanonicalPriceComparison['unmatched_provider_tests'];
   error?: 'canonical_test_not_found';
 };
@@ -53,6 +62,24 @@ export type ProductCompareMatrix = {
 };
 
 export type BasketMode = 'per-test' | 'single-provider';
+
+export type ProductMarketSummary = {
+  test: string;
+  canonical_test: DbCanonicalPriceComparison['canonical_test'];
+  city: string;
+  offers_count: number;
+  min_price_rub: number;
+  max_price_rub: number;
+  avg_price_rub: number;
+  cheapest: ProductOffer;
+  provider_distribution: Array<{
+    provider: ProductOffer['provider'];
+    offers_count: number;
+    min_price_rub: number;
+    max_price_rub: number;
+    avg_price_rub: number;
+  }>;
+};
 
 export type BasketSelectedItem = {
   test: string;
@@ -72,6 +99,8 @@ export type PerTestBasket = {
   requested_tests: string[];
   selected: BasketSelectedItem[];
   total_price_rub: number | null;
+  single_provider_best: ProviderBasketOption | null;
+  savings_vs_single_provider_rub: number | null;
   missing: BasketMissingItem[];
 };
 
@@ -81,6 +110,8 @@ export type SingleProviderBasket = {
   requested_tests: string[];
   selected_provider: ProviderBasketOption | null;
   provider_options: ProviderBasketOption[];
+  per_test_total_price_rub: number | null;
+  savings_vs_single_provider_rub: number | null;
 };
 
 export type ProviderBasketOption = {
@@ -117,6 +148,8 @@ export async function getCompareMatrix(input: {
         offers_count: 0,
         cheapest: null,
         offers: [],
+        provider_groups: [],
+        market_summary: null,
         unmatched_provider_tests: [],
         error: 'canonical_test_not_found',
       });
@@ -124,13 +157,20 @@ export async function getCompareMatrix(input: {
     }
 
     const comparison = await input.repository.compareCanonicalTestPricesFromDb(canonical.id, input.city);
-    const offers = comparison.offers.map(normalizeProductOffer);
+    const offers = markCheapest(comparison.offers.map(normalizeProductOffer));
     rows.push({
       test: testSearch,
       canonical_test: comparison.canonical_test,
       offers_count: offers.length,
       cheapest: offers[0] ?? null,
       offers,
+      provider_groups: groupOffersByProvider(offers),
+      market_summary: buildMarketSummary({
+        test: testSearch,
+        canonicalTest: comparison.canonical_test,
+        city: input.city,
+        offers,
+      }),
       unmatched_provider_tests: comparison.unmatched_provider_tests,
     });
   }
@@ -149,13 +189,18 @@ export async function getBasket(input: {
   mode?: BasketMode;
 }): Promise<PerTestBasket | SingleProviderBasket> {
   const comparisons = await getBasketComparisons(input.repository, input.city, input.tests);
+  const perTestBasket = buildPerTestBasket(comparisons);
+  const singleProviderBasket = buildSingleProviderBasket(comparisons);
+  const savings = calculateSavings(perTestBasket.total_price_rub, singleProviderBasket.selected_provider?.total_price_rub ?? null);
 
   if (input.mode === 'single-provider') {
     return {
       city: input.city,
       mode: 'single-provider',
       requested_tests: input.tests,
-      ...buildSingleProviderBasket(comparisons),
+      ...singleProviderBasket,
+      per_test_total_price_rub: perTestBasket.total_price_rub,
+      savings_vs_single_provider_rub: savings,
     };
   }
 
@@ -163,8 +208,24 @@ export async function getBasket(input: {
     city: input.city,
     mode: 'per-test',
     requested_tests: input.tests,
-    ...buildPerTestBasket(comparisons),
+    ...perTestBasket,
+    single_provider_best: singleProviderBasket.selected_provider,
+    savings_vs_single_provider_rub: savings,
   };
+}
+
+export async function getMarketSummary(input: {
+  repository: LabCatalogRepository;
+  city: string;
+  test: string;
+}): Promise<ProductMarketSummary | null> {
+  const matrix = await getCompareMatrix({
+    repository: input.repository,
+    city: input.city,
+    test: input.test,
+  });
+
+  return matrix.rows[0]?.market_summary ?? null;
 }
 
 export function parseTestList(value: string | undefined): string[] {
@@ -195,6 +256,7 @@ function normalizeProductOffer(offer: DbPriceComparisonOffer): ProductOffer {
       : offer.effective_price_rub + (offer.biomaterial_price_rub ?? 0),
     source_url: offer.source_url,
     fetched_at: offer.fetched_at,
+    is_cheapest: false,
   };
 }
 
@@ -222,13 +284,79 @@ async function getBasketComparisons(
     comparisons.push({
       test: testSearch,
       canonical_test: comparison.canonical_test,
-      offers: comparison.offers
-        .map(normalizeProductOffer)
+      offers: markCheapest(comparison.offers.map(normalizeProductOffer))
         .filter((offer) => offer.total_price_rub !== undefined),
     });
   }
 
   return comparisons;
+}
+
+function markCheapest(offers: ProductOffer[]): ProductOffer[] {
+  const sorted = [...offers].sort((a, b) => (a.total_price_rub ?? Number.POSITIVE_INFINITY) - (b.total_price_rub ?? Number.POSITIVE_INFINITY));
+  const cheapestTotal = sorted[0]?.total_price_rub;
+
+  return sorted.map((offer) => ({
+    ...offer,
+    is_cheapest: cheapestTotal !== undefined && offer.total_price_rub === cheapestTotal,
+  }));
+}
+
+function groupOffersByProvider(offers: ProductOffer[]): ProductProviderGroup[] {
+  const byProvider = new Map<string, ProductOffer[]>();
+
+  for (const offer of offers) {
+    const existing = byProvider.get(offer.provider.code) ?? [];
+    existing.push(offer);
+    byProvider.set(offer.provider.code, existing);
+  }
+
+  return [...byProvider.values()]
+    .map((providerOffers) => {
+      const sorted = [...providerOffers].sort((a, b) => (a.total_price_rub ?? Number.POSITIVE_INFINITY) - (b.total_price_rub ?? Number.POSITIVE_INFINITY));
+      return {
+        provider: sorted[0].provider,
+        offers: sorted,
+        cheapest: sorted[0],
+      };
+    })
+    .sort((a, b) => (a.cheapest.total_price_rub ?? Number.POSITIVE_INFINITY) - (b.cheapest.total_price_rub ?? Number.POSITIVE_INFINITY));
+}
+
+function buildMarketSummary(input: {
+  test: string;
+  canonicalTest: DbCanonicalPriceComparison['canonical_test'];
+  city: string;
+  offers: ProductOffer[];
+}): ProductMarketSummary | null {
+  const pricedOffers = input.offers.filter((offer) => offer.total_price_rub !== undefined);
+  if (pricedOffers.length === 0) {
+    return null;
+  }
+
+  const totals = pricedOffers.map((offer) => offer.total_price_rub as number);
+  const provider_distribution = groupOffersByProvider(pricedOffers).map((group) => {
+    const providerTotals = group.offers.map((offer) => offer.total_price_rub as number);
+    return {
+      provider: group.provider,
+      offers_count: group.offers.length,
+      min_price_rub: Math.min(...providerTotals),
+      max_price_rub: Math.max(...providerTotals),
+      avg_price_rub: average(providerTotals),
+    };
+  });
+
+  return {
+    test: input.test,
+    canonical_test: input.canonicalTest,
+    city: input.city,
+    offers_count: pricedOffers.length,
+    min_price_rub: Math.min(...totals),
+    max_price_rub: Math.max(...totals),
+    avg_price_rub: average(totals),
+    cheapest: pricedOffers[0],
+    provider_distribution,
+  };
 }
 
 function buildPerTestBasket(comparisons: BasketComparison[]) {
@@ -316,4 +444,16 @@ function sumTotals(offers: Array<{ total_price_rub?: number }>): number | null {
   }
 
   return offers.reduce((sum, offer) => sum + (offer.total_price_rub ?? 0), 0);
+}
+
+function calculateSavings(perTestTotal: number | null, singleProviderTotal: number | null): number | null {
+  if (perTestTotal === null || singleProviderTotal === null) {
+    return null;
+  }
+
+  return singleProviderTotal - perTestTotal;
+}
+
+function average(values: number[]): number {
+  return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
 }

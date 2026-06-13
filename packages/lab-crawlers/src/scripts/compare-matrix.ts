@@ -34,13 +34,14 @@ function printSingleTestTable(output: ProductCompareMatrix) {
   }
 
   printRows(row.offers.map((offer) => ({
+    'Best': offer.is_cheapest ? 'yes' : '',
     'Лаборатория': formatProvider(offer),
     'Позиция': offer.provider_test_name,
     'Код': offer.provider_test_code ?? '-',
     'Анализ': formatRub(offer.effective_price_rub),
     'Забор': formatRub(offer.biomaterial_price_rub),
     'Итог': formatRub(offer.total_price_rub),
-    'Тип': offer.offer_type,
+    'Тип': formatOfferType(offer),
     'Источник': offer.offer_source,
     'Ссылка': offer.source_url ?? '-',
   })));
@@ -49,12 +50,14 @@ function printSingleTestTable(output: ProductCompareMatrix) {
 function printMatrixTable(output: ProductCompareMatrix) {
   const tableRows = output.rows.map((row) => ({
     'Анализ': row.test,
+    'Best': row.cheapest?.is_cheapest ? 'yes' : '',
     'Лаборатория': row.cheapest ? formatProvider(row.cheapest) : '-',
     'Позиция': row.cheapest?.provider_test_name ?? row.error ?? 'нет предложений',
     'Код': row.cheapest?.provider_test_code ?? '-',
     'Цена': formatRub(row.cheapest?.effective_price_rub),
     'Забор': formatRub(row.cheapest?.biomaterial_price_rub),
     'Итог': formatRub(row.cheapest?.total_price_rub),
+    'Тип': row.cheapest ? formatOfferType(row.cheapest) : '-',
     'Источник': row.cheapest?.offer_source ?? '-',
     'Ссылка': row.cheapest?.source_url ?? '-',
     'Предл.': String(row.offers_count),
@@ -68,6 +71,12 @@ function formatProvider(offer: ProductOffer): string {
   return offer.offer_type === 'promo'
     ? `${offer.provider.name} (promo)`
     : offer.provider.name;
+}
+
+function formatOfferType(offer: ProductOffer): string {
+  return offer.offer_type === 'promo' || offer.promo_price_rub !== undefined
+    ? 'promo'
+    : 'regular';
 }
 
 function printRows(rows: Array<Record<string, string>>) {

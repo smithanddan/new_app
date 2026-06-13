@@ -45,9 +45,10 @@ export async function getMatchPageData(input: { provider?: string; city?: string
   const provider = input.provider || "dnkom";
   const city = input.city || DEFAULT_CITY;
   const limit = Number(input.limit || 100);
-  const [queue, candidates] = await Promise.all([
+  const [queue, candidates, matched] = await Promise.all([
     repository.listProviderTestsForMatchQueue({ providerCode: provider, cityName: city, limit }),
     repository.autoMatchProviderTestsFromDb({ providerCode: provider, cityName: city, limit }),
+    repository.listMatchedProviderTests({ providerCode: provider, cityName: city, limit: Math.min(limit, 50) }),
   ]);
 
   return {
@@ -55,6 +56,7 @@ export async function getMatchPageData(input: { provider?: string; city?: string
     city,
     queue,
     candidates,
+    matched,
   };
 }
 

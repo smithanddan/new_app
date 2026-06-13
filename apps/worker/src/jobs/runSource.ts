@@ -117,7 +117,7 @@ async function runOneSource(source: Source) {
           severity: "error",
           type: "scrape_failed",
           title: `Failed to scrape ${request.url}`,
-          message: error?.message ?? "Unknown error"
+          message: getErrorMessage(error)
         });
       }
     });
@@ -140,4 +140,8 @@ async function runOneSource(source: Source) {
 
     throw error;
   }
+}
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error ?? "Unknown error");
 }

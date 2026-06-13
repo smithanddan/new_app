@@ -57,8 +57,29 @@ export default async function BasketPage({ searchParams }: PageProps) {
 function PerTestView({ data }: { data: PerTestBasket }) {
   return (
     <section className="mt-6">
-      <div className="mb-3 text-lg font-semibold">TOTAL BASKET: {data.total_price_rub ?? "-"} RUB</div>
+      <Summary data={[
+        ["TOTAL PER TEST", formatRub(data.total_price_rub ?? undefined)],
+        ["TOTAL SINGLE PROVIDER", formatRub(data.single_provider_best?.total_price_rub ?? undefined)],
+        ["SAVINGS", formatRub(data.savings_vs_single_provider_rub ?? undefined)],
+      ]} />
       <SelectedTable selected={data.selected} />
+      {data.single_provider_best && (
+        <div className="mt-6 overflow-x-auto border border-slate-200 bg-white">
+          <table className="w-full min-w-[720px] text-left text-sm">
+            <thead className="bg-slate-100 text-xs uppercase text-slate-600">
+              <tr>
+                <th className="px-3 py-3">Optimal single provider</th>
+                <th className="px-3 py-3">Итого</th>
+                <th className="px-3 py-3">Покрытие</th>
+                <th className="px-3 py-3">Не хватает</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ProviderOptionRow option={data.single_provider_best} requestedCount={data.requested_tests.length} />
+            </tbody>
+          </table>
+        </div>
+      )}
       {data.missing.length > 0 && <MissingTable missing={data.missing} />}
     </section>
   );
@@ -68,9 +89,11 @@ function SingleProviderView({ data }: { data: SingleProviderBasket }) {
   return (
     <section className="mt-6 grid gap-6">
       <div>
-        <div className="mb-3 text-lg font-semibold">
-          TOTAL BASKET: {data.selected_provider?.total_price_rub ?? "-"} RUB
-        </div>
+        <Summary data={[
+          ["TOTAL SINGLE PROVIDER", formatRub(data.selected_provider?.total_price_rub ?? undefined)],
+          ["TOTAL PER TEST", formatRub(data.per_test_total_price_rub ?? undefined)],
+          ["SAVINGS", formatRub(data.savings_vs_single_provider_rub ?? undefined)],
+        ]} />
         {data.selected_provider ? <SelectedTable selected={data.selected_provider.selected} /> : <p className="text-slate-600">Нет полного покрытия.</p>}
       </div>
 
@@ -86,17 +109,39 @@ function SingleProviderView({ data }: { data: SingleProviderBasket }) {
           </thead>
           <tbody>
             {data.provider_options.map((option) => (
-              <tr key={option.provider.code} className="border-t border-slate-200">
-                <td className="px-3 py-3 font-medium">{"name" in option.provider ? option.provider.name : option.provider.code}</td>
-                <td className="px-3 py-3">{formatRub(option.total_price_rub ?? undefined)}</td>
-                <td className="px-3 py-3">{option.selected.length}/{data.requested_tests.length}</td>
-                <td className="px-3 py-3">{option.missing.map((item) => item.test).join(", ") || "-"}</td>
-              </tr>
+              <ProviderOptionRow key={option.provider.code} option={option} requestedCount={data.requested_tests.length} />
             ))}
           </tbody>
         </table>
       </div>
     </section>
+  );
+}
+
+function Summary({ data }: { data: Array<[string, string]> }) {
+  return (
+    <div className="mb-6 grid gap-3 md:grid-cols-3">
+      {data.map(([label, value]) => (
+        <div key={label} className="border border-slate-200 bg-white p-4">
+          <div className="text-xs uppercase text-slate-500">{label}</div>
+          <div className="mt-1 text-2xl font-semibold">{value}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ProviderOptionRow({ option, requestedCount }: { option: SingleProviderBasket["provider_options"][number]; requestedCount: number }) {
+  return (
+    <tr className="border-t border-slate-200">
+      <td className="px-3 py-3 font-medium">
+        {"name" in option.provider ? option.provider.name : option.provider.code}
+        {option.complete ? <span className="ml-2 text-xs uppercase text-emerald-700">complete</span> : null}
+      </td>
+      <td className="px-3 py-3">{formatRub(option.total_price_rub ?? undefined)}</td>
+      <td className="px-3 py-3">{option.selected.length}/{requestedCount}</td>
+      <td className="px-3 py-3">{option.missing.map((item) => item.test).join(", ") || "-"}</td>
+    </tr>
   );
 }
 

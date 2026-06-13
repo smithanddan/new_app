@@ -343,6 +343,7 @@ export {
   DEFAULT_PRODUCT_TESTS,
   getBasket,
   getCompareMatrix,
+  getMarketSummary,
   parseTestList,
   type BasketMode,
   type BasketMissingItem,
@@ -350,7 +351,9 @@ export {
   type PerTestBasket,
   type ProductCompareMatrix,
   type ProductCompareRow,
+  type ProductMarketSummary,
   type ProductOffer,
+  type ProductProviderGroup,
   type ProviderBasketOption,
   type SingleProviderBasket,
 } from './product-layer.js';

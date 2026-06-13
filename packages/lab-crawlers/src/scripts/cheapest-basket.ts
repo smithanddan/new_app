@@ -41,7 +41,9 @@ function printPerTestBasketTable(output: PerTestBasket) {
   console.log(`Город: ${output.city}`);
   console.log(`Режим: ${output.mode}`);
   printSelectedRows(output.selected);
-  console.log(`TOTAL BASKET: ${output.total_price_rub ?? '-'} RUB`);
+  console.log(`TOTAL PER TEST: ${output.total_price_rub ?? '-'} RUB`);
+  console.log(`TOTAL SINGLE PROVIDER: ${output.single_provider_best?.total_price_rub ?? '-'} RUB`);
+  console.log(`SAVINGS: ${output.savings_vs_single_provider_rub ?? '-'} RUB`);
 
   if (output.missing.length > 0) {
     console.log('\nНе найдено:');
@@ -63,7 +65,9 @@ function printSingleProviderBasketTable(output: SingleProviderBasket) {
   } else {
     console.log(`Выбрана лаборатория: ${formatProviderName(selectedProvider.provider)}`);
     printSelectedRows(selectedProvider.selected);
-    console.log(`TOTAL BASKET: ${selectedProvider.total_price_rub ?? '-'} RUB`);
+    console.log(`TOTAL SINGLE PROVIDER: ${selectedProvider.total_price_rub ?? '-'} RUB`);
+    console.log(`TOTAL PER TEST: ${output.per_test_total_price_rub ?? '-'} RUB`);
+    console.log(`SAVINGS: ${output.savings_vs_single_provider_rub ?? '-'} RUB`);
   }
 
   console.log('\nВарианты по лабораториям:');

@@ -232,6 +232,17 @@ export type DbProviderTestMatchQueueItem = {
   source_url?: string;
 };
 
+export type DbProviderTestMatchStatusItem = DbProviderTestMatchQueueItem & {
+  match_status: 'auto_matched' | 'manual_matched';
+  match_confidence?: number;
+  matched_at?: string;
+  canonical_test?: {
+    id: string;
+    code: string;
+    name_ru: string;
+  };
+};
+
 export type DbScraperRunListItem = {
   id: string;
   provider?: {
@@ -784,6 +795,68 @@ export class LabCatalogRepository {
     }));
   }
 
+  async listMatchedProviderTests(input: {
+    providerCode: string;
+    cityName?: string;
+    limit?: number;
+  }): Promise<DbProviderTestMatchStatusItem[]> {
+    const provider = await this.selectSingle<DbProviderRow>('lab_providers', 'id, code, name, display_name', { code: input.providerCode });
+    let query = this.supabase
+      .from('provider_tests')
+      .select('id, provider_id, canonical_test_id, external_code, name, normalized_name, source_url, match_status, match_confidence, matched_at')
+      .eq('provider_id', provider.id)
+      .in('match_status', ['auto_matched', 'manual_matched'])
+      .order('matched_at', { ascending: false })
+      .limit(input.limit ?? 50);
+
+    const { data, error } = await query;
+    assertNoError(error, 'select matched provider_tests');
+    let providerTests = (data ?? []) as Array<DbProviderTestRow & {
+      match_status?: 'auto_matched' | 'manual_matched' | null;
+      match_confidence?: number | null;
+      matched_at?: string | null;
+    }>;
+
+    if (input.cityName && providerTests.length > 0) {
+      const regions = await this.getRegionsByCity(input.cityName);
+      const regionIds = new Set(regions.map((region) => region.id));
+      const pricesData = await this.selectPriceRegionRowsByProviderTestIds(providerTests.map((test) => test.id));
+      const providerTestIdsWithCityPrices = new Set(
+        pricesData
+          .filter((price) => regionIds.has(price.lab_region_id))
+          .map((price) => price.provider_test_id),
+      );
+      providerTests = providerTests.filter((test) => providerTestIdsWithCityPrices.has(test.id));
+    }
+
+    const canonicalIds = [...new Set(providerTests.map((test) => test.canonical_test_id).filter((id): id is string => Boolean(id)))];
+    const canonicalTests = await this.getCanonicalTestsByIds(canonicalIds);
+    const canonicalById = new Map(canonicalTests.map((canonical) => [canonical.id, canonical]));
+
+    return providerTests.map((test) => {
+      const canonical = test.canonical_test_id ? canonicalById.get(test.canonical_test_id) : undefined;
+      return {
+        provider: {
+          id: provider.id,
+          code: provider.code,
+          name: provider.display_name ?? provider.name,
+        },
+        provider_test_id: test.id,
+        provider_test_name: test.name,
+        provider_test_code: test.external_code ?? undefined,
+        source_url: test.source_url ?? undefined,
+        match_status: test.match_status ?? 'auto_matched',
+        match_confidence: test.match_confidence ?? undefined,
+        matched_at: test.matched_at ?? undefined,
+        canonical_test: canonical ? {
+          id: canonical.id,
+          code: canonical.code,
+          name_ru: canonical.name_ru,
+        } : undefined,
+      };
+    });
+  }
+
   async listScraperRuns(limit = 50): Promise<DbScraperRunListItem[]> {
     const { data, error } = await this.supabase
       .from('scraper_runs')
@@ -939,6 +1012,19 @@ export class LabCatalogRepository {
       .from('canonical_tests')
       .select('id, code, name_ru, name_en, aliases');
     assertNoError(error, 'select canonical_tests');
+    return (data ?? []) as DbCanonicalTestRow[];
+  }
+
+  private async getCanonicalTestsByIds(ids: string[]): Promise<DbCanonicalTestRow[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+
+    const { data, error } = await this.supabase
+      .from('canonical_tests')
+      .select('id, code, name_ru, name_en, aliases')
+      .in('id', ids);
+    assertNoError(error, 'select canonical_tests by ids');
     return (data ?? []) as DbCanonicalTestRow[];
   }
 
