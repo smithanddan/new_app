@@ -33,18 +33,32 @@ function printSingleTestTable(output: ProductCompareMatrix) {
     return;
   }
 
-  printRows(row.offers.map((offer) => ({
-    'Best': offer.is_cheapest ? 'yes' : '',
-    'Лаборатория': formatProvider(offer),
-    'Позиция': offer.provider_test_name,
-    'Код': offer.provider_test_code ?? '-',
-    'Анализ': formatRub(offer.effective_price_rub),
-    'Забор': formatRub(offer.biomaterial_price_rub),
-    'Итог': formatRub(offer.total_price_rub),
-    'Тип': formatOfferType(offer),
-    'Источник': offer.offer_source,
-    'Ссылка': offer.source_url ?? '-',
-  })));
+  printRows(row.provider_groups.flatMap((group) => [
+    {
+      'Best': '',
+      'Лаборатория': group.provider.name,
+      'Позиция': `provider group: ${group.offers.length} offers`,
+      'Код': '-',
+      'Анализ': '-',
+      'Забор': '-',
+      'Итог': formatRub(group.cheapest.total_price_rub),
+      'Тип': 'group',
+      'Источник': '-',
+      'Ссылка': '-',
+    },
+    ...group.offers.map((offer) => ({
+      'Best': offer.is_cheapest ? 'yes' : '',
+      'Лаборатория': formatProvider(offer),
+      'Позиция': offer.provider_test_name,
+      'Код': offer.provider_test_code ?? '-',
+      'Анализ': formatRub(offer.effective_price_rub),
+      'Забор': formatRub(offer.biomaterial_price_rub),
+      'Итог': formatRub(offer.total_price_rub),
+      'Тип': formatOfferType(offer),
+      'Источник': offer.offer_source,
+      'Ссылка': offer.source_url ?? '-',
+    })),
+  ]));
 }
 
 function printMatrixTable(output: ProductCompareMatrix) {
@@ -137,6 +151,8 @@ function parseArgs(values: string[]): {
       }
       parsed.format = format;
       index += 1;
+    } else if (value !== '--' && !value.startsWith('--') && !parsed.test && !parsed.tests) {
+      parsed.test = value;
     }
   }
 

@@ -15,6 +15,7 @@
     "test:gemotest-fixtures": "pnpm build && node dist/scripts/test-gemotest-fixtures.js",
     "sync:dnkom": "pnpm build && node dist/scripts/sync-dnkom.js",
     "sync:gemotest": "pnpm build && node dist/scripts/sync-gemotest.js",
+    "crawler:run": "pnpm build && node dist/scripts/crawler-run.js",
     "compare:db": "pnpm build && node dist/scripts/compare-db.js",
     "compare:matrix": "pnpm build && node dist/scripts/compare-matrix.js",
     "compare:market": "pnpm build && node dist/scripts/compare-market.js",

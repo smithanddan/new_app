@@ -47,7 +47,9 @@ export default async function ComparePage({ searchParams }: PageProps) {
                 <Metric label="Min" value={formatRub(marketSummary.min_price_rub)} />
                 <Metric label="Max" value={formatRub(marketSummary.max_price_rub)} />
                 <Metric label="Avg" value={formatRub(marketSummary.avg_price_rub)} />
+                <Metric label="Median" value={formatRub(marketSummary.median_price_rub)} />
                 <Metric label="Offers" value={String(marketSummary.offers_count)} />
+                <Metric label="Promo ratio" value={`${marketSummary.promo_ratio}%`} />
               </div>
               <div className="mt-4 border-t border-slate-200 pt-3 text-sm">
                 <div className="text-slate-500">Cheapest</div>

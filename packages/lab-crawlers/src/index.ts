@@ -340,6 +340,23 @@ export {
   type ScraperContext,
 } from './provider-scraper.js';
 export {
+  buildCrawlerTransport,
+  createProviderAdapter,
+  resolveProviderRegion,
+  type CrawlerProviderKey,
+  type CrawlerTransport,
+  type ProviderAdapter,
+} from './crawler-adapters.js';
+export {
+  CrawlerRunner,
+  sanitizeCrawlerPayload,
+  type CrawlerProviderRunReport,
+  type CrawlerRunMode,
+  type CrawlerRunProviderInput,
+  type CrawlerRunnerInput,
+  type CrawlerRunReport,
+} from './crawler-runner.js';
+export {
   DEFAULT_PRODUCT_TESTS,
   getBasket,
   getCompareMatrix,

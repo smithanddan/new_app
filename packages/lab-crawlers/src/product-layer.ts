@@ -72,6 +72,10 @@ export type ProductMarketSummary = {
   min_price_rub: number;
   max_price_rub: number;
   avg_price_rub: number;
+  median_price_rub: number;
+  promo_offers_count: number;
+  regular_offers_count: number;
+  promo_ratio: number;
   cheapest: ProductOffer;
   provider_distribution: Array<{
     provider: ProductOffer['provider'];
@@ -421,6 +425,10 @@ function buildMarketSummary(input: {
     min_price_rub: Math.min(...totals),
     max_price_rub: Math.max(...totals),
     avg_price_rub: average(totals),
+    median_price_rub: median(totals),
+    promo_offers_count: pricedOffers.filter(isPromoOffer).length,
+    regular_offers_count: pricedOffers.filter((offer) => !isPromoOffer(offer)).length,
+    promo_ratio: ratio(pricedOffers.filter(isPromoOffer).length, pricedOffers.length),
     cheapest: pricedOffers[0],
     provider_distribution,
   };
@@ -567,4 +575,22 @@ function calculateSavings(perTestTotal: number | null, singleProviderTotal: numb
 
 function average(values: number[]): number {
   return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
+}
+
+function median(values: number[]): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 1) {
+    return sorted[middle];
+  }
+
+  return Math.round((sorted[middle - 1] + sorted[middle]) / 2);
+}
+
+function ratio(part: number, total: number): number {
+  return total === 0 ? 0 : Math.round((part / total) * 100);
+}
+
+function isPromoOffer(offer: ProductOffer): boolean {
+  return offer.offer_type === 'promo' || offer.promo_price_rub !== undefined;
 }
