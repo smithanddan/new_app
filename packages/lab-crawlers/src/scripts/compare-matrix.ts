@@ -53,11 +53,17 @@ for (const testSearch of tests) {
   });
 }
 
-console.log(JSON.stringify({
+const output = {
   city: cityName,
   tests_count: rows.length,
   rows,
-}, null, 2));
+};
+
+if (args.format === 'json') {
+  console.log(JSON.stringify(output, null, 2));
+} else {
+  printTable(output);
+}
 
 function summarizeOffer(offer: Awaited<ReturnType<LabCatalogRepository['compareCanonicalTestPricesFromDb']>>['offers'][number] | undefined) {
   if (!offer) {
@@ -84,8 +90,60 @@ function summarizeOffer(offer: Awaited<ReturnType<LabCatalogRepository['compareC
   };
 }
 
-function parseArgs(values: string[]): { city?: string; tests?: string[] } {
-  const parsed: { city?: string; tests?: string[] } = {};
+function printTable(output: {
+  city: string;
+  tests_count: number;
+  rows: Array<{
+    test: string;
+    offers_count: number;
+    cheapest: ReturnType<typeof summarizeOffer>;
+    error?: string;
+  }>;
+}) {
+  const tableRows = output.rows.map((row) => ({
+    'Анализ': row.test,
+    'Лаборатория': row.cheapest?.provider.name ?? '-',
+    'Позиция': row.cheapest?.provider_test_name ?? row.error ?? 'нет предложений',
+    'Код': row.cheapest?.provider_test_code ?? '-',
+    'Обычная': formatRub(row.cheapest?.regular_price_rub),
+    'Акция': formatRub(row.cheapest?.promo_price_rub),
+    'Забор': formatRub(row.cheapest?.biomaterial_price_rub),
+    'Итого': formatRub(row.cheapest?.total_price_rub),
+    'Источник': row.cheapest?.offer_source ?? '-',
+    'URL': row.cheapest?.source_url ?? '-',
+    'Предл.': String(row.offers_count),
+  }));
+
+  console.log(`Сравнение цен: ${output.city}`);
+  printRows(tableRows);
+}
+
+function printRows(rows: Array<Record<string, string>>) {
+  if (rows.length === 0) {
+    console.log('Нет данных');
+    return;
+  }
+
+  const headers = Object.keys(rows[0]);
+  const widths = headers.map((header) => Math.max(
+    header.length,
+    ...rows.map((row) => row[header].length),
+  ));
+  const separator = widths.map((width) => '-'.repeat(width)).join('  ');
+
+  console.log(headers.map((header, index) => header.padEnd(widths[index])).join('  '));
+  console.log(separator);
+  for (const row of rows) {
+    console.log(headers.map((header, index) => row[header].padEnd(widths[index])).join('  '));
+  }
+}
+
+function formatRub(value: number | undefined): string {
+  return value === undefined ? '-' : `${value} ₽`;
+}
+
+function parseArgs(values: string[]): { city?: string; tests?: string[]; format: 'table' | 'json' } {
+  const parsed: { city?: string; tests?: string[]; format: 'table' | 'json' } = { format: 'table' };
 
   for (let index = 0; index < values.length; index += 1) {
     const value = values[index];
@@ -97,6 +155,13 @@ function parseArgs(values: string[]): { city?: string; tests?: string[] } {
         .split(',')
         .map((item) => item.trim())
         .filter(Boolean);
+      index += 1;
+    } else if (value === '--format') {
+      const format = values[index + 1];
+      if (format !== 'table' && format !== 'json') {
+        throw new Error('--format must be either table or json');
+      }
+      parsed.format = format;
       index += 1;
     }
   }

@@ -18,13 +18,15 @@ type PlaywrightModule = typeof import('playwright');
 type GemotestLiveScraperOptions = {
   maxCatalogItems?: number;
   fixtureCatalogHtml?: string;
+  fixtureCatalogHtmls?: Array<{ html: string; sourceUrl?: string }>;
+  catalogUrls?: string[];
   useFixturesOnly?: boolean;
   snapshotDir?: string;
 };
 
 type GemotestSession = {
   mode: 'playwright' | 'fixture';
-  catalogHtml?: string;
+  catalogPages: Array<{ html: string; sourceUrl: string }>;
   probe: ProviderRegionProbeResult;
   close(): Promise<void>;
 };
@@ -33,14 +35,22 @@ export class GemotestLiveScraper implements ProviderScraper {
   providerCode = 'gemotest';
 
   private readonly maxCatalogItems: number;
-  private readonly fixtureCatalogHtml?: string;
+  private readonly fixtureCatalogHtmls: Array<{ html: string; sourceUrl: string }>;
+  private readonly catalogUrls: string[];
   private readonly useFixturesOnly: boolean;
   private readonly snapshotDir: string;
   private lastProbe?: ProviderRegionProbeResult;
 
   constructor(options: GemotestLiveScraperOptions = {}) {
     this.maxCatalogItems = options.maxCatalogItems ?? 50;
-    this.fixtureCatalogHtml = options.fixtureCatalogHtml;
+    this.fixtureCatalogHtmls = [
+      ...(options.fixtureCatalogHtml ? [{ html: options.fixtureCatalogHtml, sourceUrl: GEMOTEST_MOSCOW_CATALOG_URL }] : []),
+      ...(options.fixtureCatalogHtmls ?? []).map((page) => ({
+        html: page.html,
+        sourceUrl: page.sourceUrl ?? GEMOTEST_MOSCOW_CATALOG_URL,
+      })),
+    ];
+    this.catalogUrls = options.catalogUrls?.length ? options.catalogUrls : [GEMOTEST_MOSCOW_CATALOG_URL];
     this.useFixturesOnly = options.useFixturesOnly ?? false;
     this.snapshotDir = options.snapshotDir ?? path.resolve(
       path.dirname(fileURLToPath(import.meta.url)),
@@ -53,16 +63,12 @@ export class GemotestLiveScraper implements ProviderScraper {
     const session = await this.createSession(context);
 
     try {
-      const catalogHtml = session.catalogHtml ?? this.fixtureCatalogHtml;
-      if (!catalogHtml) {
+      const catalogPages = session.catalogPages.length > 0 ? session.catalogPages : this.fixtureCatalogHtmls;
+      if (catalogPages.length === 0) {
         throw new Error('GemotestLiveScraper could not load catalog HTML and no fixture was provided');
       }
 
-      const parsed = parseGemotestCatalogHtml(catalogHtml, context, {
-        fetchedAt,
-        maxItems: this.maxCatalogItems,
-        sourceUrl: GEMOTEST_MOSCOW_CATALOG_URL,
-      });
+      const parsed = mergeGemotestCatalogPages(catalogPages, context, fetchedAt, this.maxCatalogItems);
 
       return {
         providerCode: this.providerCode,
@@ -72,7 +78,8 @@ export class GemotestLiveScraper implements ProviderScraper {
         prices: parsed.prices,
         rawPayload: {
           mode: session.mode,
-          catalogUrl: GEMOTEST_MOSCOW_CATALOG_URL,
+          catalogUrls: catalogPages.map((page) => page.sourceUrl),
+          pagesSeen: catalogPages.length,
           cardsSeen: parsed.cardsSeen,
           parsedCount: parsed.parsedCount,
           probe: this.lastProbe,
@@ -120,7 +127,7 @@ export class GemotestLiveScraper implements ProviderScraper {
       this.lastProbe = probe;
       return {
         mode: 'fixture',
-        catalogHtml: this.fixtureCatalogHtml,
+        catalogPages: this.fixtureCatalogHtmls,
         probe,
         close: async () => undefined,
       };
@@ -151,11 +158,22 @@ export class GemotestLiveScraper implements ProviderScraper {
         }
       });
 
-      await page.goto(GEMOTEST_MOSCOW_CATALOG_URL, { waitUntil: 'commit', timeout: 30_000 });
-      await page.waitForLoadState('domcontentloaded', { timeout: 20_000 }).catch(() => undefined);
-      await page.waitForTimeout(2_000);
-      const catalogHtml = await page.content();
-      await this.saveSnapshot('catalog-moskva.html', catalogHtml);
+      const catalogPages: Array<{ html: string; sourceUrl: string }> = [];
+
+      for (const [index, catalogUrl] of this.catalogUrls.entries()) {
+        await page.goto(catalogUrl, { waitUntil: 'domcontentloaded', timeout: 45_000 });
+        await page.waitForTimeout(2_000);
+        const html = await page.content();
+        catalogPages.push({ html, sourceUrl: catalogUrl });
+        await this.saveSnapshot(index === 0 ? 'catalog-moskva.html' : `catalog-page-${index + 1}.html`, html);
+
+        const currentCount = mergeGemotestCatalogPages(catalogPages, context, new Date().toISOString(), this.maxCatalogItems).tests.length;
+        if (currentCount >= this.maxCatalogItems) {
+          break;
+        }
+      }
+
+      const catalogHtml = catalogPages.map((pageHtml) => pageHtml.html).join('\n');
 
       const cookies = await browserContext.cookies();
       const localStorage = await page.evaluate(() => {
@@ -182,14 +200,14 @@ export class GemotestLiveScraper implements ProviderScraper {
           })),
         localStorage,
         networkRequests: networkRequests.slice(0, 50),
-        notes: ['Gemotest live probe opened Moscow catalog with Playwright.'],
+        notes: [`Gemotest live probe opened ${catalogPages.length} catalog page(s) with Playwright.`],
         rawPayload: { mode: 'playwright' },
       };
       this.lastProbe = probe;
 
       return {
         mode: 'playwright',
-        catalogHtml,
+        catalogPages,
         probe,
         close: async () => {
           await browserContext.close().catch(() => undefined);
@@ -202,7 +220,7 @@ export class GemotestLiveScraper implements ProviderScraper {
       this.lastProbe = probe;
       return {
         mode: 'fixture',
-        catalogHtml: this.fixtureCatalogHtml,
+        catalogPages: this.fixtureCatalogHtmls,
         probe,
         close: async () => undefined,
       };
@@ -217,6 +235,54 @@ export class GemotestLiveScraper implements ProviderScraper {
     await mkdir(this.snapshotDir, { recursive: true });
     await writeFile(path.join(this.snapshotDir, fileName), html, 'utf8');
   }
+}
+
+function mergeGemotestCatalogPages(
+  pages: Array<{ html: string; sourceUrl: string }>,
+  context: ScraperContext,
+  fetchedAt: string,
+  maxItems: number,
+) {
+  const testsByKey = new Map<string, ProviderTestRecord>();
+  const pricesByKey = new Map<string, ProviderTestPriceRecord>();
+  let cardsSeen = 0;
+  let parsedCount = 0;
+
+  for (const page of pages) {
+    const remaining = Math.max(maxItems - testsByKey.size, 0);
+    if (remaining === 0) {
+      break;
+    }
+
+    const parsed = parseGemotestCatalogHtml(page.html, context, {
+      fetchedAt,
+      maxItems: remaining,
+      sourceUrl: page.sourceUrl,
+    });
+    cardsSeen += parsed.cardsSeen;
+    parsedCount += parsed.parsedCount;
+
+    for (const test of parsed.tests) {
+      const key = test.externalCode ?? test.externalId ?? test.sourceUrl ?? test.name;
+      if (!testsByKey.has(key)) {
+        testsByKey.set(key, test);
+      }
+    }
+
+    for (const price of parsed.prices) {
+      const key = price.externalCode ?? price.externalId ?? price.sourceUrl ?? JSON.stringify(price.rawPayload);
+      if (!pricesByKey.has(key)) {
+        pricesByKey.set(key, price);
+      }
+    }
+  }
+
+  return {
+    tests: [...testsByKey.values()].slice(0, maxItems),
+    prices: [...pricesByKey.values()].slice(0, maxItems),
+    cardsSeen,
+    parsedCount,
+  };
 }
 
 function isRelevantGemotestRequest(url: string): boolean {

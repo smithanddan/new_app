@@ -24,6 +24,26 @@ function readFixture(name: string): string | undefined {
   return fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : undefined;
 }
 
+function readFixturePages(): Array<{ html: string; sourceUrl?: string }> {
+  if (!fs.existsSync(fixturesDir)) {
+    return [];
+  }
+
+  return fs.readdirSync(fixturesDir)
+    .filter((name) => /^catalog-page-\d+\.html$/.test(name))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+    .map((name) => ({ html: fs.readFileSync(path.join(fixturesDir, name), 'utf8') }));
+}
+
+function readCatalogUrls(): string[] | undefined {
+  const value = process.env.GEMOTEST_CATALOG_URLS;
+  if (!value) {
+    return undefined;
+  }
+
+  return value.split(',').map((url) => url.trim()).filter(Boolean);
+}
+
 type SyncReport = {
   provider: 'gemotest';
   region: 'moskva';
@@ -52,6 +72,8 @@ const context = {
 const scraper = new GemotestLiveScraper({
   maxCatalogItems: Number(process.env.GEMOTEST_SYNC_LIMIT ?? 50),
   fixtureCatalogHtml: readFixture('catalog-moskva.html'),
+  fixtureCatalogHtmls: readFixturePages(),
+  catalogUrls: readCatalogUrls(),
   useFixturesOnly: process.env.GEMOTEST_FIXTURE_ONLY === '1',
 });
 

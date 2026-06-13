@@ -15,9 +15,31 @@ function readFixture(name: string): string | undefined {
   return fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : undefined;
 }
 
+function readFixturePages(): Array<{ html: string; sourceUrl?: string }> {
+  if (!fs.existsSync(fixturesDir)) {
+    return [];
+  }
+
+  return fs.readdirSync(fixturesDir)
+    .filter((name) => /^catalog-page-\d+\.html$/.test(name))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+    .map((name) => ({ html: fs.readFileSync(path.join(fixturesDir, name), 'utf8') }));
+}
+
+function readCatalogUrls(): string[] | undefined {
+  const value = process.env.GEMOTEST_CATALOG_URLS;
+  if (!value) {
+    return undefined;
+  }
+
+  return value.split(',').map((url) => url.trim()).filter(Boolean);
+}
+
 const scraper = new GemotestLiveScraper({
   maxCatalogItems: Number(process.env.GEMOTEST_SMOKE_LIMIT ?? 50),
   fixtureCatalogHtml: readFixture('catalog-moskva.html'),
+  fixtureCatalogHtmls: readFixturePages(),
+  catalogUrls: readCatalogUrls(),
   useFixturesOnly: process.env.GEMOTEST_FIXTURE_ONLY === '1',
 });
 
@@ -34,7 +56,8 @@ const catalog = await scraper.syncCatalog(context);
 const promotions = await scraper.syncPromotions(context);
 const rawMode = catalog.rawPayload as {
   mode?: string;
-  catalogUrl?: string;
+  catalogUrls?: string[];
+  pagesSeen?: number;
   cardsSeen?: number;
   parsedCount?: number;
   probe?: unknown;
@@ -53,7 +76,8 @@ console.log(JSON.stringify({
   region: catalog.regionCode,
   mode: {
     mode: rawMode.mode,
-    catalogUrl: rawMode.catalogUrl,
+    catalogUrls: rawMode.catalogUrls,
+    pagesSeen: rawMode.pagesSeen,
     cardsSeen: rawMode.cardsSeen,
     parsedCount: rawMode.parsedCount,
   },
