@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  GEMOTEST_MOSCOW_CATALOG_SECTION_URLS,
   GemotestLiveScraper,
   LabCatalogRepository,
   createLabCrawlerSupabaseClient,
@@ -37,11 +38,15 @@ function readFixturePages(): Array<{ html: string; sourceUrl?: string }> {
 
 function readCatalogUrls(): string[] | undefined {
   const value = process.env.GEMOTEST_CATALOG_URLS;
-  if (!value) {
-    return undefined;
+  if (value) {
+    return value.split(',').map((url) => url.trim()).filter(Boolean);
   }
 
-  return value.split(',').map((url) => url.trim()).filter(Boolean);
+  if (process.env.GEMOTEST_USE_DEFAULT_SECTIONS === '1') {
+    return GEMOTEST_MOSCOW_CATALOG_SECTION_URLS;
+  }
+
+  return undefined;
 }
 
 type SyncReport = {
@@ -74,6 +79,7 @@ const scraper = new GemotestLiveScraper({
   fixtureCatalogHtml: readFixture('catalog-moskva.html'),
   fixtureCatalogHtmls: readFixturePages(),
   catalogUrls: readCatalogUrls(),
+  pageTimeoutMs: Number(process.env.GEMOTEST_PAGE_TIMEOUT_MS ?? 45_000),
   useFixturesOnly: process.env.GEMOTEST_FIXTURE_ONLY === '1',
 });
 

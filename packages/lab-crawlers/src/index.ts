@@ -308,6 +308,7 @@ export { GemotestScraper } from './adapters/gemotest.scraper.js';
 export { GemotestLiveScraper } from './adapters/gemotest-live.scraper.js';
 export {
   GEMOTEST_BASE_URL,
+  GEMOTEST_MOSCOW_CATALOG_SECTION_URLS,
   GEMOTEST_MOSCOW_CATALOG_URL,
   parseGemotestCatalogHtml,
   parseGemotestProductCard,

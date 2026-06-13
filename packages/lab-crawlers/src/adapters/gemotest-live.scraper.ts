@@ -20,6 +20,7 @@ type GemotestLiveScraperOptions = {
   fixtureCatalogHtml?: string;
   fixtureCatalogHtmls?: Array<{ html: string; sourceUrl?: string }>;
   catalogUrls?: string[];
+  pageTimeoutMs?: number;
   useFixturesOnly?: boolean;
   snapshotDir?: string;
 };
@@ -37,6 +38,7 @@ export class GemotestLiveScraper implements ProviderScraper {
   private readonly maxCatalogItems: number;
   private readonly fixtureCatalogHtmls: Array<{ html: string; sourceUrl: string }>;
   private readonly catalogUrls: string[];
+  private readonly pageTimeoutMs: number;
   private readonly useFixturesOnly: boolean;
   private readonly snapshotDir: string;
   private lastProbe?: ProviderRegionProbeResult;
@@ -51,6 +53,7 @@ export class GemotestLiveScraper implements ProviderScraper {
       })),
     ];
     this.catalogUrls = options.catalogUrls?.length ? options.catalogUrls : [GEMOTEST_MOSCOW_CATALOG_URL];
+    this.pageTimeoutMs = options.pageTimeoutMs ?? 45_000;
     this.useFixturesOnly = options.useFixturesOnly ?? false;
     this.snapshotDir = options.snapshotDir ?? path.resolve(
       path.dirname(fileURLToPath(import.meta.url)),
@@ -159,18 +162,27 @@ export class GemotestLiveScraper implements ProviderScraper {
       });
 
       const catalogPages: Array<{ html: string; sourceUrl: string }> = [];
+      const pageErrors: string[] = [];
 
       for (const [index, catalogUrl] of this.catalogUrls.entries()) {
-        await page.goto(catalogUrl, { waitUntil: 'domcontentloaded', timeout: 45_000 });
-        await page.waitForTimeout(2_000);
-        const html = await page.content();
-        catalogPages.push({ html, sourceUrl: catalogUrl });
-        await this.saveSnapshot(index === 0 ? 'catalog-moskva.html' : `catalog-page-${index + 1}.html`, html);
+        try {
+          await page.goto(catalogUrl, { waitUntil: 'domcontentloaded', timeout: this.pageTimeoutMs });
+          await page.waitForTimeout(2_000);
+          const html = await page.content();
+          catalogPages.push({ html, sourceUrl: catalogUrl });
+          await this.saveSnapshot(index === 0 ? 'catalog-moskva.html' : `catalog-page-${index + 1}.html`, html);
 
-        const currentCount = mergeGemotestCatalogPages(catalogPages, context, new Date().toISOString(), this.maxCatalogItems).tests.length;
-        if (currentCount >= this.maxCatalogItems) {
-          break;
+          const currentCount = mergeGemotestCatalogPages(catalogPages, context, new Date().toISOString(), this.maxCatalogItems).tests.length;
+          if (currentCount >= this.maxCatalogItems) {
+            break;
+          }
+        } catch (error) {
+          pageErrors.push(`${catalogUrl}: ${error instanceof Error ? error.message : String(error)}`);
         }
+      }
+
+      if (catalogPages.length === 0) {
+        throw new Error(`Gemotest live pages failed: ${pageErrors.join(' | ')}`);
       }
 
       const catalogHtml = catalogPages.map((pageHtml) => pageHtml.html).join('\n');
@@ -200,8 +212,11 @@ export class GemotestLiveScraper implements ProviderScraper {
           })),
         localStorage,
         networkRequests: networkRequests.slice(0, 50),
-        notes: [`Gemotest live probe opened ${catalogPages.length} catalog page(s) with Playwright.`],
-        rawPayload: { mode: 'playwright' },
+        notes: [
+          `Gemotest live probe opened ${catalogPages.length} catalog page(s) with Playwright.`,
+          ...pageErrors.map((error) => `Page load failed: ${error}`),
+        ],
+        rawPayload: { mode: 'playwright', pageErrors },
       };
       this.lastProbe = probe;
 

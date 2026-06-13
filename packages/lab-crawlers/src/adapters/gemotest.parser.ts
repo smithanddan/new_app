@@ -11,6 +11,17 @@ import {
 
 export const GEMOTEST_BASE_URL = 'https://gemotest.ru';
 export const GEMOTEST_MOSCOW_CATALOG_URL = `${GEMOTEST_BASE_URL}/moskva/catalog/`;
+export const GEMOTEST_MOSCOW_CATALOG_SECTION_URLS = [
+  `${GEMOTEST_MOSCOW_CATALOG_URL}issledovaniya-krovi/klinicheskie-issledovaniya/`,
+  `${GEMOTEST_MOSCOW_CATALOG_URL}issledovaniya-krovi/biokhimiya/`,
+  `${GEMOTEST_MOSCOW_CATALOG_URL}issledovaniya-krovi/biokhimiya/uglevodnyy-obmen/`,
+  `${GEMOTEST_MOSCOW_CATALOG_URL}issledovaniya-krovi/biokhimiya/lipidnyy-obmen/`,
+  `${GEMOTEST_MOSCOW_CATALOG_URL}issledovaniya-krovi/biokhimiya/pochki/`,
+  `${GEMOTEST_MOSCOW_CATALOG_URL}issledovaniya-krovi/biokhimiya/obmen-zheleza/`,
+  `${GEMOTEST_MOSCOW_CATALOG_URL}issledovaniya-krovi/gormony/shchitovidnaya-zheleza/`,
+  `${GEMOTEST_MOSCOW_CATALOG_URL}issledovaniya-mochi/klinicheskie-issledovaniya/`,
+  `${GEMOTEST_MOSCOW_CATALOG_URL}chasto-ishchut/aktsii/`,
+];
 
 export type GemotestProductCard = {
   externalId?: string;
