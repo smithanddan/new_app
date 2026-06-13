@@ -23,6 +23,7 @@ type DbProviderTestRow = {
   name: string;
   normalized_name?: string | null;
   source_url?: string | null;
+  raw_payload?: Record<string, unknown> | null;
 };
 type DbPriceRow = {
   provider_test_id: string;
@@ -194,6 +195,61 @@ export type DbProviderTestMatchResult = {
   matched_count: number;
   blocked_count: number;
   updated_count: number;
+};
+
+export type DbManualMatchResult = {
+  provider: {
+    id: string;
+    code: string;
+    name: string;
+  };
+  mode: 'dry-run' | 'write';
+  provider_test: {
+    id: string;
+    name: string;
+    provider_test_code?: string;
+    source_url?: string;
+    previous_canonical_test_id?: string | null;
+  };
+  canonical_test: {
+    id: string;
+    code: string;
+    name_ru: string;
+  };
+  matched_by?: string;
+  updated: boolean;
+};
+
+export type DbProviderTestMatchQueueItem = {
+  provider: {
+    id: string;
+    code: string;
+    name: string;
+  };
+  provider_test_id: string;
+  provider_test_name: string;
+  provider_test_code?: string;
+  source_url?: string;
+};
+
+export type DbScraperRunListItem = {
+  id: string;
+  provider?: {
+    code?: string;
+    name?: string;
+    display_name?: string | null;
+  } | null;
+  region?: {
+    code?: string;
+    name?: string;
+    city?: string;
+  } | null;
+  run_type: string;
+  status: string;
+  started_at: string;
+  finished_at?: string | null;
+  stats: Record<string, unknown>;
+  error?: string | null;
 };
 
 export class LabCatalogRepository {
@@ -625,6 +681,150 @@ export class LabCatalogRepository {
     };
   }
 
+  async manualMatchProviderTest(input: {
+    providerCode: string;
+    providerTestCode: string;
+    canonicalSearch: string;
+    matchedBy?: string;
+    write?: boolean;
+  }): Promise<DbManualMatchResult> {
+    const provider = await this.selectSingle<DbProviderRow>('lab_providers', 'id, code, name, display_name', { code: input.providerCode });
+    const canonical = await this.findCanonicalTestBySearch(input.canonicalSearch);
+    if (!canonical) {
+      throw new Error(`canonical_test not found for "${input.canonicalSearch}"`);
+    }
+
+    const { data, error } = await this.supabase
+      .from('provider_tests')
+      .select('id, provider_id, canonical_test_id, external_code, name, normalized_name, source_url, raw_payload')
+      .eq('provider_id', provider.id)
+      .eq('external_code', input.providerTestCode)
+      .single();
+    assertNoError(error, 'select provider_test for manual match');
+    const providerTest = requireRow<DbProviderTestRow>(data as DbProviderTestRow | null, 'select provider_test for manual match');
+    const matchedAt = new Date().toISOString();
+    const rawPayload = {
+      ...(providerTest.raw_payload ?? {}),
+      manual_match: {
+        canonical_test_id: canonical.id,
+        canonical_code: canonical.code,
+        canonical_name_ru: canonical.name_ru,
+        matched_by: input.matchedBy,
+        matched_at: matchedAt,
+      },
+    };
+
+    if (input.write) {
+      const updatePayload: Record<string, unknown> = {
+        canonical_test_id: canonical.id,
+        match_status: 'manual_matched',
+        match_confidence: 1,
+        matched_at: matchedAt,
+        raw_payload: rawPayload,
+        updated_at: matchedAt,
+      };
+
+      if (input.matchedBy && isUuid(input.matchedBy)) {
+        updatePayload.matched_by = input.matchedBy;
+      }
+
+      const { error: updateError } = await this.supabase
+        .from('provider_tests')
+        .update(updatePayload)
+        .eq('id', providerTest.id);
+      assertNoError(updateError, 'manual update provider_tests');
+    }
+
+    return {
+      provider: {
+        id: provider.id,
+        code: provider.code,
+        name: provider.display_name ?? provider.name,
+      },
+      mode: input.write ? 'write' : 'dry-run',
+      provider_test: {
+        id: providerTest.id,
+        name: providerTest.name,
+        provider_test_code: providerTest.external_code ?? undefined,
+        source_url: providerTest.source_url ?? undefined,
+        previous_canonical_test_id: providerTest.canonical_test_id,
+      },
+      canonical_test: {
+        id: canonical.id,
+        code: canonical.code,
+        name_ru: canonical.name_ru,
+      },
+      matched_by: input.matchedBy,
+      updated: input.write ?? false,
+    };
+  }
+
+  async listProviderTestsForMatchQueue(input: {
+    providerCode: string;
+    cityName?: string;
+    limit?: number;
+  }): Promise<DbProviderTestMatchQueueItem[]> {
+    const provider = await this.selectSingle<DbProviderRow>('lab_providers', 'id, code, name, display_name', { code: input.providerCode });
+    const providerTests = await this.getUnmatchedProviderTestsByProvider({
+      providerId: provider.id,
+      cityName: input.cityName,
+      limit: input.limit ?? 100,
+    });
+
+    return providerTests.map((test) => ({
+      provider: {
+        id: provider.id,
+        code: provider.code,
+        name: provider.display_name ?? provider.name,
+      },
+      provider_test_id: test.id,
+      provider_test_name: test.name,
+      provider_test_code: test.external_code ?? undefined,
+      source_url: test.source_url ?? undefined,
+    }));
+  }
+
+  async listScraperRuns(limit = 50): Promise<DbScraperRunListItem[]> {
+    const { data, error } = await this.supabase
+      .from('scraper_runs')
+      .select(`
+        id,
+        run_type,
+        status,
+        started_at,
+        finished_at,
+        stats,
+        error,
+        lab_providers(code, name, display_name),
+        lab_regions(code, name, city)
+      `)
+      .order('started_at', { ascending: false })
+      .limit(limit);
+    assertNoError(error, 'select scraper_runs list');
+
+    return ((data ?? []) as Array<{
+      id: string;
+      run_type: string;
+      status: string;
+      started_at: string;
+      finished_at?: string | null;
+      stats?: Record<string, unknown> | null;
+      error?: string | null;
+      lab_providers?: DbScraperRunListItem['provider'];
+      lab_regions?: DbScraperRunListItem['region'];
+    }>).map((run) => ({
+      id: run.id,
+      provider: run.lab_providers,
+      region: run.lab_regions,
+      run_type: run.run_type,
+      status: run.status,
+      started_at: run.started_at,
+      finished_at: run.finished_at,
+      stats: run.stats ?? {},
+      error: run.error,
+    }));
+  }
+
   private async findProviderTest(input: {
     providerId: string;
     externalCode?: string;
@@ -971,6 +1171,10 @@ function assertNoError(error: { message?: string } | null, action: string): void
   if (error) {
     throw new Error(`${action} failed: ${error.message ?? JSON.stringify(error)}`);
   }
+}
+
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 
 function requireRow<T>(data: T | null, action: string): T {

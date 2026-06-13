@@ -17,6 +17,9 @@ importers:
 
   apps/admin:
     dependencies:
+      '@labmind/lab-crawlers':
+        specifier: workspace:*
+        version: link:../../packages/lab-crawlers
       '@supabase/supabase-js':
         specifier: ^2.48.1
         version: 2.108.1
@@ -55,37 +58,6 @@ importers:
         specifier: ^5.7.2
         version: 5.9.3
 
-  apps/web:
-    dependencies:
-      '@labmind/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
-      '@supabase/supabase-js':
-        specifier: ^2.47.10
-        version: 2.108.1
-      next:
-        specifier: ^15.0.3
-        version: 15.5.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      react:
-        specifier: ^19.0.0
-        version: 19.2.7
-      react-dom:
-        specifier: ^19.0.0
-        version: 19.2.7(react@19.2.7)
-    devDependencies:
-      '@types/node':
-        specifier: ^22.9.0
-        version: 22.19.21
-      '@types/react':
-        specifier: ^19.0.0
-        version: 19.2.17
-      '@types/react-dom':
-        specifier: ^19.0.0
-        version: 19.2.3(@types/react@19.2.17)
-      typescript:
-        specifier: ^5.6.3
-        version: 5.9.3
-
   apps/worker:
     dependencies:
       '@supabase/supabase-js':
@@ -115,36 +87,6 @@ importers:
         version: 4.22.4
       typescript:
         specifier: ^5.7.2
-        version: 5.9.3
-
-  packages/ai-report:
-    dependencies:
-      '@labmind/shared':
-        specifier: workspace:*
-        version: link:../shared
-    devDependencies:
-      typescript:
-        specifier: ^5.6.3
-        version: 5.9.3
-
-  packages/biomarker-engine:
-    dependencies:
-      '@labmind/shared':
-        specifier: workspace:*
-        version: link:../shared
-    devDependencies:
-      typescript:
-        specifier: ^5.6.3
-        version: 5.9.3
-
-  packages/document-parser:
-    dependencies:
-      '@labmind/shared':
-        specifier: workspace:*
-        version: link:../shared
-    devDependencies:
-      typescript:
-        specifier: ^5.6.3
         version: 5.9.3
 
   packages/lab-crawlers:

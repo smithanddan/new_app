@@ -18,6 +18,7 @@
     "compare:db": "pnpm build && node dist/scripts/compare-db.js",
     "compare:matrix": "pnpm build && node dist/scripts/compare-matrix.js",
     "match:db": "pnpm build && node dist/scripts/match-db.js",
+    "match:manual": "pnpm build && node dist/scripts/match-manual.js",
     "cheapest:basket": "pnpm build && node dist/scripts/cheapest-basket.js"
   },
   "dependencies": {

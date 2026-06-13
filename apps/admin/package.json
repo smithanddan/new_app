@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@labmind/lab-crawlers": "workspace:*",
     "@supabase/supabase-js": "^2.48.1",
     "next": "^15.1.4",
     "react": "^19.0.0",

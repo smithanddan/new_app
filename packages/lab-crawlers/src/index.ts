@@ -339,13 +339,31 @@ export {
   type PromotionSyncResult,
   type ScraperContext,
 } from './provider-scraper.js';
+export {
+  DEFAULT_PRODUCT_TESTS,
+  getBasket,
+  getCompareMatrix,
+  parseTestList,
+  type BasketMode,
+  type BasketMissingItem,
+  type BasketSelectedItem,
+  type PerTestBasket,
+  type ProductCompareMatrix,
+  type ProductCompareRow,
+  type ProductOffer,
+  type ProviderBasketOption,
+  type SingleProviderBasket,
+} from './product-layer.js';
 export { createLabCrawlerSupabaseClient, type LabCrawlerSupabaseClient } from './supabase-client.js';
 export {
   LabCatalogRepository,
   type DbCanonicalPriceComparison,
+  type DbManualMatchResult,
   type DbPriceComparisonOffer,
   type DbProviderTestMatchCandidate,
+  type DbProviderTestMatchQueueItem,
   type DbProviderTestMatchResult,
+  type DbScraperRunListItem,
   type DbUnmatchedProviderTestSuggestion,
   type PriceInsertResult,
   type ProviderRegionIds,
