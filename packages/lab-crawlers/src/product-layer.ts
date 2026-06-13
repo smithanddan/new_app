@@ -1,5 +1,6 @@
 import type {
   DbCanonicalPriceComparison,
+  DbMarketQualityStats,
   DbPriceComparisonOffer,
 } from './supabase-lab-catalog.repository.js';
 import type { LabCatalogRepository } from './supabase-lab-catalog.repository.js';
@@ -122,6 +123,34 @@ export type ProviderBasketOption = {
   complete: boolean;
 };
 
+export type ProductQualityReport = {
+  city: string;
+  stats: DbMarketQualityStats;
+  canonical_coverage: {
+    tests_count: number;
+    with_offers_count: number;
+    without_offers_count: number;
+    rows: ProductCompareRow[];
+  };
+  provider_coverage: Array<{
+    provider: ProductOffer['provider'];
+    tests_count: number;
+    offers_count: number;
+    cheapest_count: number;
+  }>;
+  price_spreads: Array<{
+    test: string;
+    cheapest: ProductOffer;
+    most_expensive: ProductOffer;
+    spread_rub: number;
+    spread_percent: number | null;
+  }>;
+  promo_rows: Array<{
+    test: string;
+    offer: ProductOffer;
+  }>;
+};
+
 type BasketComparison = {
   test: string;
   canonical_test: DbCanonicalPriceComparison['canonical_test'] | null;
@@ -226,6 +255,44 @@ export async function getMarketSummary(input: {
   });
 
   return matrix.rows[0]?.market_summary ?? null;
+}
+
+export async function getQualityReport(input: {
+  repository: LabCatalogRepository;
+  city: string;
+  tests?: string[];
+}): Promise<ProductQualityReport> {
+  const [stats, matrix] = await Promise.all([
+    input.repository.getMarketQualityStats(),
+    getCompareMatrix({
+      repository: input.repository,
+      city: input.city,
+      tests: input.tests ?? DEFAULT_PRODUCT_TESTS,
+    }),
+  ]);
+
+  const providerCoverage = buildProviderCoverage(matrix.rows);
+  const priceSpreads = matrix.rows
+    .map((row) => buildPriceSpread(row))
+    .filter((spread): spread is ProductQualityReport['price_spreads'][number] => spread !== null)
+    .sort((a, b) => b.spread_rub - a.spread_rub);
+  const promoRows = matrix.rows.flatMap((row) => row.offers
+    .filter((offer) => offer.offer_type === 'promo' || offer.promo_price_rub !== undefined)
+    .map((offer) => ({ test: row.test, offer })));
+
+  return {
+    city: input.city,
+    stats,
+    canonical_coverage: {
+      tests_count: matrix.rows.length,
+      with_offers_count: matrix.rows.filter((row) => row.offers_count > 0).length,
+      without_offers_count: matrix.rows.filter((row) => row.offers_count === 0).length,
+      rows: matrix.rows,
+    },
+    provider_coverage: providerCoverage,
+    price_spreads: priceSpreads,
+    promo_rows: promoRows,
+  };
 }
 
 export function parseTestList(value: string | undefined): string[] {
@@ -356,6 +423,50 @@ function buildMarketSummary(input: {
     avg_price_rub: average(totals),
     cheapest: pricedOffers[0],
     provider_distribution,
+  };
+}
+
+function buildProviderCoverage(rows: ProductCompareRow[]): ProductQualityReport['provider_coverage'] {
+  const byProvider = new Map<string, ProductQualityReport['provider_coverage'][number]>();
+
+  for (const row of rows) {
+    for (const group of row.provider_groups) {
+      const existing = byProvider.get(group.provider.code) ?? {
+        provider: group.provider,
+        tests_count: 0,
+        offers_count: 0,
+        cheapest_count: 0,
+      };
+      existing.tests_count += 1;
+      existing.offers_count += group.offers.length;
+      existing.cheapest_count += group.offers.some((offer) => offer.is_cheapest) ? 1 : 0;
+      byProvider.set(group.provider.code, existing);
+    }
+  }
+
+  return [...byProvider.values()]
+    .sort((a, b) => b.tests_count - a.tests_count || b.cheapest_count - a.cheapest_count);
+}
+
+function buildPriceSpread(row: ProductCompareRow): ProductQualityReport['price_spreads'][number] | null {
+  const pricedOffers = row.offers.filter((offer) => offer.total_price_rub !== undefined);
+  const providerCodes = new Set(pricedOffers.map((offer) => offer.provider.code));
+  if (pricedOffers.length < 2 || providerCodes.size < 2) {
+    return null;
+  }
+
+  const cheapest = pricedOffers[0];
+  const mostExpensive = pricedOffers[pricedOffers.length - 1];
+  const cheapestTotal = cheapest.total_price_rub as number;
+  const expensiveTotal = mostExpensive.total_price_rub as number;
+  const spreadRub = expensiveTotal - cheapestTotal;
+
+  return {
+    test: row.test,
+    cheapest,
+    most_expensive: mostExpensive,
+    spread_rub: spreadRub,
+    spread_percent: cheapestTotal === 0 ? null : Math.round((spreadRub / cheapestTotal) * 100),
   };
 }
 

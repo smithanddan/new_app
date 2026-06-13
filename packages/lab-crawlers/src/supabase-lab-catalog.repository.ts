@@ -263,6 +263,19 @@ export type DbScraperRunListItem = {
   error?: string | null;
 };
 
+export type DbMarketQualityStats = {
+  providers_count: number;
+  canonical_tests_count: number;
+  provider_tests_count: number;
+  provider_tests_matched_count: number;
+  provider_tests_unmatched_count: number;
+  provider_test_prices_count: number;
+  promotions_count: number;
+  promotion_items_count: number;
+  scraper_runs_count: number;
+  match_status_counts: Record<string, number>;
+};
+
 export class LabCatalogRepository {
   constructor(private readonly supabase: LabCrawlerSupabaseClient) {}
 
@@ -898,6 +911,45 @@ export class LabCatalogRepository {
     }));
   }
 
+  async getMarketQualityStats(): Promise<DbMarketQualityStats> {
+    const [
+      providersCount,
+      canonicalTestsCount,
+      providerTestsCount,
+      matchedCount,
+      unmatchedCount,
+      pricesCount,
+      promotionsCount,
+      promotionItemsCount,
+      scraperRunsCount,
+      matchStatuses,
+    ] = await Promise.all([
+      this.countRows('lab_providers'),
+      this.countRows('canonical_tests'),
+      this.countRows('provider_tests'),
+      this.countRows('provider_tests', { column: 'canonical_test_id', nullFilter: 'not_null' }),
+      this.countRows('provider_tests', { column: 'canonical_test_id', nullFilter: 'null' }),
+      this.countRows('provider_test_prices'),
+      this.countRows('lab_promotions'),
+      this.countRows('lab_promotion_items'),
+      this.countRows('scraper_runs'),
+      this.selectProviderTestMatchStatuses(),
+    ]);
+
+    return {
+      providers_count: providersCount,
+      canonical_tests_count: canonicalTestsCount,
+      provider_tests_count: providerTestsCount,
+      provider_tests_matched_count: matchedCount,
+      provider_tests_unmatched_count: unmatchedCount,
+      provider_test_prices_count: pricesCount,
+      promotions_count: promotionsCount,
+      promotion_items_count: promotionItemsCount,
+      scraper_runs_count: scraperRunsCount,
+      match_status_counts: countBy(matchStatuses.map((row) => row.match_status ?? 'unmatched')),
+    };
+  }
+
   private async findProviderTest(input: {
     providerId: string;
     externalCode?: string;
@@ -995,6 +1047,30 @@ export class LabCatalogRepository {
     const { data, error } = await query.single();
     assertNoError(error, `select ${table}`);
     return requireRow<T>(data as unknown as T | null, `select ${table}`);
+  }
+
+  private async countRows(
+    table: string,
+    filter?: { column: string; nullFilter: 'null' | 'not_null' },
+  ): Promise<number> {
+    let query = this.supabase.from(table).select('*', { count: 'exact', head: true });
+    if (filter?.nullFilter === 'null') {
+      query = query.is(filter.column, null);
+    } else if (filter?.nullFilter === 'not_null') {
+      query = query.not(filter.column, 'is', null);
+    }
+    const { count, error } = await query;
+    assertNoError(error, `count ${table}`);
+    return count ?? 0;
+  }
+
+  private async selectProviderTestMatchStatuses(): Promise<Array<{ match_status?: string | null }>> {
+    const { data, error } = await this.supabase
+      .from('provider_tests')
+      .select('match_status')
+      .limit(10000);
+    assertNoError(error, 'select provider_tests match_status');
+    return (data ?? []) as Array<{ match_status?: string | null }>;
   }
 
   private async getCanonicalTest(canonicalTestId: string): Promise<DbCanonicalTestRow> {
@@ -1257,6 +1333,13 @@ function assertNoError(error: { message?: string } | null, action: string): void
   if (error) {
     throw new Error(`${action} failed: ${error.message ?? JSON.stringify(error)}`);
   }
+}
+
+function countBy(values: string[]): Record<string, number> {
+  return values.reduce<Record<string, number>>((counts, value) => {
+    counts[value] = (counts[value] ?? 0) + 1;
+    return counts;
+  }, {});
 }
 
 function isUuid(value: string): boolean {

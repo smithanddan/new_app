@@ -3,6 +3,7 @@ import "server-only";
 import {
   getBasket,
   getCompareMatrix,
+  getQualityReport,
   parseTestList,
   type BasketMode,
 } from "@labmind/lab-crawlers/src/product-layer";
@@ -63,4 +64,18 @@ export async function getMatchPageData(input: { provider?: string; city?: string
 export async function getRunsPageData(input: { limit?: string }) {
   const repository = getRepository();
   return repository.listScraperRuns(Number(input.limit || 50));
+}
+
+export async function getDashboardPageData(input: { city?: string }) {
+  const repository = getRepository();
+  const city = input.city || DEFAULT_CITY;
+  const [report, runs] = await Promise.all([
+    getQualityReport({ repository, city }),
+    repository.listScraperRuns(5),
+  ]);
+
+  return {
+    report,
+    runs,
+  };
 }
