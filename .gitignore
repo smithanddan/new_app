@@ -9,3 +9,4 @@ coverage
 .DS_Store
 pnpm-lock.yaml
 *.tsbuildinfo
+supabase/.temp/
