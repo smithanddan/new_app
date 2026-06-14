@@ -64,6 +64,10 @@ Public service routes:
 - `/compare` — public-friendly decision table for one analysis;
 - `/basket` — basket optimization view with provider checkout links;
 - `/checkout` — server-side tracking redirect to the laboratory source URL.
+- `/test/[slug]`, `/compare/[slug]`, `/city/moscow/[testSlug]-price` — programmatic SEO pages;
+- `/basket/[slug]` — SEO pages for predefined check-up baskets;
+- `/api-docs` — B2B API documentation;
+- `/pricing` — future SaaS tiers and lead capture.
 
 Admin/internal routes:
 - `/compare` — decision table for one analysis;
@@ -85,6 +89,9 @@ curl "https://your-domain.example/api/v1/compare?test=Ферритин&city=Мо
 curl "https://your-domain.example/api/v1/basket-optimize?tests=Глюкоза,ТТГ,Ферритин&city=Москва"
 curl "https://your-domain.example/api/v1/market-stats?test=Ферритин&city=Москва"
 curl "https://your-domain.example/api/v1/cheapest?test=Ферритин&city=Москва"
+curl -X POST "https://your-domain.example/api/v1/leads" \
+  -H "content-type: application/json" \
+  -d '{"email":"team@example.com","company":"Clinic","plan":"Growth"}'
 ```
 
 Optional API key gate:
@@ -95,6 +102,20 @@ curl -H "x-api-key: key-1" "https://your-domain.example/api/v1/cheapest?test=Ф�
 ```
 
 If `LABPRICE_API_KEYS` is unset, the API is open for local/dev smoke testing.
+
+## SEO Growth Routes
+
+Examples:
+
+```text
+/test/ferritin
+/compare/ferritin
+/city/moscow/ferritin-price
+/basket/anemia-panel
+/basket/thyroid-checkup
+```
+
+Timeweb is not required for local validation. Run the admin app locally with `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`, then open the routes above.
 
 ## Stack
 

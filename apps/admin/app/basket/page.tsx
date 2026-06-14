@@ -50,14 +50,14 @@ export default async function BasketPage({ searchParams }: PageProps) {
         </form>
 
         <section className="mt-6 grid gap-3 md:grid-cols-4">
-          <Metric label="Recommendation" value={formatStrategy(data.recommendation.strategy)} />
-          <Metric label="Total" value={formatRub(data.recommendation.total_rub ?? undefined)} />
-          <Metric label="Savings" value={formatRub(data.recommendation.savings_rub ?? undefined)} />
-          <Metric label="Providers" value={String(recommendedProviderCount(data))} />
+          <Metric label="Лучший маршрут" value={formatStrategy(data.recommendation.strategy)} />
+          <Metric label="Итоговая цена" value={formatRub(data.recommendation.total_rub ?? undefined)} />
+          <Metric label="Экономия" value={formatRub(data.recommendation.savings_rub ?? undefined)} />
+          <Metric label="Лабораторий" value={String(recommendedProviderCount(data))} />
         </section>
 
         <section className="mt-6 border border-slate-200 bg-white p-4">
-          <div className="text-xs uppercase text-slate-500">Why</div>
+          <div className="text-xs uppercase text-slate-500">Почему это выгодно</div>
           <div className="mt-1 text-sm text-slate-800">{data.recommendation.why}</div>
           <div className="mt-2 text-xs text-slate-500">Route penalty: {data.provider_penalty_rub} RUB per extra provider</div>
         </section>

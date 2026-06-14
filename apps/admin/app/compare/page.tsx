@@ -53,11 +53,37 @@ export default async function ComparePage({ searchParams }: PageProps) {
                 <Metric label="Promo ratio" value={`${marketSummary.promo_ratio}%`} />
               </div>
               <div className="mt-4 border-t border-slate-200 pt-3 text-sm">
-                <div className="text-slate-500">Cheapest</div>
+                <div className="text-slate-500">Самый дешёвый вариант</div>
                 <div className="mt-1 font-medium">
                   {marketSummary.cheapest.provider.name}: {marketSummary.cheapest.provider_test_name}
                 </div>
                 <div className="mt-1 text-slate-700">{formatRub(marketSummary.cheapest.total_price_rub)}</div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {marketSummary.cheapest.source_url ? (
+                    <a
+                      className="inline-flex h-9 items-center bg-slate-950 px-3 text-xs font-medium text-white"
+                      href={buildCheckoutHref({
+                        providerCode: marketSummary.cheapest.provider.code,
+                        testName: test,
+                        canonicalTestId: row?.canonical_test?.id,
+                        providerTestId: marketSummary.cheapest.provider_test_id,
+                        targetUrl: marketSummary.cheapest.source_url,
+                        sourceUrl: marketSummary.cheapest.source_url,
+                        city,
+                        utmSource: "labprice",
+                        utmCampaign: "compare_best",
+                      })}
+                    >
+                      Перейти в лабораторию
+                    </a>
+                  ) : null}
+                  <Link
+                    className="inline-flex h-9 items-center border border-slate-300 px-3 text-xs font-medium"
+                    href={`/basket?tests=${encodeURIComponent(test)}&city=${encodeURIComponent(city)}`}
+                  >
+                    Добавить в корзину
+                  </Link>
+                </div>
               </div>
               <div className="mt-4 border-t border-slate-200 pt-3 text-sm">
                 <div className="text-slate-500">Spread</div>

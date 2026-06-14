@@ -4,6 +4,27 @@ LabPrice OS monetization starts with lightweight tracking and read-only APIs. Th
 
 ## Product Lines
 
+### SEO Traffic Engine
+
+Growth promise: capture search demand like "Ферритин где сдать дешево" and route it into comparison, basket optimization, and checkout.
+
+Current programmatic SEO surfaces:
+- `/test/[slug]` — analysis page with market summary and cheapest provider.
+- `/compare/[slug]` — SEO-friendly comparison table.
+- `/city/moscow/[testSlug]-price` — city + test price intent.
+- `/basket/[slug]` — predefined check-up baskets such as anemia and thyroid.
+- `/sitemap.xml` and `/robots.txt` — public routes are indexable, internal ops routes are blocked.
+
+SEO funnel:
+
+```text
+Google search
+  -> SEO page
+  -> compare or basket decision
+  -> /checkout tracking redirect
+  -> affiliate or lead revenue
+```
+
 ### B2C Service
 
 User promise: find where it is cheaper and simpler to submit lab tests.
@@ -30,9 +51,16 @@ Current skeleton endpoints:
 - `GET /api/v1/cheapest?test=Ферритин&city=Москва`
 
 Commercial packaging for later:
-- tiered monthly plans;
+- Starter: `$49/mo` for compare and cheapest APIs;
+- Growth: `$199/mo` for basket optimization and market stats;
+- Enterprise: `$499+/mo` for dashboard, regional analytics, and higher volume;
 - usage-based API billing;
 - white-label comparison and basket optimization.
+
+Current packaging pages:
+- `/api-docs` — endpoint docs and API key usage.
+- `/pricing` — future SaaS tiers and lead capture.
+- `POST /api/v1/leads` — records `lead_request` events.
 
 ### B2B Dashboard
 
@@ -85,4 +113,4 @@ Not included in v1:
 - Public auth.
 - Separate B2C app package.
 
-The first monetization wedge is deliberately small: public search, checkout tracking, and API packaging on top of the existing pricing engine.
+The first monetization wedge is deliberately small: public search, programmatic SEO pages, checkout tracking, and API packaging on top of the existing pricing engine.

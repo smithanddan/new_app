@@ -649,6 +649,11 @@ export class LabCatalogRepository {
     return matched ? mapCanonicalTest(matched) : undefined;
   }
 
+  async listCanonicalTests(): Promise<Array<DbCanonicalPriceComparison['canonical_test']>> {
+    const canonicalTests = await this.getCanonicalTests();
+    return canonicalTests.map(mapCanonicalTest);
+  }
+
   async compareCanonicalTestPricesFromDb(
     canonicalTestId: string,
     cityName: string,
