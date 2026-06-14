@@ -394,6 +394,8 @@ export {
   type DbProviderTestMatchResult,
   type DbScraperRunListItem,
   type DbUnmatchedProviderTestSuggestion,
+  type MonetizationEventInput,
+  type MonetizationEventType,
   type PriceInsertResult,
   type ProviderRegionIds,
   type ScraperRunResult,
