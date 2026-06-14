@@ -1097,6 +1097,19 @@ export class LabCatalogRepository {
     labRegionId: string;
     promotion: LabPromotionRecord;
   }): Promise<DbIdRow | undefined> {
+    if (input.promotion.externalId) {
+      const { data, error } = await this.supabase
+        .from('lab_promotions')
+        .select('id')
+        .eq('provider_id', input.providerId)
+        .eq('external_id', input.promotion.externalId)
+        .maybeSingle();
+      assertNoError(error, 'select lab_promotions by external_id');
+      if (data) {
+        return data;
+      }
+    }
+
     let query = this.supabase
       .from('lab_promotions')
       .select('id')
