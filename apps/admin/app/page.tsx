@@ -2,6 +2,7 @@ import Link from "next/link";
 
 export default function HomePage() {
   const links = [
+    { href: "/search", title: "Public search", description: "Публичный вход: поиск анализа или корзины" },
     { href: "/dashboard", title: "Dashboard", description: "Качество базы, coverage, market spreads и последние запуски" },
     { href: "/compare", title: "Сравнение", description: "Поиск анализа и таблица цен по лабораториям" },
     { href: "/basket", title: "Корзина", description: "Расчёт минимальной стоимости набора анализов" },

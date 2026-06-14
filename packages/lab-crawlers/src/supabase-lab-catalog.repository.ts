@@ -94,6 +94,21 @@ export type ScraperRunResult = {
 };
 
 export type ScraperRunSource = 'manual' | 'scheduled' | 'backfill' | 'ci';
+export type MonetizationEventType = 'affiliate_click' | 'basket_checkout' | 'lead_request' | 'api_request';
+
+export type MonetizationEventInput = {
+  eventType: MonetizationEventType;
+  providerCode?: string;
+  canonicalTestId?: string;
+  providerTestId?: string;
+  sourceUrl?: string;
+  targetUrl?: string;
+  utmSource?: string;
+  utmCampaign?: string;
+  sessionId?: string;
+  city?: string;
+  rawPayload?: unknown;
+};
 
 export type DbPriceComparisonOffer = {
   provider: {
@@ -593,8 +608,30 @@ export class LabCatalogRepository {
         status: input.status,
         message: input.message,
         raw_payload: input.rawPayload,
-      });
+    });
     assertNoError(error, 'insert scraper_run_items');
+  }
+
+  async logMonetizationEvent(input: MonetizationEventInput): Promise<void> {
+    const provider = input.providerCode
+      ? await this.selectMaybeSingle<DbProviderRow>('lab_providers', 'id, code, name, display_name', { code: input.providerCode })
+      : undefined;
+    const { error } = await this.supabase
+      .from('monetization_events')
+      .insert({
+        event_type: input.eventType,
+        provider_id: provider?.id,
+        canonical_test_id: input.canonicalTestId,
+        provider_test_id: input.providerTestId,
+        source_url: input.sourceUrl,
+        target_url: input.targetUrl,
+        utm_source: input.utmSource,
+        utm_campaign: input.utmCampaign,
+        session_id: input.sessionId,
+        city: input.city,
+        raw_payload: input.rawPayload ?? {},
+      });
+    assertNoError(error, 'insert monetization_events');
   }
 
   async findCanonicalTestBySearch(testSearch: string): Promise<DbCanonicalPriceComparison['canonical_test'] | undefined> {
@@ -1122,6 +1159,20 @@ export class LabCatalogRepository {
     const { data, error } = await query.single();
     assertNoError(error, `select ${table}`);
     return requireRow<T>(data as unknown as T | null, `select ${table}`);
+  }
+
+  private async selectMaybeSingle<T extends DbIdRow>(
+    table: string,
+    columns: string,
+    filters: Record<string, string>,
+  ): Promise<T | undefined> {
+    let query = this.supabase.from(table).select(columns);
+    for (const [key, value] of Object.entries(filters)) {
+      query = query.eq(key, value);
+    }
+    const { data, error } = await query.maybeSingle();
+    assertNoError(error, `select ${table}`);
+    return (data as unknown as T | null) ?? undefined;
   }
 
   private async countRows(

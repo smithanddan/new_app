@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { buildCheckoutHref } from "../lib/checkout";
 import { getBasketPageData, DEFAULT_CITY } from "../lib/lab-data";
 import type {
   BasketOptimizationResult,
@@ -21,10 +22,13 @@ export default async function BasketPage({ searchParams }: PageProps) {
       <div className="mx-auto max-w-7xl">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <Link href="/" className="text-sm text-slate-500">Админка</Link>
+            <Link href="/search" className="text-sm text-slate-500">Поиск</Link>
             <h1 className="mt-1 text-3xl font-semibold">Корзина анализов</h1>
           </div>
-          <Link href="/compare" className="border border-slate-300 px-3 py-2 text-sm">Сравнение</Link>
+          <div className="flex gap-2">
+            <Link href="/compare" className="border border-slate-300 px-3 py-2 text-sm">Сравнение</Link>
+            <Link href="/dashboard" className="border border-slate-300 px-3 py-2 text-sm">Dashboard</Link>
+          </div>
         </div>
 
         <form className="mt-6 grid gap-3 border-y border-slate-200 bg-white p-4 md:grid-cols-[1fr_180px_auto]">
@@ -59,8 +63,8 @@ export default async function BasketPage({ searchParams }: PageProps) {
         </section>
 
         <section className="mt-6 grid gap-6 xl:grid-cols-2">
-          <RouteOption title="Option A — single provider" option={data.single_provider_option} />
-          <RouteOption title="Option B — split providers" option={data.split_provider_option} />
+          <RouteOption title="Option A — single provider" option={data.single_provider_option} city={city} />
+          <RouteOption title="Option B — split providers" option={data.split_provider_option} city={city} />
         </section>
 
         <section className="mt-6 overflow-x-auto border border-slate-200 bg-white">
@@ -94,7 +98,7 @@ export default async function BasketPage({ searchParams }: PageProps) {
   );
 }
 
-function RouteOption({ title, option }: { title: string; option: BasketRouteOption }) {
+function RouteOption({ title, option, city }: { title: string; option: BasketRouteOption; city: string }) {
   return (
     <section className="border border-slate-200 bg-white">
       <div className="border-b border-slate-200 px-4 py-3">
@@ -109,7 +113,7 @@ function RouteOption({ title, option }: { title: string; option: BasketRouteOpti
         ) : (
           <div className="grid gap-4">
             {option.groups.map((group) => (
-              <ProviderGroup key={group.provider.code} group={group} />
+              <ProviderGroup key={group.provider.code} group={group} city={city} />
             ))}
           </div>
         )}
@@ -118,7 +122,7 @@ function RouteOption({ title, option }: { title: string; option: BasketRouteOpti
   );
 }
 
-function ProviderGroup({ group }: { group: BasketRouteProviderGroup }) {
+function ProviderGroup({ group, city }: { group: BasketRouteProviderGroup; city: string }) {
   return (
     <div className="border border-slate-200">
       <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-3 py-2 text-sm">
@@ -131,6 +135,24 @@ function ProviderGroup({ group }: { group: BasketRouteProviderGroup }) {
             <div>
               <div className="font-medium">{item.test}</div>
               <div className="text-xs text-slate-500">{item.offer.provider_test_name}</div>
+              {item.offer.source_url ? (
+                <a
+                  className="mt-2 inline-flex h-7 items-center border border-blue-700 px-2 text-xs font-medium text-blue-700 hover:bg-blue-50"
+                  href={buildCheckoutHref({
+                    providerCode: item.offer.provider.code,
+                    testName: item.test,
+                    canonicalTestId: item.canonical_test?.id,
+                    providerTestId: item.offer.provider_test_id,
+                    targetUrl: item.offer.source_url,
+                    sourceUrl: item.offer.source_url,
+                    city,
+                    utmSource: "labprice",
+                    utmCampaign: "basket",
+                  })}
+                >
+                  Перейти в лабораторию
+                </a>
+              ) : null}
             </div>
             <div>{formatRub(item.test_price_rub)}</div>
           </div>

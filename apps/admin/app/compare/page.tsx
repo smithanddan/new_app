@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Fragment } from "react";
+import { buildCheckoutHref } from "../lib/checkout";
 import { getComparePageData, DEFAULT_CITY } from "../lib/lab-data";
 
 type PageProps = {
@@ -132,7 +133,24 @@ export default async function ComparePage({ searchParams }: PageProps) {
                       <td className="px-3 py-3">{formatOfferType(offer.offer_type)}</td>
                       <td className="px-3 py-3">{offer.offer_source}</td>
                       <td className="px-3 py-3">
-                        {offer.source_url ? <a className="text-blue-700 underline" href={offer.source_url}>url</a> : "-"}
+                        {offer.source_url ? (
+                          <a
+                            className="inline-flex h-8 items-center border border-blue-700 px-3 text-xs font-medium text-blue-700 hover:bg-blue-50"
+                            href={buildCheckoutHref({
+                              providerCode: offer.provider.code,
+                              testName: test,
+                              canonicalTestId: row?.canonical_test?.id,
+                              providerTestId: offer.provider_test_id,
+                              targetUrl: offer.source_url,
+                              sourceUrl: offer.source_url,
+                              city,
+                              utmSource: "labprice",
+                              utmCampaign: "compare",
+                            })}
+                          >
+                            Перейти
+                          </a>
+                        ) : "-"}
                       </td>
                     </tr>
                   ))}
@@ -157,11 +175,12 @@ function Header({ title }: { title: string }) {
   return (
     <div className="flex items-center justify-between gap-4">
       <div>
-        <Link href="/" className="text-sm text-slate-500">Админка</Link>
+        <Link href="/search" className="text-sm text-slate-500">Поиск</Link>
         <h1 className="mt-1 text-3xl font-semibold">{title}</h1>
       </div>
       <nav className="flex gap-2 text-sm">
         <Link href="/basket" className="border border-slate-300 px-3 py-2">Корзина</Link>
+        <Link href="/dashboard" className="border border-slate-300 px-3 py-2">Dashboard</Link>
         <Link href="/match" className="border border-slate-300 px-3 py-2">Матчинг</Link>
         <Link href="/runs" className="border border-slate-300 px-3 py-2">Запуски</Link>
       </nav>
