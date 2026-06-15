@@ -84,6 +84,19 @@ export default async function SearchPage({ searchParams }: PageProps) {
           <QuickList title="Популярные анализы" items={quickTests} city={city} lat={lat} lng={lng} type="test" />
           <QuickList title="Готовые корзины" items={quickBaskets} city={city} lat={lat} lng={lng} type="basket" />
         </section>
+
+        <section className="mt-6 border border-blue-100 bg-blue-50 p-5">
+          <div className="text-sm font-semibold text-blue-950">Есть направление от врача?</div>
+          <p className="mt-2 text-sm text-blue-900">
+            Загрузите фото печатного направления или вставьте текст из мессенджера — мы соберём корзину анализов.
+          </p>
+          <Link
+            href={buildScanHref({ city, lat, lng })}
+            className="mt-4 inline-flex h-10 items-center bg-blue-700 px-4 text-sm font-medium text-white"
+          >
+            Сканировать направление
+          </Link>
+        </section>
       </div>
     </main>
   );
@@ -137,4 +150,14 @@ function buildResultHref(input: {
   }
 
   return `${input.type === "test" ? "/compare" : "/basket"}?${params.toString()}`;
+}
+
+function buildScanHref(input: { city: string; lat: string; lng: string }): string {
+  const params = new URLSearchParams();
+  params.set("city", input.city);
+  if (input.lat && input.lng) {
+    params.set("lat", input.lat);
+    params.set("lng", input.lng);
+  }
+  return `/scan?${params.toString()}`;
 }

@@ -7,6 +7,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const urls: MetadataRoute.Sitemap = [
     route(siteUrl, "/search", now, "daily", 0.8),
+    route(siteUrl, "/scan", now, "daily", 0.75),
     route(siteUrl, "/api-docs", now, "monthly", 0.5),
     route(siteUrl, "/pricing", now, "monthly", 0.6),
   ];

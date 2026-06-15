@@ -16,6 +16,7 @@ The repository started as a generic web-monitor starter, but the current directi
 - Compares provider offers for one analysis.
 - Optimizes baskets across single-provider and split-provider routes.
 - Adds Geo v1 context for “cheapest + closest” decisions when user coordinates are passed.
+- Scans printed referrals or pasted messenger/email text into a basket of tests.
 - Shows market intelligence: min, max, median, average, promo ratio, and provider distribution.
 - Keeps INVITRO in safe probe mode until ingestion is reliable.
 
@@ -66,6 +67,7 @@ The Next app now contains a lightweight public service layer plus the closed/int
 
 Public service routes:
 - `/search` — entry point for one test or a basket;
+- `/scan` — printed referral/photo/text scanner into a confirmed basket;
 - `/compare` — public-friendly decision table for one analysis;
 - `/basket` — basket optimization view with provider checkout links;
 - `/checkout` — server-side tracking redirect to the laboratory source URL.

@@ -386,6 +386,16 @@ export {
   type SingleProviderBasket,
 } from './product-layer.js';
 export {
+  normalizeReferralItems,
+  normalizeReferralText,
+  parseReferralText,
+  scanReferralText,
+  type ReferralMatch,
+  type ReferralRawItem,
+  type ReferralScannerStatus,
+  type ReferralScanResult,
+} from './referral-scanner.js';
+export {
   MockGeoProvider,
   YandexGeoProvider,
   calculateDistanceKm,

@@ -3,6 +3,7 @@ import Link from "next/link";
 export default function HomePage() {
   const links = [
     { href: "/search", title: "Public search", description: "Публичный вход: поиск анализа или корзины" },
+    { href: "/scan", title: "Direction scanner", description: "Фото/текст направления → корзина анализов" },
     { href: "/test/ferritin", title: "SEO test page", description: "Programmatic SEO страница анализа" },
     { href: "/basket/anemia-panel", title: "SEO basket page", description: "Programmatic SEO страница корзины" },
     { href: "/api-docs", title: "API docs", description: "B2B API packaging и примеры" },
