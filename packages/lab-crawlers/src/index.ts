@@ -358,8 +358,10 @@ export {
 } from './crawler-runner.js';
 export {
   DEFAULT_PRODUCT_TESTS,
+  compareCanonicalTestPricesWithGeo,
   getBasket,
   getBasketOptimization,
+  getBasketOptimizationWithGeo,
   getCompareMatrix,
   getMarketSummary,
   getQualityReport,
@@ -383,6 +385,18 @@ export {
   type ProviderBasketOption,
   type SingleProviderBasket,
 } from './product-layer.js';
+export {
+  MockGeoProvider,
+  YandexGeoProvider,
+  calculateDistanceKm,
+  getNearestLocationForProvider,
+  rankLocationsByDistance,
+  type GeoPoint,
+  type GeoProvider,
+  type LabLocation,
+  type PickupType,
+  type RankedLabLocation,
+} from './geo-service.js';
 export { createLabCrawlerSupabaseClient, type LabCrawlerSupabaseClient } from './supabase-client.js';
 export {
   LabCatalogRepository,

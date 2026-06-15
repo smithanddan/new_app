@@ -4,6 +4,13 @@ import type {
   DbPriceComparisonOffer,
 } from './supabase-lab-catalog.repository.js';
 import type { LabCatalogRepository } from './supabase-lab-catalog.repository.js';
+import {
+  getNearestLocationForProvider,
+  type GeoPoint,
+  type LabLocation,
+  type PickupType,
+  type RankedLabLocation,
+} from './geo-service.js';
 
 export const DEFAULT_PRODUCT_TESTS = [
   'Общий анализ крови',
@@ -36,6 +43,10 @@ export type ProductOffer = {
   source_url?: string;
   fetched_at: string;
   is_cheapest: boolean;
+  nearest_location?: RankedLabLocation;
+  distance_km?: number;
+  pickup_type?: PickupType;
+  geo_score?: number;
 };
 
 export type ProductProviderGroup = {
@@ -155,6 +166,9 @@ export type BasketRouteProviderGroup = {
   tests_total_rub: number;
   biomaterial_fee_rub: number;
   total_rub: number;
+  nearest_location?: RankedLabLocation;
+  distance_km?: number;
+  pickup_type?: PickupType;
 };
 
 export type BasketRouteOption = {
@@ -222,14 +236,29 @@ type BasketComparison = {
   error?: 'canonical_test_not_found';
 };
 
+type GeoEnrichmentInput = {
+  userLocation?: GeoPoint;
+  sort?: 'price' | 'distance';
+};
+
+type GeoContext = {
+  userLocation: GeoPoint;
+  locations: LabLocation[];
+};
+
 export async function getCompareMatrix(input: {
   repository: LabCatalogRepository;
   city: string;
   tests?: string[];
   test?: string;
+  userLocation?: GeoPoint;
+  sort?: 'price' | 'distance';
 }): Promise<ProductCompareMatrix> {
   const tests = input.test ? [input.test] : input.tests ?? DEFAULT_PRODUCT_TESTS;
   const rows: ProductCompareRow[] = [];
+  const geoContext = input.userLocation
+    ? await buildGeoContext(input.repository, input.city, input.userLocation)
+    : undefined;
 
   for (const testSearch of tests) {
     const canonical = await input.repository.findCanonicalTestBySearch(testSearch);
@@ -250,14 +279,17 @@ export async function getCompareMatrix(input: {
     }
 
     const comparison = await input.repository.compareCanonicalTestPricesFromDb(canonical.id, input.city);
-    const offers = markCheapest(comparison.offers.map(normalizeProductOffer));
+    const offers = markCheapest(
+      enrichOffersWithGeo(comparison.offers.map(normalizeProductOffer), geoContext),
+      input.sort ?? 'price',
+    );
     rows.push({
       test: testSearch,
       canonical_test: comparison.canonical_test,
       offers_count: offers.length,
       cheapest: offers[0] ?? null,
       offers,
-      provider_groups: groupOffersByProvider(offers),
+      provider_groups: groupOffersByProvider(offers, input.sort ?? 'price'),
       market_summary: buildMarketSummary({
         test: testSearch,
         canonicalTest: comparison.canonical_test,
@@ -280,8 +312,13 @@ export async function getBasket(input: {
   city: string;
   tests: string[];
   mode?: BasketMode;
+  userLocation?: GeoPoint;
+  sort?: 'price' | 'distance';
 }): Promise<PerTestBasket | SingleProviderBasket> {
-  const comparisons = await getBasketComparisons(input.repository, input.city, input.tests);
+  const comparisons = await getBasketComparisons(input.repository, input.city, input.tests, {
+    userLocation: input.userLocation,
+    sort: input.sort,
+  });
   const perTestBasket = buildPerTestBasket(comparisons);
   const singleProviderBasket = buildSingleProviderBasket(comparisons);
   const savings = calculateSavings(perTestBasket.total_price_rub, singleProviderBasket.selected_provider?.total_price_rub ?? null);
@@ -312,9 +349,14 @@ export async function getBasketOptimization(input: {
   city: string;
   tests: string[];
   providerPenaltyRub?: number;
+  userLocation?: GeoPoint;
+  sort?: 'price' | 'distance';
 }): Promise<BasketOptimizationResult> {
   const providerPenaltyRub = input.providerPenaltyRub ?? 300;
-  const comparisons = await getBasketComparisons(input.repository, input.city, input.tests);
+  const comparisons = await getBasketComparisons(input.repository, input.city, input.tests, {
+    userLocation: input.userLocation,
+    sort: input.sort,
+  });
   const costMatrix = buildCostMatrix(comparisons);
   const missing = comparisons
     .filter((comparison) => comparison.offers.length === 0)
@@ -337,6 +379,44 @@ export async function getBasketOptimization(input: {
     recommendation,
     missing,
   };
+}
+
+export async function compareCanonicalTestPricesWithGeo(input: {
+  repository: LabCatalogRepository;
+  city: string;
+  test: string;
+  userLat: number;
+  userLng: number;
+  sort?: 'price' | 'distance';
+}): Promise<ProductCompareRow> {
+  const matrix = await getCompareMatrix({
+    repository: input.repository,
+    city: input.city,
+    test: input.test,
+    userLocation: { lat: input.userLat, lng: input.userLng },
+    sort: input.sort,
+  });
+
+  return matrix.rows[0];
+}
+
+export async function getBasketOptimizationWithGeo(input: {
+  repository: LabCatalogRepository;
+  city: string;
+  tests: string[];
+  userLat: number;
+  userLng: number;
+  providerPenaltyRub?: number;
+  sort?: 'price' | 'distance';
+}): Promise<BasketOptimizationResult> {
+  return getBasketOptimization({
+    repository: input.repository,
+    city: input.city,
+    tests: input.tests,
+    providerPenaltyRub: input.providerPenaltyRub,
+    userLocation: { lat: input.userLat, lng: input.userLng },
+    sort: input.sort,
+  });
 }
 
 export async function getMarketSummary(input: {
@@ -427,8 +507,12 @@ async function getBasketComparisons(
   repository: LabCatalogRepository,
   city: string,
   tests: string[],
+  geoInput: GeoEnrichmentInput = {},
 ): Promise<BasketComparison[]> {
   const comparisons: BasketComparison[] = [];
+  const geoContext = geoInput.userLocation
+    ? await buildGeoContext(repository, city, geoInput.userLocation)
+    : undefined;
 
   for (const testSearch of tests) {
     const canonical = await repository.findCanonicalTestBySearch(testSearch);
@@ -447,7 +531,10 @@ async function getBasketComparisons(
     comparisons.push({
       test: testSearch,
       canonical_test: comparison.canonical_test,
-      offers: markCheapest(comparison.offers.map(normalizeProductOffer))
+      offers: markCheapest(
+        enrichOffersWithGeo(comparison.offers.map(normalizeProductOffer), geoContext),
+        geoInput.sort ?? 'price',
+      )
         .filter((offer) => offer.total_price_rub !== undefined),
     });
   }
@@ -455,17 +542,71 @@ async function getBasketComparisons(
   return comparisons;
 }
 
-function markCheapest(offers: ProductOffer[]): ProductOffer[] {
-  const sorted = [...offers].sort((a, b) => (a.total_price_rub ?? Number.POSITIVE_INFINITY) - (b.total_price_rub ?? Number.POSITIVE_INFINITY));
-  const cheapestTotal = sorted[0]?.total_price_rub;
+async function buildGeoContext(
+  repository: LabCatalogRepository,
+  city: string,
+  userLocation: GeoPoint,
+): Promise<GeoContext> {
+  return {
+    userLocation,
+    locations: await repository.listLabLocations({ city }),
+  };
+}
+
+function enrichOffersWithGeo(offers: ProductOffer[], geoContext: GeoContext | undefined): ProductOffer[] {
+  if (!geoContext) {
+    return offers;
+  }
+
+  return offers.map((offer) => {
+    const nearest = getNearestLocationForProvider({
+      providerId: offer.provider.id,
+      userLocation: geoContext.userLocation,
+      labLocations: geoContext.locations,
+    });
+
+    if (!nearest) {
+      return offer;
+    }
+
+    return {
+      ...offer,
+      nearest_location: nearest,
+      distance_km: nearest.distance_km,
+      pickup_type: nearest.pickup_type,
+      geo_score: nearest.geo_score,
+    };
+  });
+}
+
+function markCheapest(offers: ProductOffer[], sort: 'price' | 'distance' = 'price'): ProductOffer[] {
+  const sorted = sortOffers(offers, sort);
+  const cheapestTotal = Math.min(
+    ...offers
+      .map((offer) => offer.total_price_rub)
+      .filter((value): value is number => value !== undefined),
+  );
 
   return sorted.map((offer) => ({
     ...offer,
-    is_cheapest: cheapestTotal !== undefined && offer.total_price_rub === cheapestTotal,
+    is_cheapest: Number.isFinite(cheapestTotal) && offer.total_price_rub === cheapestTotal,
   }));
 }
 
-function groupOffersByProvider(offers: ProductOffer[]): ProductProviderGroup[] {
+function sortOffers(offers: ProductOffer[], sort: 'price' | 'distance'): ProductOffer[] {
+  return [...offers].sort((a, b) => {
+    const priceDiff = (a.total_price_rub ?? Number.POSITIVE_INFINITY) - (b.total_price_rub ?? Number.POSITIVE_INFINITY);
+    const distanceDiff = (a.distance_km ?? Number.POSITIVE_INFINITY) - (b.distance_km ?? Number.POSITIVE_INFINITY);
+
+    if (sort === 'distance') {
+      return distanceDiff || priceDiff || a.provider.name.localeCompare(b.provider.name);
+    }
+
+    return priceDiff || distanceDiff || a.provider.name.localeCompare(b.provider.name);
+  });
+}
+
+function groupOffersByProvider(offers: ProductOffer[], sort: 'price' | 'distance' = 'price'): ProductProviderGroup[] {
   const byProvider = new Map<string, ProductOffer[]>();
 
   for (const offer of offers) {
@@ -476,14 +617,22 @@ function groupOffersByProvider(offers: ProductOffer[]): ProductProviderGroup[] {
 
   return [...byProvider.values()]
     .map((providerOffers) => {
-      const sorted = [...providerOffers].sort((a, b) => (a.total_price_rub ?? Number.POSITIVE_INFINITY) - (b.total_price_rub ?? Number.POSITIVE_INFINITY));
+      const sorted = sortOffers(providerOffers, sort);
       return {
         provider: sorted[0].provider,
         offers: sorted,
         cheapest: sorted[0],
       };
     })
-    .sort((a, b) => (a.cheapest.total_price_rub ?? Number.POSITIVE_INFINITY) - (b.cheapest.total_price_rub ?? Number.POSITIVE_INFINITY));
+    .sort((a, b) => {
+      if (sort === 'distance') {
+        return (a.cheapest.distance_km ?? Number.POSITIVE_INFINITY) - (b.cheapest.distance_km ?? Number.POSITIVE_INFINITY)
+          || (a.cheapest.total_price_rub ?? Number.POSITIVE_INFINITY) - (b.cheapest.total_price_rub ?? Number.POSITIVE_INFINITY);
+      }
+
+      return (a.cheapest.total_price_rub ?? Number.POSITIVE_INFINITY) - (b.cheapest.total_price_rub ?? Number.POSITIVE_INFINITY)
+        || (a.cheapest.distance_km ?? Number.POSITIVE_INFINITY) - (b.cheapest.distance_km ?? Number.POSITIVE_INFINITY);
+    });
 }
 
 function buildMarketSummary(input: {
@@ -627,12 +776,19 @@ function groupRouteItemsByProvider(items: BasketRouteItem[]): BasketRouteProvide
   return [...byProvider.values()].map((providerItems) => {
     const testsTotal = providerItems.reduce((sum, item) => sum + item.test_price_rub, 0);
     const biomaterialFee = Math.max(0, ...providerItems.map((item) => item.biomaterial_price_rub));
+    const nearest = providerItems
+      .map((item) => item.offer.nearest_location)
+      .filter((location): location is RankedLabLocation => location !== undefined)
+      .sort((a, b) => a.distance_km - b.distance_km)[0];
     return {
       provider: providerItems[0].offer.provider,
       items: providerItems,
       tests_total_rub: testsTotal,
       biomaterial_fee_rub: biomaterialFee,
       total_rub: testsTotal + biomaterialFee,
+      nearest_location: nearest,
+      distance_km: nearest?.distance_km,
+      pickup_type: nearest?.pickup_type,
     };
   }).sort((a, b) => a.provider.name.localeCompare(b.provider.name));
 }

@@ -4,6 +4,7 @@ import type {
   ProviderTestPriceRecord,
   ProviderTestRecord,
 } from './catalog-types.js';
+import type { LabLocation, PickupType } from './geo-service.js';
 import { normalizeProviderName } from './provider-scraper.js';
 import type { LabCrawlerSupabaseClient } from './supabase-client.js';
 
@@ -72,6 +73,21 @@ type DbRegionRow = {
   code: string;
   name: string;
   city: string;
+};
+type DbLabLocationRow = {
+  id: string;
+  provider_id: string;
+  lab_region_id?: string | null;
+  name: string;
+  address: string;
+  city: string;
+  lat: number | string;
+  lng: number | string;
+  geo_hash?: string | null;
+  coverage_radius_km?: number | string | null;
+  pickup_type: PickupType;
+  source_url?: string | null;
+  raw_payload?: Record<string, unknown> | null;
 };
 
 export type ProviderRegionIds = {
@@ -314,6 +330,27 @@ export class LabCatalogRepository {
       providerId: provider.id,
       labRegionId: region.id,
     };
+  }
+
+  async listLabLocations(input: {
+    city?: string;
+    providerIds?: string[];
+  } = {}): Promise<LabLocation[]> {
+    let query = this.supabase
+      .from('lab_locations')
+      .select('id, provider_id, lab_region_id, name, address, city, lat, lng, geo_hash, coverage_radius_km, pickup_type, source_url, raw_payload')
+      .order('name', { ascending: true });
+
+    if (input.city) {
+      query = query.eq('city', input.city);
+    }
+    if (input.providerIds && input.providerIds.length > 0) {
+      query = query.in('provider_id', input.providerIds);
+    }
+
+    const { data, error } = await query;
+    assertNoError(error, 'select lab_locations');
+    return ((data ?? []) as DbLabLocationRow[]).map(mapLabLocation);
   }
 
   async upsertProviderTest(input: {
@@ -1518,6 +1555,26 @@ function mapCanonicalTest(row: DbCanonicalTestRow): DbCanonicalPriceComparison['
     name_ru: row.name_ru,
     name_en: row.name_en,
     aliases: row.aliases ?? [],
+  };
+}
+
+function mapLabLocation(row: DbLabLocationRow): LabLocation {
+  return {
+    id: row.id,
+    provider_id: row.provider_id,
+    lab_region_id: row.lab_region_id,
+    name: row.name,
+    address: row.address,
+    city: row.city,
+    lat: Number(row.lat),
+    lng: Number(row.lng),
+    geo_hash: row.geo_hash,
+    coverage_radius_km: row.coverage_radius_km === null || row.coverage_radius_km === undefined
+      ? null
+      : Number(row.coverage_radius_km),
+    pickup_type: row.pickup_type,
+    source_url: row.source_url,
+    raw_payload: row.raw_payload,
   };
 }
 

@@ -8,15 +8,18 @@ export async function GET(request: NextRequest) {
 
   const test = getQueryParam(request, "test");
   const city = getQueryParam(request, "city", DEFAULT_CITY);
+  const lat = getQueryParam(request, "lat");
+  const lng = getQueryParam(request, "lng");
+  const sort = getQueryParam(request, "sort", "price");
   if (!test) {
     return jsonError("test is required");
   }
 
-  const data = await getComparePageData({ test, city });
+  const data = await getComparePageData({ test, city, lat, lng, sort });
   await logMonetizationEvent({
     eventType: "api_request",
     city,
-    rawPayload: { endpoint: "/api/v1/compare", test },
+    rawPayload: { endpoint: "/api/v1/compare", test, hasGeo: Boolean(lat && lng) },
   });
 
   return NextResponse.json(data);

@@ -15,6 +15,7 @@ The repository started as a generic web-monitor starter, but the current directi
 - Matches provider tests to canonical tests with automatic and manual workflows.
 - Compares provider offers for one analysis.
 - Optimizes baskets across single-provider and split-provider routes.
+- Adds Geo v1 context for “cheapest + closest” decisions when user coordinates are passed.
 - Shows market intelligence: min, max, median, average, promo ratio, and provider distribution.
 - Keeps INVITRO in safe probe mode until ingestion is reliable.
 
@@ -29,6 +30,8 @@ The repository started as a generic web-monitor starter, but the current directi
       |
 [ Pricing Graph ]
       |
+[ Geo Intelligence ]
+      |
 [ Basket Optimization ]
       |
 [ Market Intelligence ]
@@ -39,6 +42,7 @@ The repository started as a generic web-monitor starter, but the current directi
 ```
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full architecture.
+See [docs/GEO.md](docs/GEO.md) for the Geo Intelligence roadmap and no-maps v1 behavior.
 See [docs/PRODUCTION.md](docs/PRODUCTION.md) for CI/CD, Timeweb deploy, scheduled crawlers, and run safety.
 See [docs/MONETIZATION.md](docs/MONETIZATION.md) for the B2C funnel and B2B API packaging.
 
@@ -86,7 +90,9 @@ Examples:
 
 ```bash
 curl "https://your-domain.example/api/v1/compare?test=Ферритин&city=Москва"
+curl "https://your-domain.example/api/v1/compare?test=Ферритин&city=Москва&lat=55.75&lng=37.62"
 curl "https://your-domain.example/api/v1/basket-optimize?tests=Глюкоза,ТТГ,Ферритин&city=Москва"
+curl "https://your-domain.example/api/v1/basket-optimize?tests=Глюкоза,ТТГ&city=Москва&lat=55.75&lng=37.62"
 curl "https://your-domain.example/api/v1/market-stats?test=Ферритин&city=Москва"
 curl "https://your-domain.example/api/v1/cheapest?test=Ферритин&city=Москва"
 curl -X POST "https://your-domain.example/api/v1/leads" \

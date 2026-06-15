@@ -11,6 +11,8 @@ LabPrice OS is a decision engine for healthcare pricing. The system is no longer
       |
 [ Pricing Graph Layer ]
       |
+[ Geo Intelligence Layer ]
+      |
 [ Optimization Engine ]
       |
 [ Market Intelligence Layer ]
@@ -88,7 +90,24 @@ For basket optimization, biomaterial fees are deduplicated once per selected pro
 
 This layer is the core bridge between normalized data and optimization.
 
-## 4. Optimization Engine
+## 4. Geo Intelligence Layer
+
+Goal: add the physical-world context needed to answer "cheapest and closest", not only "cheapest".
+
+Current v1 model:
+- `lab_locations` stores provider branch/pickup points, city, address, latitude, longitude, pickup type, source URL, and raw payload.
+- User location is not stored; it is passed per request via `lat` and `lng`.
+- `GeoService` is pure TypeScript and uses Haversine distance.
+- Yandex Maps is intentionally not a core dependency. Future Yandex geocoding or distance matrix support must be implemented as a `GeoProvider` adapter.
+
+Product behavior:
+- `/compare` and `/basket` can receive `lat` and `lng`.
+- Offers can include nearest provider location, distance in kilometers, pickup type, and geo score.
+- Price remains the primary ranking by default; distance is displayed and can be used for `sort=distance`.
+
+This layer brings the real world into the pricing graph.
+
+## 5. Optimization Engine
 
 Goal: answer the practical question: where should a person submit a basket of tests?
 
@@ -112,7 +131,7 @@ pnpm --filter @labmind/lab-crawlers cheapest:basket -- --tests "Глюкоза,�
 
 This layer turns price comparison into an optimization problem.
 
-## 5. Market Intelligence Layer
+## 6. Market Intelligence Layer
 
 Goal: explain the market around a test, not only show one price.
 
@@ -134,7 +153,7 @@ Outputs:
 
 This layer answers: where is the market cheap, expensive, promotional, or fragmented?
 
-## 6. Product Layer
+## 7. Product Layer
 
 Goal: make the system usable by humans, not only by scripts.
 
@@ -156,7 +175,7 @@ Admin UI:
 
 This layer is the product surface.
 
-## 7. Observability Layer
+## 8. Observability Layer
 
 Goal: preserve system memory and make pipeline quality visible.
 
@@ -173,7 +192,7 @@ Rules:
 
 This layer is the system brain.
 
-## 8. Future Providers Layer
+## 9. Future Providers Layer
 
 INVITRO is intentionally staged:
 - probe first;

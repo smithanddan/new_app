@@ -2,16 +2,21 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { buildCheckoutHref } from "../lib/checkout";
 import { getComparePageData, DEFAULT_CITY } from "../lib/lab-data";
+import type { ProductOffer } from "@labmind/lab-crawlers/src/product-layer";
 
 type PageProps = {
-  searchParams: Promise<{ test?: string; city?: string }>;
+  searchParams: Promise<{ test?: string; city?: string; lat?: string; lng?: string; sort?: string }>;
 };
 
 export default async function ComparePage({ searchParams }: PageProps) {
   const params = await searchParams;
   const test = params.test || "Глюкоза";
   const city = params.city || DEFAULT_CITY;
-  const data = await getComparePageData({ test, city });
+  const lat = params.lat || "";
+  const lng = params.lng || "";
+  const sort = params.sort || "price";
+  const hasGeo = Boolean(lat && lng);
+  const data = await getComparePageData({ test, city, lat, lng, sort });
   const row = data.rows[0];
   const offers = row?.offers ?? [];
   const providerGroups = row?.provider_groups ?? [];
@@ -22,7 +27,7 @@ export default async function ComparePage({ searchParams }: PageProps) {
       <div className="mx-auto max-w-7xl">
         <Header title="Сравнение цен" />
 
-        <form className="mt-6 grid gap-3 border-y border-slate-200 bg-white p-4 md:grid-cols-[1fr_180px_auto]">
+        <form className="mt-6 grid gap-3 border-y border-slate-200 bg-white p-4 md:grid-cols-[1fr_160px_120px_120px_140px_auto]">
           <input
             name="test"
             defaultValue={test}
@@ -35,10 +40,35 @@ export default async function ComparePage({ searchParams }: PageProps) {
             className="h-10 border border-slate-300 px-3 text-sm outline-none focus:border-slate-900"
             placeholder="Город"
           />
+          <input
+            name="lat"
+            defaultValue={lat}
+            className="h-10 border border-slate-300 px-3 text-sm outline-none focus:border-slate-900"
+            placeholder="lat"
+          />
+          <input
+            name="lng"
+            defaultValue={lng}
+            className="h-10 border border-slate-300 px-3 text-sm outline-none focus:border-slate-900"
+            placeholder="lng"
+          />
+          <select
+            name="sort"
+            defaultValue={sort}
+            className="h-10 border border-slate-300 px-3 text-sm outline-none focus:border-slate-900"
+          >
+            <option value="price">Дешевле</option>
+            <option value="distance">Ближе</option>
+          </select>
           <button className="h-10 bg-slate-950 px-4 text-sm font-medium text-white">
             Найти
           </button>
         </form>
+        {hasGeo ? (
+          <div className="mt-3 border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-950">
+            Geo v1: цена остаётся главным критерием, расстояние показывается как подсказка. При сортировке “Ближе” сначала идут ближайшие точки.
+          </div>
+        ) : null}
 
         {marketSummary && (
           <section className="mt-6 grid gap-4 lg:grid-cols-[1fr_1.4fr]">
@@ -136,6 +166,9 @@ export default async function ComparePage({ searchParams }: PageProps) {
                 <th className="px-3 py-3">Итог</th>
                 <th className="px-3 py-3">Тип</th>
                 <th className="px-3 py-3">Источник</th>
+                <th className="px-3 py-3">Ближайшая точка</th>
+                <th className="px-3 py-3">Км</th>
+                <th className="px-3 py-3">Подсказка</th>
                 <th className="px-3 py-3">Ссылка</th>
               </tr>
             </thead>
@@ -143,7 +176,7 @@ export default async function ComparePage({ searchParams }: PageProps) {
               {providerGroups.map((group) => (
                 <Fragment key={group.provider.code}>
                   <tr className="border-t border-slate-300 bg-slate-50">
-                    <td className="px-3 py-2 text-xs font-semibold uppercase text-slate-500" colSpan={10}>
+                    <td className="px-3 py-2 text-xs font-semibold uppercase text-slate-500" colSpan={13}>
                       {group.provider.name} · {group.offers.length} offers · cheapest {formatRub(group.cheapest.total_price_rub)}
                     </td>
                   </tr>
@@ -158,6 +191,9 @@ export default async function ComparePage({ searchParams }: PageProps) {
                       <td className="px-3 py-3 font-semibold">{formatRub(offer.total_price_rub)}</td>
                       <td className="px-3 py-3">{formatOfferType(offer.offer_type)}</td>
                       <td className="px-3 py-3">{offer.offer_source}</td>
+                      <td className="px-3 py-3">{offer.nearest_location ? `${offer.nearest_location.name}, ${offer.nearest_location.address}` : "-"}</td>
+                      <td className="px-3 py-3">{formatDistance(offer.distance_km)}</td>
+                      <td className="px-3 py-3">{formatGeoHint(offer)}</td>
                       <td className="px-3 py-3">
                         {offer.source_url ? (
                           <a
@@ -184,7 +220,7 @@ export default async function ComparePage({ searchParams }: PageProps) {
               ))}
               {offers.length === 0 && (
                 <tr>
-                  <td className="px-3 py-6 text-slate-600" colSpan={10}>
+                  <td className="px-3 py-6 text-slate-600" colSpan={13}>
                     {row?.error === "canonical_test_not_found" ? "Анализ не найден в canonical_tests" : "Нет предложений"}
                   </td>
                 </tr>
@@ -229,4 +265,18 @@ function formatRub(value: number | undefined): string {
 
 function formatOfferType(value: string): string {
   return value === "promo" ? "promo" : "regular";
+}
+
+function formatDistance(value: number | undefined): string {
+  return value === undefined ? "-" : `${value} км`;
+}
+
+function formatGeoHint(offer: ProductOffer): string {
+  if (!offer.nearest_location) {
+    return "-";
+  }
+  if (offer.is_cheapest && offer.distance_km !== undefined) {
+    return "дешевле + рядом";
+  }
+  return "ближе";
 }

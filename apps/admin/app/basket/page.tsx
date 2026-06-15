@@ -8,14 +8,18 @@ import type {
 } from "@labmind/lab-crawlers/src/product-layer";
 
 type PageProps = {
-  searchParams: Promise<{ tests?: string; city?: string; mode?: string }>;
+  searchParams: Promise<{ tests?: string; city?: string; mode?: string; lat?: string; lng?: string; sort?: string }>;
 };
 
 export default async function BasketPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const tests = params.tests || "Глюкоза,ТТГ,Ферритин";
   const city = params.city || DEFAULT_CITY;
-  const data = await getBasketPageData({ tests, city, mode: params.mode || "optimization" }) as BasketOptimizationResult;
+  const lat = params.lat || "";
+  const lng = params.lng || "";
+  const sort = params.sort || "price";
+  const hasGeo = Boolean(lat && lng);
+  const data = await getBasketPageData({ tests, city, mode: params.mode || "optimization", lat, lng, sort }) as BasketOptimizationResult;
 
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-8 text-slate-950">
@@ -31,7 +35,7 @@ export default async function BasketPage({ searchParams }: PageProps) {
           </div>
         </div>
 
-        <form className="mt-6 grid gap-3 border-y border-slate-200 bg-white p-4 md:grid-cols-[1fr_180px_auto]">
+        <form className="mt-6 grid gap-3 border-y border-slate-200 bg-white p-4 md:grid-cols-[1fr_160px_120px_120px_140px_auto]">
           <input
             name="tests"
             defaultValue={tests}
@@ -44,10 +48,35 @@ export default async function BasketPage({ searchParams }: PageProps) {
             className="h-10 border border-slate-300 px-3 text-sm outline-none focus:border-slate-900"
             placeholder="Город"
           />
+          <input
+            name="lat"
+            defaultValue={lat}
+            className="h-10 border border-slate-300 px-3 text-sm outline-none focus:border-slate-900"
+            placeholder="lat"
+          />
+          <input
+            name="lng"
+            defaultValue={lng}
+            className="h-10 border border-slate-300 px-3 text-sm outline-none focus:border-slate-900"
+            placeholder="lng"
+          />
+          <select
+            name="sort"
+            defaultValue={sort}
+            className="h-10 border border-slate-300 px-3 text-sm outline-none focus:border-slate-900"
+          >
+            <option value="price">Дешевле</option>
+            <option value="distance">Ближе</option>
+          </select>
           <button className="h-10 bg-slate-950 px-4 text-sm font-medium text-white">
             Рассчитать
           </button>
         </form>
+        {hasGeo ? (
+          <div className="mt-3 border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-950">
+            Geo v1: для каждого выбранного провайдера показывается ближайшая mock/manual точка. Реальное время в пути и карты появятся позже.
+          </div>
+        ) : null}
 
         <section className="mt-6 grid gap-3 md:grid-cols-4">
           <Metric label="Лучший маршрут" value={formatStrategy(data.recommendation.strategy)} />
@@ -77,6 +106,8 @@ export default async function BasketPage({ searchParams }: PageProps) {
                 <th className="px-3 py-3">Анализ цена</th>
                 <th className="px-3 py-3">Забор</th>
                 <th className="px-3 py-3">Line total</th>
+                <th className="px-3 py-3">Ближайшая точка</th>
+                <th className="px-3 py-3">Км</th>
               </tr>
             </thead>
             <tbody>
@@ -88,6 +119,8 @@ export default async function BasketPage({ searchParams }: PageProps) {
                   <td className="px-3 py-3">{formatRub(row.test_price_rub)}</td>
                   <td className="px-3 py-3">{formatRub(row.biomaterial_price_rub)}</td>
                   <td className="px-3 py-3 font-semibold">{formatRub(row.line_total_rub)}</td>
+                  <td className="px-3 py-3">{row.offer.nearest_location ? `${row.offer.nearest_location.name}, ${row.offer.nearest_location.address}` : "-"}</td>
+                  <td className="px-3 py-3">{formatDistance(row.offer.distance_km)}</td>
                 </tr>
               ))}
             </tbody>
@@ -126,7 +159,14 @@ function ProviderGroup({ group, city }: { group: BasketRouteProviderGroup; city:
   return (
     <div className="border border-slate-200">
       <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-3 py-2 text-sm">
-        <div className="font-medium">{group.provider.name}</div>
+        <div>
+          <div className="font-medium">{group.provider.name}</div>
+          {group.nearest_location ? (
+            <div className="mt-1 text-xs text-slate-500">
+              Ближайшая точка: {group.nearest_location.address} · {formatDistance(group.distance_km)}
+            </div>
+          ) : null}
+        </div>
         <div>{formatRub(group.total_rub)}</div>
       </div>
       <div className="divide-y divide-slate-200">
@@ -196,4 +236,8 @@ function formatStrategy(value: string): string {
 
 function formatRub(value: number | undefined): string {
   return value === undefined ? "-" : `${value} ₽`;
+}
+
+function formatDistance(value: number | undefined): string {
+  return value === undefined ? "-" : `${value} км`;
 }
