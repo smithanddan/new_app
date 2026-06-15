@@ -6,6 +6,7 @@
   "scripts": {
     "dev:admin": "pnpm --filter @web-monitor/admin dev",
     "build:admin": "pnpm --filter @web-monitor/admin build",
+    "start:admin": "pnpm --filter @web-monitor/admin start",
     "worker:run": "pnpm --filter @web-monitor/worker start",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint"

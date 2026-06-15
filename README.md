@@ -44,6 +44,7 @@ The repository started as a generic web-monitor starter, but the current directi
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full architecture.
 See [docs/GEO.md](docs/GEO.md) for the Geo Intelligence roadmap and no-maps v1 behavior.
 See [docs/PRODUCTION.md](docs/PRODUCTION.md) for CI/CD, Timeweb deploy, scheduled crawlers, and run safety.
+See [docs/TIMEWEB.md](docs/TIMEWEB.md) for the exact Timeweb App Platform setup.
 See [docs/MONETIZATION.md](docs/MONETIZATION.md) for the B2C funnel and B2B API packaging.
 
 ## Key CLI Commands
@@ -122,6 +123,18 @@ Examples:
 ```
 
 Timeweb is not required for local validation. Run the admin app locally with `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`, then open the routes above.
+
+## Deploy
+
+For Timeweb, use App Platform with the Next.js admin app:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm build:admin
+pnpm start:admin
+```
+
+If native monorepo deployment fails, use `Dockerfile.timeweb` from the repository root.
 
 ## Stack
 
