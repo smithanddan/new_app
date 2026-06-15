@@ -1,3 +1,7 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 type ProbeFormat = 'table' | 'json';
 type BlockingLevel = 'low' | 'medium' | 'high';
 type RecommendedStrategy = 'http' | 'playwright' | 'hybrid';
@@ -9,6 +13,8 @@ type PageProbe = {
   blockingSignals: string[];
   selectorCandidates: string[];
   structureNotes: string[];
+  htmlBytes: number;
+  fixturePath?: string;
   error?: string;
 };
 
@@ -25,8 +31,10 @@ type InvitroProbeReport = {
 
 export {};
 
+const htmlSnapshot = Symbol('htmlSnapshot');
+
 const args = parseArgs(process.argv.slice(2));
-const report = await probeInvitro(args.city);
+const report = await probeInvitro(args.city, { saveFixtures: args.saveFixtures });
 
 if (args.format === 'json') {
   console.log(JSON.stringify(report, null, 2));
@@ -34,7 +42,7 @@ if (args.format === 'json') {
   printReport(report);
 }
 
-async function probeInvitro(city: string): Promise<InvitroProbeReport> {
+async function probeInvitro(city: string, options: { saveFixtures: boolean }): Promise<InvitroProbeReport> {
   const baseUrl = 'https://www.invitro.ru';
   const pages = [
     `${baseUrl}/analizes/for-doctors/`,
@@ -44,7 +52,7 @@ async function probeInvitro(city: string): Promise<InvitroProbeReport> {
   const probes = [];
 
   for (const url of pages) {
-    probes.push(await probePage(url));
+    probes.push(await probePage(url, options));
   }
 
   const blockingLevel = resolveBlockingLevel(probes);
@@ -66,18 +74,27 @@ async function probeInvitro(city: string): Promise<InvitroProbeReport> {
   };
 }
 
-async function probePage(url: string): Promise<PageProbe> {
+async function probePage(url: string, options: { saveFixtures: boolean }): Promise<PageProbe> {
   const httpProbe = await probePageWithHttp(url);
-  if (httpProbe.status && httpProbe.status < 400 && httpProbe.blockingSignals.length === 0) {
-    return httpProbe;
+  if (httpProbe.status && httpProbe.status < 400 && httpProbe.blockingSignals.length === 0 && !isSpaShellProbe(httpProbe)) {
+    return options.saveFixtures ? saveProbeFixture(httpProbe) : httpProbe;
   }
 
   const playwrightProbe = await probePageWithPlaywright(url);
-  return {
+  const mergedProbe = {
     ...playwrightProbe,
     blockingSignals: [...new Set([...httpProbe.blockingSignals, ...playwrightProbe.blockingSignals])],
     error: playwrightProbe.error ?? httpProbe.error,
   };
+  const snapshot = (playwrightProbe as PageProbe & { [htmlSnapshot]?: string })[htmlSnapshot]
+    ?? (httpProbe as PageProbe & { [htmlSnapshot]?: string })[htmlSnapshot];
+  if (snapshot) {
+    Object.defineProperty(mergedProbe, htmlSnapshot, {
+      value: snapshot,
+      enumerable: false,
+    });
+  }
+  return options.saveFixtures ? saveProbeFixture(mergedProbe) : mergedProbe;
 }
 
 async function probePageWithHttp(url: string): Promise<PageProbe> {
@@ -98,6 +115,7 @@ async function probePageWithHttp(url: string): Promise<PageProbe> {
       blockingSignals: ['http_error'],
       selectorCandidates: [],
       structureNotes: [],
+      htmlBytes: 0,
       error: error instanceof Error ? error.message : String(error),
     };
   }
@@ -121,6 +139,7 @@ async function probePageWithPlaywright(url: string): Promise<PageProbe> {
       blockingSignals: ['playwright_error'],
       selectorCandidates: [],
       structureNotes: [],
+      htmlBytes: 0,
       error: error instanceof Error ? error.message : String(error),
     };
   } finally {
@@ -129,14 +148,20 @@ async function probePageWithPlaywright(url: string): Promise<PageProbe> {
 }
 
 function buildPageProbe(url: string, status: number | null, html: string, transport: PageProbe['transport']): PageProbe {
-  return {
+  const probe: PageProbe = {
     url,
     status,
     transport,
     blockingSignals: detectBlockingSignals(status, html),
     selectorCandidates: detectSelectorCandidates(html),
     structureNotes: detectStructureNotes(url, html),
+    htmlBytes: Buffer.byteLength(html, 'utf8'),
   };
+  Object.defineProperty(probe, htmlSnapshot, {
+    value: html,
+    enumerable: false,
+  });
+  return probe;
 }
 
 function detectBlockingSignals(status: number | null, html: string): string[] {
@@ -144,8 +169,14 @@ function detectBlockingSignals(status: number | null, html: string): string[] {
   const lower = html.toLocaleLowerCase('ru-RU');
   if (status === 403) signals.push('403');
   if (status === 429) signals.push('429');
-  if (/ddos|captcha|cloudflare|access denied|bot/i.test(lower)) signals.push('anti_bot_text');
+  if (/ddos|captcha|cloudflare|access denied|anti[- ]?bot|bot protection|проверка.+бот|защит[аы] от бот/i.test(lower)) {
+    signals.push('anti_bot_text');
+  }
   if (/checking your browser|проверка браузера/i.test(lower)) signals.push('browser_check');
+  if (isSpaShellHtml(html)) signals.push('spa_shell');
+  if (/gmonit\.js|csrf-token-name|hmac-token-name/i.test(html) && !/(₽|руб|акци|анализ|catalog|price)/i.test(html)) {
+    signals.push('gmonit_shell');
+  }
   return signals;
 }
 
@@ -156,6 +187,8 @@ function detectSelectorCandidates(html: string): string[] {
     ['promo cards', /(?:акци|discount|promo|sale)/i],
     ['links to analyses', /href=["'][^"']*\/analizes\/[^"']*["']/i],
     ['json data', /<script[^>]+type=["']application\/ld\+json["']/i],
+    ['spa root', /<div[^>]+id=["']root["'][^>]*>/i],
+    ['frontend assets', /\/assets\/index-[^"']+\.js/i],
   ];
 
   return candidates
@@ -177,6 +210,15 @@ function detectStructureNotes(url: string, html: string): string[] {
   if (/\/local\/|bitrix|BX\./i.test(html)) {
     notes.push('Bitrix-like frontend signals');
   }
+  if (isSpaShellHtml(html)) {
+    notes.push('SPA shell; rendered catalog likely requires frontend API/runtime');
+  }
+  if (/\/assets\/index-[^"']+\.js/i.test(html)) {
+    notes.push('contains bundled frontend asset');
+  }
+  if (Buffer.byteLength(html, 'utf8') < 10_000) {
+    notes.push('small html body; likely shell, not catalog content');
+  }
   return notes;
 }
 
@@ -184,6 +226,9 @@ function resolveBlockingLevel(probes: PageProbe[]): BlockingLevel {
   const signals = probes.flatMap((probe) => probe.blockingSignals);
   if (signals.some((signal) => signal === '403' || signal === '429' || signal === 'browser_check')) {
     return 'high';
+  }
+  if (signals.some((signal) => signal === 'spa_shell' || signal === 'gmonit_shell')) {
+    return 'medium';
   }
   if (signals.length > 0) {
     return 'medium';
@@ -220,6 +265,8 @@ function printPageProbes(probes: PageProbe[]) {
     'Transport': probe.transport,
     'Blocking': probe.blockingSignals.join(', ') || '-',
     'Selectors': probe.selectorCandidates.join(', ') || '-',
+    'Bytes': String(probe.htmlBytes),
+    'Fixture': probe.fixturePath ?? '-',
     'Notes': probe.structureNotes.join(', ') || '-',
   })));
 }
@@ -244,10 +291,11 @@ function printRows(rows: Array<Record<string, string>>) {
   }
 }
 
-function parseArgs(values: string[]): { city: string; format: ProbeFormat } {
+function parseArgs(values: string[]): { city: string; format: ProbeFormat; saveFixtures: boolean } {
   const parsed = {
     city: 'moscow',
     format: 'table' as ProbeFormat,
+    saveFixtures: true,
   };
 
   for (let index = 0; index < values.length; index += 1) {
@@ -262,8 +310,58 @@ function parseArgs(values: string[]): { city: string; format: ProbeFormat } {
       }
       parsed.format = format;
       index += 1;
+    } else if (value === '--no-save-fixtures') {
+      parsed.saveFixtures = false;
     }
   }
 
   return parsed;
+}
+
+function isSpaShellProbe(probe: PageProbe): boolean {
+  return probe.blockingSignals.includes('spa_shell') || probe.blockingSignals.includes('gmonit_shell');
+}
+
+function isSpaShellHtml(html: string): boolean {
+  return /<div[^>]+id=["']root["'][^>]*>\s*<\/div>/i.test(html)
+    && /\/assets\/index-[^"']+\.js/i.test(html);
+}
+
+function saveProbeFixture(probe: PageProbe): PageProbe {
+  if (probe.htmlBytes === 0) {
+    return probe;
+  }
+
+  const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+  const fixturesDir = path.join(packageRoot, 'fixtures/invitro');
+  fs.mkdirSync(fixturesDir, { recursive: true });
+
+  const fileName = `${probe.transport}-${new URL(probe.url).pathname
+    .replace(/^\/+|\/+$/g, '')
+    .replace(/[^a-z0-9а-яё]+/giu, '-')
+    .replace(/^-+|-+$/g, '') || 'root'}.html`;
+  const fixturePath = path.join(fixturesDir, fileName);
+  const html = (probe as PageProbe & { [htmlSnapshot]?: string })[htmlSnapshot];
+  if (!html) {
+    return probe;
+  }
+  fs.writeFileSync(fixturePath, `${probeHtmlComment(probe)}${html}`, 'utf8');
+
+  return {
+    ...probe,
+    fixturePath: path.relative(packageRoot, fixturePath),
+  };
+}
+
+function probeHtmlComment(probe: PageProbe): string {
+  return [
+    '<!--',
+    `INVITRO probe fixture`,
+    `url: ${probe.url}`,
+    `transport: ${probe.transport}`,
+    `saved_at: ${new Date().toISOString()}`,
+    `blocking: ${probe.blockingSignals.join(', ') || '-'}`,
+    '-->',
+    '',
+  ].join('\n');
 }
