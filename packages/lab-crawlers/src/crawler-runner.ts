@@ -18,6 +18,16 @@ import {
 export type CrawlerRunMode = 'dry-run' | 'write';
 export type CrawlerRunProviderInput = CrawlerProviderKey | 'all';
 
+export const CRAWLER_PROVIDER_KEYS: CrawlerProviderKey[] = [
+  'dnkom',
+  'gemotest',
+  'invitro',
+  'cmd',
+  'helix',
+  'kdl',
+  'citilab',
+];
+
 export type CrawlerRunnerInput = {
   provider: CrawlerRunProviderInput;
   region: string;
@@ -74,7 +84,7 @@ export class CrawlerRunner {
   async run(input: CrawlerRunnerInput): Promise<CrawlerRunReport> {
     const mode = input.mode ?? 'dry-run';
     const providers = input.provider === 'all'
-      ? (['dnkom', 'gemotest'] satisfies CrawlerProviderKey[])
+      ? CRAWLER_PROVIDER_KEYS
       : [input.provider];
     const runs: CrawlerProviderRunReport[] = [];
 

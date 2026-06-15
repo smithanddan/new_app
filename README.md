@@ -11,6 +11,7 @@ The repository started as a generic web-monitor starter, but the current directi
 ## What It Does
 
 - Collects raw lab market data from providers such as DNKOM and Gemotest.
+- Tracks provider expansion for INVITRO, CMD, Helix, KDL, and Citilab through probe/mock adapters before live ingestion.
 - Stores provider tests, prices, promotions, run history, source URLs, and raw payloads.
 - Matches provider tests to canonical tests with automatic and manual workflows.
 - Compares provider offers for one analysis.
@@ -18,7 +19,7 @@ The repository started as a generic web-monitor starter, but the current directi
 - Adds Geo v1 context for “cheapest + closest” decisions when user coordinates are passed.
 - Scans printed referrals or pasted messenger/email text into a basket of tests.
 - Shows market intelligence: min, max, median, average, promo ratio, and provider distribution.
-- Keeps INVITRO in safe probe mode until ingestion is reliable.
+- Keeps INVITRO and new providers in safe probe/mock mode until ingestion is reliable.
 
 ## Main Layers
 
@@ -53,6 +54,10 @@ See [docs/MONETIZATION.md](docs/MONETIZATION.md) for the B2C funnel and B2B API 
 ```bash
 pnpm --filter @labmind/lab-crawlers crawler:run -- --provider dnkom --region moscow --dry-run
 pnpm --filter @labmind/lab-crawlers crawler:run -- --provider dnkom --region moscow --write --run-source scheduled
+pnpm --filter @labmind/lab-crawlers crawler:run -- --provider cmd --region msk --dry-run
+pnpm --filter @labmind/lab-crawlers crawler:run -- --provider helix --region moskva --dry-run
+pnpm --filter @labmind/lab-crawlers crawler:run -- --provider kdl --region msk --dry-run
+pnpm --filter @labmind/lab-crawlers crawler:run -- --provider citilab --region moskva --dry-run
 pnpm --filter @labmind/lab-crawlers compare:matrix -- --test "Ферритин" --city "Москва"
 pnpm --filter @labmind/lab-crawlers cheapest:basket -- --tests "Глюкоза,ТТГ,Ферритин" --city "Москва"
 pnpm --filter @labmind/lab-crawlers compare:market -- --test "Ферритин" --city "Москва"

@@ -348,6 +348,7 @@ export {
   type ProviderAdapter,
 } from './crawler-adapters.js';
 export {
+  CRAWLER_PROVIDER_KEYS,
   CrawlerRunner,
   sanitizeCrawlerPayload,
   type CrawlerProviderRunReport,

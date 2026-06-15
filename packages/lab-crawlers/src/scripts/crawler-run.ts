@@ -1,7 +1,9 @@
 import {
   CrawlerRunner,
+  CRAWLER_PROVIDER_KEYS,
   LabCatalogRepository,
   createLabCrawlerSupabaseClient,
+  type CrawlerProviderKey,
   type CrawlerRunMode,
   type CrawlerRunProviderInput,
   type ScraperRunSource,
@@ -53,10 +55,10 @@ function parseArgs(values: string[]): {
     const value = values[index];
     if (value === '--provider') {
       const provider = values[index + 1];
-      if (provider !== 'dnkom' && provider !== 'gemotest' && provider !== 'all') {
-        throw new Error('--provider must be dnkom, gemotest, or all');
+      if (provider !== 'all' && !CRAWLER_PROVIDER_KEYS.includes(provider as CrawlerProviderKey)) {
+        throw new Error(`--provider must be one of: ${CRAWLER_PROVIDER_KEYS.join(', ')}, all`);
       }
-      parsed.provider = provider;
+      parsed.provider = provider === 'all' ? 'all' : provider as CrawlerProviderKey;
       index += 1;
     } else if (value === '--region') {
       parsed.region = values[index + 1];
@@ -77,7 +79,7 @@ function parseArgs(values: string[]): {
   }
 
   if (!parsed.provider || !parsed.region) {
-    throw new Error('Usage: pnpm --filter @labmind/lab-crawlers crawler:run -- --provider dnkom|gemotest|all --region moscow|moskva|Москва [--dry-run|--write]');
+    throw new Error(`Usage: pnpm --filter @labmind/lab-crawlers crawler:run -- --provider ${CRAWLER_PROVIDER_KEYS.join('|')}|all --region moscow|moskva|msk|Москва [--dry-run|--write]`);
   }
 
   if (values.includes('--write') && values.includes('--dry-run')) {

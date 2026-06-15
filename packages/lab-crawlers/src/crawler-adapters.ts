@@ -5,6 +5,12 @@ import type { ProviderCode, ProviderTestPriceRecord, ProviderTestRecord } from '
 import { DnkomLiveScraper } from './adapters/dnkom-live.scraper.js';
 import { GemotestLiveScraper } from './adapters/gemotest-live.scraper.js';
 import { GEMOTEST_MOSCOW_CATALOG_SECTION_URLS } from './adapters/gemotest.parser.js';
+import { InvitroScraper } from './adapters/invitro.scraper.js';
+import {
+  createExpansionProviderScraper,
+  getExpansionProviderConfig,
+  type ExpansionProviderCode,
+} from './adapters/provider-expansion.scraper.js';
 import type {
   CatalogSyncResult,
   PromotionSyncResult,
@@ -15,7 +21,7 @@ import type {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(__dirname, '..');
 
-export type CrawlerProviderKey = 'dnkom' | 'gemotest';
+export type CrawlerProviderKey = 'dnkom' | 'gemotest' | 'invitro' | ExpansionProviderCode;
 
 export type CrawlerTransport = {
   mode: 'http' | 'playwright';
@@ -59,7 +65,15 @@ export function createProviderAdapter(provider: CrawlerProviderKey): ProviderAda
     return new ScraperProviderAdapter(provider, createDnkomScraper(), createDnkomContext);
   }
 
-  return new ScraperProviderAdapter(provider, createGemotestScraper(), createGemotestContext);
+  if (provider === 'gemotest') {
+    return new ScraperProviderAdapter(provider, createGemotestScraper(), createGemotestContext);
+  }
+
+  if (provider === 'invitro') {
+    return new ScraperProviderAdapter(provider, new InvitroScraper(), createInvitroContext);
+  }
+
+  return new ScraperProviderAdapter(provider, createExpansionProviderScraper(provider), createExpansionProviderContext(provider));
 }
 
 export function buildCrawlerTransport(provider: ProviderCode): CrawlerTransport {
@@ -71,7 +85,13 @@ export function buildCrawlerTransport(provider: ProviderCode): CrawlerTransport 
 export function resolveProviderRegion(provider: CrawlerProviderKey, region: string): string {
   const normalized = region.toLocaleLowerCase('ru-RU');
   if (normalized === 'москва' || normalized === 'moscow' || normalized === 'moskva') {
-    return provider === 'gemotest' ? 'moskva' : 'moscow';
+    if (provider === 'gemotest' || provider === 'helix' || provider === 'citilab') {
+      return 'moskva';
+    }
+    if (provider === 'cmd' || provider === 'kdl') {
+      return 'msk';
+    }
+    return 'moscow';
   }
 
   return region;
@@ -126,6 +146,31 @@ function createGemotestContext(region: string): ScraperContext {
       city: 'Москва',
       urlPrefix: '/moskva',
     },
+  };
+}
+
+function createInvitroContext(region: string): ScraperContext {
+  return {
+    providerCode: 'invitro',
+    region: {
+      code: resolveProviderRegion('invitro', region),
+      city: 'Москва',
+      urlPrefix: '/moscow',
+    },
+  };
+}
+
+function createExpansionProviderContext(provider: ExpansionProviderCode): (region: string) => ScraperContext {
+  return (region: string) => {
+    const config = getExpansionProviderConfig(provider);
+    return {
+      providerCode: provider,
+      region: {
+        code: resolveProviderRegion(provider, region),
+        city: 'Москва',
+        urlPrefix: config.defaultUrlPrefix,
+      },
+    };
   };
 }
 

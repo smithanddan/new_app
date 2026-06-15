@@ -18,8 +18,9 @@ Focus: widen coverage only where it improves product decisions.
 
 - Stabilize Gemotest live crawling and fixture coverage.
 - Expand DNKOM from the current partial catalog toward broader catalog coverage.
+- Add provider expansion probes for CMD, Helix, KDL, and Citilab with Moscow regions and mock/probe catalog coverage.
 - Keep INVITRO in probe mode until catalog structure, promo structure, region behavior, and anti-bot behavior are understood.
-- Add an INVITRO adapter only after probe and fixture parser are stable.
+- Promote providers from probe/mock to live-parser one by one, starting with CMD or Helix; keep INVITRO last until access is stable.
 
 ## Normalization and Matching
 
