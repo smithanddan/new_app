@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Fragment } from "react";
+import { GeoLocationFields } from "../components/GeoLocationFields";
 import { buildCheckoutHref } from "../lib/checkout";
 import { getComparePageData, DEFAULT_CITY } from "../lib/lab-data";
 import type { ProductOffer } from "@labmind/lab-crawlers/src/product-layer";
@@ -23,46 +24,37 @@ export default async function ComparePage({ searchParams }: PageProps) {
   const marketSummary = row?.market_summary ?? null;
 
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-8 text-slate-950">
+    <main className="min-h-screen bg-slate-50 px-4 py-5 text-slate-950 sm:px-6 sm:py-8">
       <div className="mx-auto max-w-7xl">
         <Header title="Сравнение цен" />
 
-        <form className="mt-6 grid gap-3 border-y border-slate-200 bg-white p-4 md:grid-cols-[1fr_160px_120px_120px_140px_auto]">
+        <form className="mt-6 grid gap-3 border-y border-slate-200 bg-white p-4 shadow-sm md:grid-cols-[1fr_160px_140px_auto]">
           <input
             name="test"
             defaultValue={test}
-            className="h-10 border border-slate-300 px-3 text-sm outline-none focus:border-slate-900"
+            className="h-12 border border-slate-300 px-3 text-base outline-none focus:border-slate-900 md:h-10 md:text-sm"
             placeholder="Анализ"
           />
           <input
             name="city"
             defaultValue={city}
-            className="h-10 border border-slate-300 px-3 text-sm outline-none focus:border-slate-900"
+            className="h-12 border border-slate-300 px-3 text-sm outline-none focus:border-slate-900 md:h-10"
             placeholder="Город"
-          />
-          <input
-            name="lat"
-            defaultValue={lat}
-            className="h-10 border border-slate-300 px-3 text-sm outline-none focus:border-slate-900"
-            placeholder="lat"
-          />
-          <input
-            name="lng"
-            defaultValue={lng}
-            className="h-10 border border-slate-300 px-3 text-sm outline-none focus:border-slate-900"
-            placeholder="lng"
           />
           <select
             name="sort"
             defaultValue={sort}
-            className="h-10 border border-slate-300 px-3 text-sm outline-none focus:border-slate-900"
+            className="h-12 border border-slate-300 px-3 text-sm outline-none focus:border-slate-900 md:h-10"
           >
             <option value="price">Дешевле</option>
             <option value="distance">Ближе</option>
           </select>
-          <button className="h-10 bg-slate-950 px-4 text-sm font-medium text-white">
+          <button className="h-12 bg-slate-950 px-4 text-sm font-medium text-white md:h-10">
             Найти
           </button>
+          <div className="md:col-span-4">
+            <GeoLocationFields initialLat={lat} initialLng={lng} updateUrl />
+          </div>
         </form>
         {hasGeo ? (
           <div className="mt-3 border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-950">
@@ -109,7 +101,7 @@ export default async function ComparePage({ searchParams }: PageProps) {
                   ) : null}
                   <Link
                     className="inline-flex h-9 items-center border border-slate-300 px-3 text-xs font-medium"
-                    href={`/basket?tests=${encodeURIComponent(test)}&city=${encodeURIComponent(city)}`}
+                    href={buildBasketHref({ test, city, lat, lng })}
                   >
                     Добавить в корзину
                   </Link>
@@ -153,7 +145,24 @@ export default async function ComparePage({ searchParams }: PageProps) {
           </section>
         )}
 
-        <section className="mt-6 overflow-x-auto border border-slate-200 bg-white">
+        <section className="mt-6 grid gap-3 lg:hidden">
+          {offers.map((offer) => (
+            <OfferCard
+              key={`${offer.provider.code}:${offer.provider_test_id}:${offer.offer_source}:${offer.source_url}`}
+              offer={offer}
+              test={test}
+              city={city}
+              canonicalTestId={row?.canonical_test?.id}
+            />
+          ))}
+          {offers.length === 0 ? (
+            <div className="border border-slate-200 bg-white p-4 text-sm text-slate-600">
+              {row?.error === "canonical_test_not_found" ? "Анализ не найден в canonical_tests" : "Нет предложений"}
+            </div>
+          ) : null}
+        </section>
+
+        <section className="mt-6 hidden overflow-x-auto border border-slate-200 bg-white lg:block">
           <table className="w-full min-w-[980px] text-left text-sm">
             <thead className="bg-slate-100 text-xs uppercase text-slate-600">
               <tr>
@@ -233,14 +242,72 @@ export default async function ComparePage({ searchParams }: PageProps) {
   );
 }
 
+function OfferCard({
+  offer,
+  test,
+  city,
+  canonicalTestId,
+}: {
+  offer: ProductOffer;
+  test: string;
+  city: string;
+  canonicalTestId?: string;
+}) {
+  return (
+    <article className="border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-sm font-semibold">{offer.provider.name}</div>
+          <div className="mt-1 text-xs text-slate-500">{offer.provider_test_name}</div>
+        </div>
+        <div className="text-right">
+          <div className="text-xl font-semibold">{formatRub(offer.total_price_rub)}</div>
+          <div className="mt-1 text-xs text-slate-500">{formatOfferType(offer.offer_type)}</div>
+        </div>
+      </div>
+      <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
+        <Metric label="Анализ" value={formatRub(offer.effective_price_rub)} />
+        <Metric label="Забор" value={formatRub(offer.biomaterial_price_rub)} />
+        <Metric label="Км" value={formatDistance(offer.distance_km)} />
+      </div>
+      {offer.nearest_location ? (
+        <div className="mt-3 border-t border-slate-200 pt-3 text-xs text-slate-600">
+          Ближайшая точка: {offer.nearest_location.address}
+        </div>
+      ) : null}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <span className="border border-slate-200 px-2 py-1 text-xs">{formatGeoHint(offer)}</span>
+        {offer.source_url ? (
+          <a
+            className="inline-flex h-10 flex-1 items-center justify-center bg-slate-950 px-3 text-sm font-medium text-white"
+            href={buildCheckoutHref({
+              providerCode: offer.provider.code,
+              testName: test,
+              canonicalTestId,
+              providerTestId: offer.provider_test_id,
+              targetUrl: offer.source_url,
+              sourceUrl: offer.source_url,
+              city,
+              utmSource: "labprice",
+              utmCampaign: "compare_mobile",
+            })}
+          >
+            Перейти в лабораторию
+          </a>
+        ) : null}
+      </div>
+    </article>
+  );
+}
+
 function Header({ title }: { title: string }) {
   return (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <Link href="/search" className="text-sm text-slate-500">Поиск</Link>
-        <h1 className="mt-1 text-3xl font-semibold">{title}</h1>
+        <h1 className="mt-1 text-3xl font-semibold leading-tight">{title}</h1>
       </div>
-      <nav className="flex gap-2 text-sm">
+      <nav className="flex flex-wrap gap-2 text-sm">
         <Link href="/basket" className="border border-slate-300 px-3 py-2">Корзина</Link>
         <Link href="/dashboard" className="border border-slate-300 px-3 py-2">Dashboard</Link>
         <Link href="/match" className="border border-slate-300 px-3 py-2">Матчинг</Link>
@@ -279,4 +346,15 @@ function formatGeoHint(offer: ProductOffer): string {
     return "дешевле + рядом";
   }
   return "ближе";
+}
+
+function buildBasketHref(input: { test: string; city: string; lat: string; lng: string }): string {
+  const params = new URLSearchParams();
+  params.set("tests", input.test);
+  params.set("city", input.city);
+  if (input.lat && input.lng) {
+    params.set("lat", input.lat);
+    params.set("lng", input.lng);
+  }
+  return `/basket?${params.toString()}`;
 }
