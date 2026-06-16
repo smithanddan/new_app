@@ -13,6 +13,7 @@
     "smoke:gemotest": "pnpm build && node dist/scripts/smoke-gemotest.js",
     "test:dnkom-fixtures": "pnpm build && node dist/scripts/test-dnkom-fixtures.js",
     "test:gemotest-fixtures": "pnpm build && node dist/scripts/test-gemotest-fixtures.js",
+    "test:invitro-fixtures": "pnpm build && node dist/scripts/test-invitro-fixtures.js",
     "test:referral-scanner": "pnpm build && node dist/scripts/test-referral-scanner.js",
     "sync:dnkom": "pnpm build && node dist/scripts/sync-dnkom.js",
     "sync:gemotest": "pnpm build && node dist/scripts/sync-gemotest.js",

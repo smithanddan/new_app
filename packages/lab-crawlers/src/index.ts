@@ -316,6 +316,20 @@ export {
   type GemotestProductCard,
 } from './adapters/gemotest.parser.js';
 export { InvitroScraper } from './adapters/invitro.scraper.js';
+export {
+  INVITRO_BASE_URL,
+  INVITRO_MOSCOW_ACTIONS_URL,
+  INVITRO_MOSCOW_CATALOG_URL,
+  INVITRO_MOSCOW_DOCTOR_CATALOG_URL,
+  extractInvitroActionLinks,
+  extractInvitroCatalogLinks,
+  parseInvitroActionsHtml,
+  parseInvitroCatalogCard,
+  parseInvitroCatalogHtml,
+  type InvitroActionsParseResult,
+  type InvitroCatalogCard,
+  type InvitroCatalogParseResult,
+} from './adapters/invitro.parser.js';
 export type {
   CanonicalTestKind,
   CanonicalTestRecord,

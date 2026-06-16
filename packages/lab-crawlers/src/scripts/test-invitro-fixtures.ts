@@ -1,0 +1,116 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import {
+  parseInvitroActionsHtml,
+  parseInvitroCatalogCard,
+  parseInvitroCatalogHtml,
+} from '../adapters/invitro.parser.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const packageRoot = path.resolve(__dirname, '../..');
+const fixturesDir = path.join(packageRoot, 'fixtures/invitro');
+const fetchedAt = '2026-06-16T00:00:00.000Z';
+const context = {
+  providerCode: 'invitro',
+  fetchedAt,
+  region: {
+    code: 'moscow',
+    city: 'Москва',
+    urlPrefix: '/moscow',
+  },
+} as const;
+
+const catalogHtml = readFixture('playwright-analizes.html');
+const catalog = parseInvitroCatalogHtml(catalogHtml, context, {
+  fetchedAt,
+  sourceUrl: 'https://www.invitro.ru/analizes',
+});
+
+assert.equal(catalog.tests.length, 5, 'catalog fixture should parse visible popular tests');
+assert.equal(catalog.prices.length, 5, 'catalog fixture should parse visible popular prices');
+
+const ferritin = catalog.tests.find((test) => /ферритин/i.test(test.name));
+const ferritinPrice = catalog.prices.find((price) => price.externalCode === ferritin?.externalCode);
+assert.ok(ferritin, 'ferritin should be parsed from INVITRO visible catalog');
+assert.equal(ferritin.externalCode, '2245');
+assert.equal(ferritinPrice?.regularPriceRub, 935);
+assert.equal(ferritinPrice?.effectivePriceRub, 935);
+assert.equal(ferritinPrice?.offerType, 'regular');
+assert.ok(ferritin.sourceUrl.includes('/analizes/for-doctors/2572/2245/'));
+assert.ok(ferritin.rawPayload, 'provider test rawPayload should be kept');
+assert.ok(ferritinPrice?.rawPayload, 'price rawPayload should be kept');
+
+const biochemistry = catalog.tests.find((test) => /биохимия крови/i.test(test.name));
+assert.ok(biochemistry, 'profile card should be parsed');
+assert.equal(biochemistry.kind, 'profile');
+
+const rawCard = catalogHtml.match(/<a\b[^>]*href=["'][^"']*\/analizes\/for-doctors\/2572\/2245\/?["'][^>]*>[\s\S]*?<\/a>/i)?.[0];
+assert.ok(rawCard, 'fixture should contain ferritin anchor card');
+const parsedCard = parseInvitroCatalogCard(rawCard);
+assert.equal(parsedCard?.name, 'Ферритин (Ferritin)');
+assert.equal(parsedCard?.regularPriceRub, 935);
+
+const actionsHtml = readFixture('playwright-moscow-ak.html');
+const actions = parseInvitroActionsHtml(actionsHtml, context, {
+  fetchedAt,
+  sourceUrl: 'https://www.invitro.ru/moscow/ak/',
+});
+
+assert.ok(actions.links.length > 100, 'actions fixture should expose regional action links');
+assert.ok(actions.promotions.length >= 7, 'actions fixture should parse visible promo cards');
+const homeVisitPromo = actions.promotions.find((promotion) => promotion.title === 'Выезд за 1 рубль');
+assert.ok(homeVisitPromo, 'home visit promo should be parsed');
+assert.ok(homeVisitPromo.description?.includes('2490'), 'promo description should include threshold');
+
+assertNoCentsKeys(catalog);
+assertNoCentsKeys(actions);
+
+console.log(JSON.stringify({
+  status: 'ok',
+  fixtures: [
+    path.relative(packageRoot, path.join(fixturesDir, 'playwright-analizes.html')),
+    path.relative(packageRoot, path.join(fixturesDir, 'playwright-moscow-ak.html')),
+  ],
+  catalogItems: catalog.tests.length,
+  prices: catalog.prices.length,
+  promotions: actions.promotions.length,
+  actionLinks: actions.links.length,
+  firstCatalogItems: catalog.tests.slice(0, 5).map((test) => {
+    const price = catalog.prices.find((item) => item.externalCode === test.externalCode);
+    return {
+      provider_test_code: test.externalCode,
+      provider_test_name: test.name,
+      kind: test.kind,
+      regularPriceRub: price?.regularPriceRub,
+      effectivePriceRub: price?.effectivePriceRub,
+      sourceUrl: test.sourceUrl,
+    };
+  }),
+  firstPromotion: {
+    title: actions.promotions[0]?.title,
+    description: actions.promotions[0]?.description,
+    sourceUrl: actions.promotions[0]?.sourceUrl,
+  },
+}, null, 2));
+
+function readFixture(name: string): string {
+  return fs.readFileSync(path.join(fixturesDir, name), 'utf8');
+}
+
+function assertNoCentsKeys(value: unknown, pathLabel = '$'): void {
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => assertNoCentsKeys(item, `${pathLabel}[${index}]`));
+    return;
+  }
+
+  if (!value || typeof value !== 'object') {
+    return;
+  }
+
+  for (const [key, child] of Object.entries(value)) {
+    assert.ok(!/cent/i.test(key), `unexpected cents key at ${pathLabel}.${key}`);
+    assertNoCentsKeys(child, `${pathLabel}.${key}`);
+  }
+}
