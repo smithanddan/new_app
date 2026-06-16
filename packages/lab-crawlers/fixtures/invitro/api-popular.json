@@ -1,0 +1,52 @@
+[
+  {
+    "bitrix_id": 6760,
+    "category_bitrix_id": 908,
+    "is_favorite": false,
+    "loyalty_bonus": 222,
+    "price": 7390,
+    "product_id": "24fca7b4-2dbe-4c75-9c3f-01c6ae982973",
+    "product_type": "COMPLEX",
+    "title": "Биохимия крови: расширенный профиль"
+  },
+  {
+    "bitrix_id": 6742,
+    "category_bitrix_id": 898,
+    "is_favorite": false,
+    "loyalty_bonus": 50,
+    "price": 1650,
+    "product_id": "474cc278-95f4-455a-b132-4143b8dcda96",
+    "product_type": "COMPLEX",
+    "title": "Липидный  профиль: скрининг"
+  },
+  {
+    "bitrix_id": 2849,
+    "category_bitrix_id": 5146,
+    "is_favorite": false,
+    "loyalty_bonus": 76,
+    "price": 2525,
+    "product_id": "50b98a7c-cf6d-48d1-a6bd-27d8413bdb63",
+    "product_type": "TEST",
+    "title": "25-OH витамин D общий "
+  },
+  {
+    "bitrix_id": 6671,
+    "category_bitrix_id": 156,
+    "is_favorite": false,
+    "loyalty_bonus": 28,
+    "price": 940,
+    "product_id": "7985ad5e-8516-4ac6-82bf-59e9c580c205",
+    "product_type": "TEST",
+    "title": "Клинический анализ крови: общий анализ, лейкоформула, СОЭ (с микроскопией мазка крови при наличии патологических сдвигов)"
+  },
+  {
+    "bitrix_id": 2245,
+    "category_bitrix_id": 2572,
+    "is_favorite": false,
+    "loyalty_bonus": 28,
+    "price": 935,
+    "product_id": "bdca4fdd-0427-4e88-8a34-becd8f78aa7b",
+    "product_type": "TEST",
+    "title": "Ферритин (Ferritin)"
+  }
+]

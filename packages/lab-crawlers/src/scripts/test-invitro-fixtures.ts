@@ -3,6 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  parseInvitroApiCatalogJson,
+  parseInvitroApiPromotionsJson,
   parseInvitroActionsHtml,
   parseInvitroCatalogCard,
   parseInvitroCatalogHtml,
@@ -64,19 +66,63 @@ const homeVisitPromo = actions.promotions.find((promotion) => promotion.title ==
 assert.ok(homeVisitPromo, 'home visit promo should be parsed');
 assert.ok(homeVisitPromo.description?.includes('2490'), 'promo description should include threshold');
 
+const apiPopular = parseInvitroApiCatalogJson(readJsonFixture('api-popular.json'), context, {
+  fetchedAt,
+});
+assert.equal(apiPopular.tests.length, 5, 'popular API fixture should parse tests');
+assert.equal(apiPopular.prices.length, 5, 'popular API fixture should parse prices');
+
+const apiTests = parseInvitroApiCatalogJson(readJsonFixture('api-tests-page-1.json'), context, {
+  fetchedAt,
+});
+assert.equal(apiTests.tests.length, 25, 'tests API fixture should parse first page tests');
+assert.equal(apiTests.prices.length, 25, 'tests API fixture should parse first page prices');
+const glucose = apiTests.tests.find((test) => test.externalCode === '16');
+const glucosePrice = apiTests.prices.find((price) => price.externalCode === '16');
+assert.ok(glucose, 'glucose should be parsed from INVITRO API fixture');
+assert.equal(glucose.name, 'Глюкоза (в крови) (Glucose)');
+assert.equal(glucosePrice?.regularPriceRub, 370);
+assert.equal(glucosePrice?.effectivePriceRub, 370);
+assert.equal(glucosePrice?.biomaterialPriceRub, 310);
+assert.ok(glucose.sourceUrl.includes('/analizes/for-doctors/481/2212/'));
+
+const apiComplexes = parseInvitroApiCatalogJson(readJsonFixture('api-complexes-page-1.json'), context, {
+  fetchedAt,
+  defaultKind: 'profile',
+});
+assert.equal(apiComplexes.tests.length, 25, 'complexes API fixture should parse first page complexes');
+assert.equal(apiComplexes.tests[0]?.kind, 'profile');
+
+const apiPromotions = parseInvitroApiPromotionsJson(readJsonFixture('api-promotions-home.json'), context, {
+  fetchedAt,
+});
+assert.equal(apiPromotions.promotions.length, 17, 'promotions API fixture should parse promotions');
+assert.ok(apiPromotions.promotions.some((promotion) => promotion.title === 'Скидка до 45%'));
+
 assertNoCentsKeys(catalog);
 assertNoCentsKeys(actions);
+assertNoCentsKeys(apiPopular);
+assertNoCentsKeys(apiTests);
+assertNoCentsKeys(apiComplexes);
+assertNoCentsKeys(apiPromotions);
 
 console.log(JSON.stringify({
   status: 'ok',
   fixtures: [
     path.relative(packageRoot, path.join(fixturesDir, 'playwright-analizes.html')),
     path.relative(packageRoot, path.join(fixturesDir, 'playwright-moscow-ak.html')),
+    path.relative(packageRoot, path.join(fixturesDir, 'api-popular.json')),
+    path.relative(packageRoot, path.join(fixturesDir, 'api-tests-page-1.json')),
+    path.relative(packageRoot, path.join(fixturesDir, 'api-complexes-page-1.json')),
+    path.relative(packageRoot, path.join(fixturesDir, 'api-promotions-home.json')),
   ],
   catalogItems: catalog.tests.length,
   prices: catalog.prices.length,
   promotions: actions.promotions.length,
   actionLinks: actions.links.length,
+  apiTests: apiTests.tests.length,
+  apiComplexes: apiComplexes.tests.length,
+  apiPromotions: apiPromotions.promotions.length,
   firstCatalogItems: catalog.tests.slice(0, 5).map((test) => {
     const price = catalog.prices.find((item) => item.externalCode === test.externalCode);
     return {
@@ -93,10 +139,22 @@ console.log(JSON.stringify({
     description: actions.promotions[0]?.description,
     sourceUrl: actions.promotions[0]?.sourceUrl,
   },
+  firstApiTest: {
+    provider_test_code: glucose?.externalCode,
+    provider_test_name: glucose?.name,
+    regularPriceRub: glucosePrice?.regularPriceRub,
+    effectivePriceRub: glucosePrice?.effectivePriceRub,
+    biomaterialPriceRub: glucosePrice?.biomaterialPriceRub,
+    sourceUrl: glucose?.sourceUrl,
+  },
 }, null, 2));
 
 function readFixture(name: string): string {
   return fs.readFileSync(path.join(fixturesDir, name), 'utf8');
+}
+
+function readJsonFixture(name: string): unknown {
+  return JSON.parse(readFixture(name));
 }
 
 function assertNoCentsKeys(value: unknown, pathLabel = '$'): void {

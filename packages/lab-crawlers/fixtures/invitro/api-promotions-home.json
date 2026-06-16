@@ -1,0 +1,2612 @@
+{
+  "docs": [
+    {
+      "createdAt": "2026-06-01T16:16:13.429Z",
+      "updatedAt": "2026-06-10T16:37:04.232Z",
+      "colors": {
+        "backgroundColor": "#6ED2E6",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "3-faktora-zdorovya-06-08-2026-rf",
+            "id": "6a0eff9854a9a8d3c677e7e7"
+          },
+          "id": "6a1db09d4317d4fb1d2a6cc1"
+        }
+      ],
+      "targetPage": [
+        "home",
+        "promotions"
+      ],
+      "order": 1,
+      "_status": "published",
+      "buttonText": "Подробнее",
+      "description": "Проверьте уровень ТТГ, витаминов и минералов",
+      "image": {
+        "createdAt": "2026-06-02T08:08:03.380Z",
+        "updatedAt": "2026-06-02T08:08:03.380Z",
+        "alt": "ывпыпы",
+        "prefix": "images",
+        "filename": "сайт (2).png",
+        "mimeType": "image/png",
+        "filesize": 163025,
+        "width": 420,
+        "height": 280,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": 300,
+            "height": 200,
+            "mimeType": "image/png",
+            "filesize": 117987,
+            "filename": "сайт (2)-300x200.png",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (2)-300x200.png"
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 576,
+            "filename": "сайт (2)-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (2)-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 3550,
+            "filename": "сайт (2)-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (2)-210x140.webp"
+          },
+          "promoRetina": {
+            "width": 420,
+            "height": 280,
+            "mimeType": "image/webp",
+            "filesize": 10238,
+            "filename": "сайт (2)-420x280.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (2)-420x280.webp"
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "6a1e8f6354a9a8d3c60d3dde",
+        "url": "https://www.invitro.ru/golk/cms/images/file/%D1%81%D0%B0%D0%B9%D1%82%20(2).png",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [],
+        "aglomerations": [
+          {
+            "id": "5737b9b1-147b-4ac0-8d48-79140af39f45",
+            "name": "Москва",
+            "type": "aglomeration",
+            "isExcluded": false
+          },
+          {
+            "id": "c524e84a-1909-4d57-ba8a-8dcf85efa8e3",
+            "name": "Приволжье",
+            "type": "aglomeration",
+            "isExcluded": false
+          },
+          {
+            "id": "77a2b433-5f98-47d9-88c4-1873507f63a2",
+            "name": "Сибирь",
+            "type": "aglomeration",
+            "isExcluded": false
+          },
+          {
+            "id": "d23f104a-315b-40a5-a8c0-868bb9b1b712",
+            "name": "Центр",
+            "type": "aglomeration",
+            "isExcluded": false
+          },
+          {
+            "id": "d3a73275-1bd8-4247-b2d3-efdbd12e2771",
+            "name": "Северный Кавказ",
+            "type": "aglomeration",
+            "isExcluded": false
+          }
+        ],
+        "showToAll": false
+      },
+      "sponsorInfo": "Реклама 2RanyoA4EDq",
+      "title": "Скидка до 45%",
+      "enabled": true,
+      "platform": [
+        "web",
+        "app"
+      ],
+      "id": "6a1db04d54a9a8d3c6f81ec7"
+    },
+    {
+      "createdAt": "2026-06-01T16:28:54.225Z",
+      "updatedAt": "2026-06-10T17:35:03.788Z",
+      "colors": {
+        "backgroundColor": "#6ED2E6",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "vitamin-v12-so-skidkoj-15-06-07-2026-rf",
+            "id": "6a1d412354a9a8d3c6e8728c"
+          },
+          "id": "6a1db37b4317d4fb1d2a6cc4"
+        }
+      ],
+      "targetPage": [
+        "home",
+        "promotions"
+      ],
+      "order": 2,
+      "_status": "published",
+      "buttonText": "Подробнее",
+      "description": "со скидкой 15%",
+      "image": {
+        "createdAt": "2026-06-02T08:10:17.413Z",
+        "updatedAt": "2026-06-02T08:10:17.413Z",
+        "alt": "sdfsfsf",
+        "prefix": "images",
+        "filename": "сайт (2)-1.png",
+        "mimeType": "image/png",
+        "filesize": 131000,
+        "width": 420,
+        "height": 280,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": 300,
+            "height": 200,
+            "mimeType": "image/png",
+            "filesize": 94748,
+            "filename": "сайт (2)-1-300x200.png",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (2)-1-300x200.png"
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 589,
+            "filename": "сайт (2)-1-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (2)-1-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 3166,
+            "filename": "сайт (2)-1-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (2)-1-210x140.webp"
+          },
+          "promoRetina": {
+            "width": 420,
+            "height": 280,
+            "mimeType": "image/webp",
+            "filesize": 8698,
+            "filename": "сайт (2)-1-420x280.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (2)-1-420x280.webp"
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "6a1e8fe954a9a8d3c60d5d60",
+        "url": "https://www.invitro.ru/golk/cms/images/file/%D1%81%D0%B0%D0%B9%D1%82%20(2)-1.png",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [],
+        "aglomerations": [],
+        "showToAll": true
+      },
+      "sponsorInfo": "Реклама 2Ranymn1EV9",
+      "title": "Найдите причину усталости",
+      "backgroundImage": null,
+      "enabled": true,
+      "endDate": "2026-07-15T12:00:00.000Z",
+      "platform": [
+        "web",
+        "app"
+      ],
+      "startDate": "2026-06-01T12:00:00.000Z",
+      "id": "6a1db34654a9a8d3c6f88499"
+    },
+    {
+      "createdAt": "2026-06-03T15:24:48.338Z",
+      "updatedAt": "2026-06-10T16:42:50.032Z",
+      "colors": {
+        "backgroundColor": "#BFD3FD",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "sprosite-ginekologa-rf",
+            "id": "69a0464d2bd0faca27efda3d"
+          },
+          "id": "6a2047a7758ea773f17f0e00"
+        }
+      ],
+      "targetPage": [
+        "home"
+      ],
+      "order": 3,
+      "_status": "published",
+      "buttonText": "Подробнее",
+      "description": "Запишитесь на приём в ИНВИТРО",
+      "image": {
+        "createdAt": "2026-06-03T15:26:09.140Z",
+        "updatedAt": "2026-06-03T15:26:09.140Z",
+        "alt": "гиня",
+        "prefix": "images",
+        "filename": "Img_action_Gynecologist.png",
+        "mimeType": "image/png",
+        "filesize": 29086,
+        "width": 210,
+        "height": 140,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 594,
+            "filename": "Img_action_Gynecologist-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Img_action_Gynecologist-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 4408,
+            "filename": "Img_action_Gynecologist-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Img_action_Gynecologist-210x140.webp"
+          },
+          "promoRetina": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "6a20479154a9a8d3c644c879",
+        "url": "https://www.invitro.ru/golk/cms/images/file/Img_action_Gynecologist.png",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [],
+        "aglomerations": [],
+        "showToAll": true
+      },
+      "sponsorInfo": "",
+      "title": "Ваш гинеколог рядом",
+      "enabled": true,
+      "platform": [
+        "web",
+        "app"
+      ],
+      "id": "6a20474054a9a8d3c644bdc1"
+    },
+    {
+      "createdAt": "2026-04-06T13:53:49.053Z",
+      "updatedAt": "2026-06-01T10:11:38.910Z",
+      "title": "Выезд за 1 рубль",
+      "promotionsTargetGeography": {
+        "cities": [
+          {
+            "id": "f1c3c4f0-3426-4cda-8449-e5d326e02f97",
+            "name": "Москва",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "77a7e4df-5df2-4d98-87a8-cdd383a006cf",
+            "name": "Апрелевка",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "9aefa260-6b1c-4812-b489-15a909096fd5",
+            "name": "Артем",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "144b1adb-56ca-463f-84c5-465bd3fb4a1e",
+            "name": "Балашиха",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "b2c1f3b6-13a3-11e7-80cd-00155d084354",
+            "name": "Березовский (Свердловская обл  )",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "8c51c913-b787-4d92-aa02-9fe2ca0615fe",
+            "name": "Бронницы",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "abd1170e-8d9b-4432-bf00-6d1b8da5d80b",
+            "name": "Видное",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "31ce096f-e78c-476b-b16c-382e7b68b00c",
+            "name": "Вичуга",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "7c9b62af-a2a2-42ca-a84d-657ea4819aa5",
+            "name": "Владивосток",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "9609947b-18d8-4234-8558-c6f690f04c94",
+            "name": "Воскресенск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "c06f5863-f1b8-4eeb-bbd4-10eb72bc4f24",
+            "name": "Дербент",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "bdd5956a-aab1-4784-92cb-bee62748071f",
+            "name": "Дзержинский",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "ddb888fd-08f5-4d1a-b14d-81213cb12f50",
+            "name": "Долгопрудный",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "f885885e-fa2b-4fd5-859b-0d04c40a56b6",
+            "name": "Домодедово",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "59ebf027-6f50-4709-8f1e-bd8e1aebc6d1",
+            "name": "Дрожжино",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "2f44d5b3-7bf3-4f32-8c4f-9387b9c11b30",
+            "name": "Егорьевск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "550ddf27-3609-44ae-8f79-4dad320c6c96",
+            "name": "Екатеринбург",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "30807528-062f-443d-ad05-b65d58d98eae",
+            "name": "Жуковский",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "ae171b84-ce90-41e6-8b61-1753dea14287",
+            "name": "Звенигород",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "6d615eb6-7c07-4327-a823-454eab3c07d7",
+            "name": "Зеленоград",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "099e5c80-7fc1-498c-aa09-0db7d132136f",
+            "name": "Иваново",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "90916ec6-4e81-47b8-ab00-6e797f259f7b",
+            "name": "Ивантеевка",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "c0c46e12-71b4-44a9-b695-5572ec30810a",
+            "name": "Истра",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "63444458-690c-4dc7-9878-9c7cdbf0e61f",
+            "name": "Калуга",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "953e56ff-4b9e-4817-82fa-30f6f571303b",
+            "name": "Каспийск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "e955b0f9-4e68-4813-9aab-ac69628fb5d4",
+            "name": "Кинешма",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "7d2b29c5-0f74-459a-b891-82ff899ba9da",
+            "name": "Климовск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "cc71027f-fc46-4cfa-a2cf-5598a250cd44",
+            "name": "Клин",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "e2249e2f-b653-474c-915b-4eddf7cd6152",
+            "name": "Коммунарка",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "0f89d070-e315-49b9-ac90-985d2ef786de",
+            "name": "Копейск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "561f5e14-502c-4d02-81fd-3cea958e796f",
+            "name": "Королев",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "ae8e2620-fecd-4369-bc5c-2e86cee4b241",
+            "name": "Котельники",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "315db2dc-f040-4bdb-a03d-a316ce3a17ac",
+            "name": "Красногорск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "1094a340-cf4b-43fe-9ca5-5feb0ae339e0",
+            "name": "Кубинка",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "fcd19286-dcc0-44cb-9e5e-a3d161b319f2",
+            "name": "Лобня",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "c0e8e92e-f1a1-4e95-a191-3062114fb8ef",
+            "name": "Лосино-Петровский",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "29ce346d-e334-4a45-a941-72837ff93b3d",
+            "name": "Лыткарино",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "1c5e9408-8be7-4304-95ae-d4c4c4164a16",
+            "name": "Люберцы",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "6f831621-4a16-4036-893a-4b5c19494f30",
+            "name": "Магнитогорск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "e4bce0d6-842d-4e18-a5b3-e68a14ffec3d",
+            "name": "Махачкала",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "a7e0a794-4d7d-4a09-b89f-eaaf3a850021",
+            "name": "Мисайлово",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "c37c1e37-3c93-43ff-830a-0ffe0fd8fe48",
+            "name": "Михнево",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "96d7a56f-728e-455d-b861-322b5ab868c5",
+            "name": "Можайск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "e94b8060-e74e-46be-9fe6-a957630d43ab",
+            "name": "Московский",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "904b6eeb-eeaf-47cf-bd2d-48cbcc9d52bd",
+            "name": "Мытищи",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "ac684cb1-eb20-44cc-82e3-22316b95a272",
+            "name": "Наро-Фоминск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "d5cf60b7-695b-4297-bc08-e33bd57b5b6b",
+            "name": "Нахабино",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "f1a50a15-d1b2-4003-9903-acea95fa3af4",
+            "name": "Находка",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "89febc21-afa7-441a-9b7f-b9ee65dc3b00",
+            "name": "Нефтеюганск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "cb44f422-9cac-4cd6-85b8-f37d9a8c445d",
+            "name": "Нижневартовск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "46ff4ef9-3527-447e-b5e1-d8a7257f3c0a",
+            "name": "Нижний Тагил",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "a71197f3-cc5a-413c-af1c-5f1f05c6371f",
+            "name": "Ногинск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "13ca8295-65dc-44ef-a86b-422eccbef7ed",
+            "name": "Одинцово",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "ffc03bce-8e71-4f80-ae20-6eef45088d2c",
+            "name": "Октябрьский (Московская обл)",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "19dda54c-adf3-4192-9183-cf166ee662ab",
+            "name": "Орёл",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "a7854aa0-4415-4365-a354-89463e1e69e7",
+            "name": "Оренбург",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "fcf3d4a1-7f50-4993-951d-82426cf290a0",
+            "name": "Орехово-Зуево",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "7844be4e-13bf-42ac-9f00-7e13fce5c4c1",
+            "name": "Первоуральск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "0987c495-ceca-497d-97a9-cc14cd46f97d",
+            "name": "Подольск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "44cf89a9-dacd-4778-9cc4-03206b1e673f",
+            "name": "Покровское",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "90400015-871f-47a5-910e-9c99f3763e22",
+            "name": "Полевской",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "dd30f97c-96a6-4e34-b047-abbfef8fc5fa",
+            "name": "Протвино",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "cac42774-db39-414d-a65f-46f049e53856",
+            "name": "Пушкино",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "393fe197-999c-46c7-b8b7-ecb9e62c8854",
+            "name": "Пущино",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "337f8a9a-e405-416c-ba25-fa8fe01590c2",
+            "name": "Раменское",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "9241534b-bd53-11e7-80f4-00155d7d5a0d",
+            "name": "Ревда",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "fd4bcd95-98c0-4455-ae40-deaf26512a05",
+            "name": "Реутов",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "b3bd9c56-1e39-4170-b044-2f7b13975669",
+            "name": "Руза",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "d6a89322-410c-4cc6-a7d1-941334aa26dd",
+            "name": "Серпухов",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "b4e2049f-d1f2-4f08-a24e-6ce0308cd525",
+            "name": "Старый Оскол",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "1af7b6c1-578a-410b-b0c5-07cdb9aa73d6",
+            "name": "Сургут",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "ea51556d-ccab-e611-9400-00155d52250c",
+            "name": "Сысерть",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "cf5fc162-765d-444b-bec2-4eef472dccc7",
+            "name": "Тула",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "62c4c0af-9444-487c-92b2-821da02d36db",
+            "name": "Тюмень",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "2bbb3fc0-8da6-46b5-9295-65945c6648f6",
+            "name": "Уссурийск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "ee0d5549-c08c-45d5-887d-b6e2e94f3a20",
+            "name": "Фрязино",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "070a889c-8a80-4b3f-a839-40501dd55e18",
+            "name": "Фурманов",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "8c6179c1-e243-459d-9da3-e68e4471d317",
+            "name": "Химки",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "2fecca75-5e4a-4823-8743-873011447103",
+            "name": "Челябинск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "e7799dcd-674d-4bbd-9b1d-b5d28af5f829",
+            "name": "Чехов",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "8a322cdd-5f39-413c-9c89-f64bcd3a7200",
+            "name": "Чита",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "43ee97df-fcbc-4893-a309-36a71fceda6c",
+            "name": "Шатура",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "55199bd3-567a-4093-9cca-e20b3b802036",
+            "name": "Шуя",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "56d7ef97-f110-4c32-a6eb-c711ae87cae4",
+            "name": "Щелково",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "12d097b1-b588-4308-8409-489efe8b9497",
+            "name": "Электросталь",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "aee8a1c8-6855-478a-8a34-a212fd8945be",
+            "name": "Новая Усмань",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "3e0a9101-41d0-468b-bf3f-e323a2a1cf4d",
+            "name": "Воронеж",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "27a028c2-5c6d-11ea-8413-00155d908600",
+            "name": "Нововоронеж",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "818bd4e7-fe6c-4bdc-9433-8703f77ee2ad",
+            "name": "Липецк",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "b323abc1-1b66-41ad-859d-913fe5ce0675",
+            "name": "Тверь",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "09a4419b-2217-4e3c-861a-1c27f8e072a8",
+            "name": "Семилуки",
+            "type": "city",
+            "isExcluded": false
+          }
+        ],
+        "aglomerations": []
+      },
+      "colors": {
+        "backgroundColor": "#6ED2E6",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "backgroundImage": {
+        "createdAt": "2026-04-03T12:19:39.352Z",
+        "updatedAt": "2026-04-03T12:19:39.352Z",
+        "alt": "Выезд на дом",
+        "prefix": "images",
+        "filename": "внд-1.png",
+        "mimeType": "image/png",
+        "filesize": 58950,
+        "width": 372,
+        "height": 140,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": 300,
+            "height": 200,
+            "mimeType": "image/png",
+            "filesize": 71559,
+            "filename": "внд-1-300x200.png",
+            "url": "https://www.invitro.ru/golk/cms/images/file/внд-1-300x200.png"
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 584,
+            "filename": "внд-1-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/внд-1-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 1688,
+            "filename": "внд-1-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/внд-1-210x140.webp"
+          },
+          "promoRetina": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "69cfb05bda8d905a6acee209",
+        "url": "https://www.invitro.ru/golk/cms/images/file/%D0%B2%D0%BD%D0%B4-1.png",
+        "thumbnailURL": null
+      },
+      "page": [
+        {
+          "blockType": "oldPageLink",
+          "oldPageUrl": "https://www.invitro.ru/city/vnd",
+          "id": "69d3baede9e2720239521293"
+        }
+      ],
+      "image": null,
+      "targetPage": [
+        "home",
+        "promotions"
+      ],
+      "description": "При заказе услуг от 2490 рублей",
+      "buttonText": "Подробнее",
+      "sponsorInfo": "Реклама  2RanymTGjhL",
+      "_status": "published",
+      "order": 3,
+      "enabled": true,
+      "platform": [],
+      "id": "69d3baedc58535b282404662"
+    },
+    {
+      "createdAt": "2026-06-03T15:29:00.528Z",
+      "updatedAt": "2026-06-10T16:42:39.147Z",
+      "colors": {
+        "backgroundColor": "#E7E7E6",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "sprosite-vracha-terapevta-rf",
+            "id": "69986486414a47722c140c15"
+          },
+          "id": "6a204862758ea773f17f0e01"
+        }
+      ],
+      "targetPage": [
+        "home"
+      ],
+      "order": 4,
+      "_status": "published",
+      "buttonText": "Подробнее",
+      "description": "Запишитесь на приём",
+      "image": {
+        "createdAt": "2026-06-03T15:29:22.529Z",
+        "updatedAt": "2026-06-03T15:29:22.529Z",
+        "alt": "ывпывп",
+        "prefix": "images",
+        "filename": "Image_Action-2.png",
+        "mimeType": "image/png",
+        "filesize": 31509,
+        "width": 210,
+        "height": 140,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 583,
+            "filename": "Image_Action-2-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Image_Action-2-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 5160,
+            "filename": "Image_Action-2-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Image_Action-2-210x140.webp"
+          },
+          "promoRetina": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "6a20485254a9a8d3c644e3f0",
+        "url": "https://www.invitro.ru/golk/cms/images/file/Image_Action-2.png",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [],
+        "aglomerations": [],
+        "showToAll": true
+      },
+      "title": "Ваш терапевт рядом",
+      "enabled": true,
+      "platform": [
+        "web",
+        "app"
+      ],
+      "id": "6a20483c54a9a8d3c644e0bd"
+    },
+    {
+      "createdAt": "2026-05-31T21:24:05.713Z",
+      "updatedAt": "2026-06-10T16:38:08.919Z",
+      "colors": {
+        "backgroundColor": "#6ED2E6",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "uznajte-prichinu-sezonnoj-allergii-06-07-2026-rf",
+            "id": "6a18190454a9a8d3c6679791"
+          },
+          "id": "6a1ca826410f36e67279a9a1"
+        }
+      ],
+      "targetPage": [
+        "home",
+        "promotions"
+      ],
+      "order": 4,
+      "_status": "published",
+      "backgroundImage": null,
+      "buttonText": "Подробнее",
+      "description": "Повышенный кешбэк 15%",
+      "image": {
+        "createdAt": "2026-05-31T21:28:38.045Z",
+        "updatedAt": "2026-05-31T21:28:38.045Z",
+        "alt": "ghghj",
+        "prefix": "images",
+        "filename": "сайт (1).png",
+        "mimeType": "image/png",
+        "filesize": 192331,
+        "width": 420,
+        "height": 280,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": 300,
+            "height": 200,
+            "mimeType": "image/png",
+            "filesize": 145149,
+            "filename": "сайт (1)-300x200.png",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (1)-300x200.png"
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 586,
+            "filename": "сайт (1)-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (1)-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 5780,
+            "filename": "сайт (1)-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (1)-210x140.webp"
+          },
+          "promoRetina": {
+            "width": 420,
+            "height": 280,
+            "mimeType": "image/webp",
+            "filesize": 18620,
+            "filename": "сайт (1)-420x280.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (1)-420x280.webp"
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "6a1ca80654a9a8d3c6db8c31",
+        "url": "https://www.invitro.ru/golk/cms/images/file/%D1%81%D0%B0%D0%B9%D1%82%20(1).png",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [],
+        "aglomerations": [],
+        "showToAll": true
+      },
+      "sponsorInfo": "Реклама 2RanyngKpaE",
+      "title": "Узнайте причину сезонной аллергии",
+      "enabled": true,
+      "platform": [
+        "web",
+        "app"
+      ],
+      "id": "6a1ca6f554a9a8d3c6db7d69"
+    },
+    {
+      "createdAt": "2026-05-28T16:56:12.182Z",
+      "updatedAt": "2026-06-11T07:22:33.784Z",
+      "colors": {
+        "backgroundColor": "#00ACC6",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "nipt-2026-rf",
+            "id": "6a0eecbe54a9a8d3c6751494"
+          },
+          "id": "6a1874c6ef32b311fd737af8"
+        }
+      ],
+      "targetPage": [
+        "home",
+        "promotions"
+      ],
+      "order": 4,
+      "_status": "published",
+      "buttonText": "Подробнее",
+      "description": "Кешбэк 15% на оценку генетических рисков",
+      "image": {
+        "createdAt": "2026-05-22T09:02:37.599Z",
+        "updatedAt": "2026-05-22T09:02:37.599Z",
+        "alt": "апвапвп",
+        "prefix": "images",
+        "filename": "слайдер.png",
+        "mimeType": "image/png",
+        "filesize": 61375,
+        "width": 210,
+        "height": 140,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 595,
+            "filename": "слайдер-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/слайдер-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 5990,
+            "filename": "слайдер-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/слайдер-210x140.webp"
+          },
+          "promoRetina": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "6a101bad54a9a8d3c6952cb0",
+        "url": "https://www.invitro.ru/golk/cms/images/file/%D1%81%D0%BB%D0%B0%D0%B9%D0%B4%D0%B5%D1%80.png",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [],
+        "aglomerations": [],
+        "showToAll": true
+      },
+      "sponsorInfo": "Реклама 2RanymxTfd4",
+      "title": "Неинвазивный пренатальный тест",
+      "enabled": true,
+      "platform": [
+        "web",
+        "app"
+      ],
+      "id": "6a1873ac54a9a8d3c673a95e"
+    },
+    {
+      "createdAt": "2026-06-03T15:33:21.072Z",
+      "updatedAt": "2026-06-10T16:42:27.669Z",
+      "colors": {
+        "backgroundColor": "#97D7F8",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "sprosite-ehndokrinologa-severo-zapad",
+            "id": "69a069362bd0faca27f02810"
+          },
+          "id": "6a20497a758ea773f17f0e02"
+        }
+      ],
+      "targetPage": [
+        "home"
+      ],
+      "order": 5,
+      "_status": "published",
+      "buttonText": "Подробнее",
+      "description": "Запишитесь на приём",
+      "image": {
+        "createdAt": "2026-06-03T15:35:03.681Z",
+        "updatedAt": "2026-06-03T15:35:03.681Z",
+        "alt": "смрпрар",
+        "prefix": "images",
+        "filename": "Image_Action_Endocrinology.png",
+        "mimeType": "image/png",
+        "filesize": 33484,
+        "width": 210,
+        "height": 140,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 592,
+            "filename": "Image_Action_Endocrinology-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Image_Action_Endocrinology-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 6820,
+            "filename": "Image_Action_Endocrinology-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Image_Action_Endocrinology-210x140.webp"
+          },
+          "promoRetina": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "6a2049a754a9a8d3c6451706",
+        "url": "https://www.invitro.ru/golk/cms/images/file/Image_Action_Endocrinology.png",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [],
+        "aglomerations": [],
+        "showToAll": true
+      },
+      "title": "Ваш эндокринолог рядом",
+      "enabled": true,
+      "platform": [
+        "web",
+        "app"
+      ],
+      "id": "6a20494154a9a8d3c6450834"
+    },
+    {
+      "createdAt": "2026-04-06T06:45:19.437Z",
+      "updatedAt": "2026-06-10T16:39:39.695Z",
+      "colors": {
+        "backgroundColor": "#F5966E",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "kleschi-04-08-2026-rf",
+            "id": "69cb93ef57ea95218bb0dc2f"
+          },
+          "id": "69d35a81062823d0a5fe04e0"
+        }
+      ],
+      "targetPage": [
+        "home"
+      ],
+      "_status": "published",
+      "buttonText": "Подробнее",
+      "description": "Что делать и какие анализы сдать",
+      "image": null,
+      "promotionsTargetGeography": {
+        "cities": [],
+        "aglomerations": [],
+        "showToAll": true
+      },
+      "sponsorInfo": "Реклама 2RanykcEmAr",
+      "title": "Сезон клещей",
+      "backgroundImage": {
+        "createdAt": "2026-04-06T07:13:44.181Z",
+        "updatedAt": "2026-04-06T07:13:44.181Z",
+        "alt": "Клещи",
+        "prefix": "images",
+        "filename": "╨║╨╗╨╡╤Й╨╕.png",
+        "mimeType": "image/png",
+        "filesize": 138365,
+        "width": 744,
+        "height": 280,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": 300,
+            "height": 200,
+            "mimeType": "image/png",
+            "filesize": 63127,
+            "filename": "╨║╨╗╨╡╤Й╨╕-300x200.png",
+            "url": "https://www.invitro.ru/golk/cms/images/file/╨║╨╗╨╡╤Й╨╕-300x200.png"
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 553,
+            "filename": "╨║╨╗╨╡╤Й╨╕-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/╨║╨╗╨╡╤Й╨╕-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 1746,
+            "filename": "╨║╨╗╨╡╤Й╨╕-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/╨║╨╗╨╡╤Й╨╕-210x140.webp"
+          },
+          "promoRetina": {
+            "width": 420,
+            "height": 280,
+            "mimeType": "image/webp",
+            "filesize": 5336,
+            "filename": "╨║╨╗╨╡╤Й╨╕-420x280.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/╨║╨╗╨╡╤Й╨╕-420x280.webp"
+          },
+          "promoRetinaHD": {
+            "width": 630,
+            "height": 420,
+            "mimeType": "image/webp",
+            "filesize": 10652,
+            "filename": "╨║╨╗╨╡╤Й╨╕-630x420.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/╨║╨╗╨╡╤Й╨╕-630x420.webp"
+          }
+        },
+        "id": "69d35d28a2f88b049a8a294b",
+        "url": "https://www.invitro.ru/golk/cms/images/file/%E2%95%A8%E2%95%91%E2%95%A8%E2%95%97%E2%95%A8%E2%95%A1%E2%95%A4%D0%99%E2%95%A8%E2%95%95.png",
+        "thumbnailURL": null
+      },
+      "order": 5,
+      "enabled": true,
+      "platform": [
+        "web",
+        "app"
+      ],
+      "id": "69d3567fa2f88b049a89e33f"
+    },
+    {
+      "createdAt": "2026-06-03T15:37:54.937Z",
+      "updatedAt": "2026-06-10T16:31:43.512Z",
+      "colors": {
+        "backgroundColor": "#BFEAF0",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "medicinskie-centry-kashirska-i-leningradsk-prospekt-moskva",
+            "id": "69a04fe22bd0faca27f0021c"
+          },
+          "id": "6a204a77758ea773f17f0e03"
+        }
+      ],
+      "targetPage": [
+        "home"
+      ],
+      "order": 6,
+      "_status": "published",
+      "buttonText": "Подробнее",
+      "description": "Каширское шоссе, д. 68к2",
+      "image": {
+        "createdAt": "2026-06-03T15:38:45.585Z",
+        "updatedAt": "2026-06-03T15:38:45.585Z",
+        "alt": "ыпыпып",
+        "prefix": "images",
+        "filename": "Image_Action_other.png",
+        "mimeType": "image/png",
+        "filesize": 21200,
+        "width": 210,
+        "height": 140,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 616,
+            "filename": "Image_Action_other-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Image_Action_other-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 4966,
+            "filename": "Image_Action_other-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Image_Action_other-210x140.webp"
+          },
+          "promoRetina": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "6a204a8554a9a8d3c64536c1",
+        "url": "https://www.invitro.ru/golk/cms/images/file/Image_Action_other.png",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [
+          {
+            "id": "f1c3c4f0-3426-4cda-8449-e5d326e02f97",
+            "name": "Москва",
+            "type": "city",
+            "isExcluded": false
+          }
+        ],
+        "aglomerations": []
+      },
+      "title": "Многопрофильный медицинский центр",
+      "enabled": true,
+      "platform": [
+        "web",
+        "app"
+      ],
+      "id": "6a204a5254a9a8d3c6452f7d"
+    },
+    {
+      "createdAt": "2026-06-01T14:16:03.482Z",
+      "updatedAt": "2026-06-10T16:37:56.301Z",
+      "colors": {
+        "backgroundColor": "#6ED2E6",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "konvertatsiya-bonusov-2026-rf",
+            "id": "6a0dbc9c54a9a8d3c654c7eb"
+          },
+          "id": "6a1d9482d8c7a0fc8dc47a10"
+        }
+      ],
+      "targetPage": [
+        "home"
+      ],
+      "order": 6,
+      "_status": "published",
+      "backgroundImage": null,
+      "buttonText": "Подробнее",
+      "image": {
+        "createdAt": "2026-06-01T15:24:49.344Z",
+        "updatedAt": "2026-06-01T15:24:49.344Z",
+        "alt": "ывпыпып",
+        "prefix": "images",
+        "filename": "сайт-1.png",
+        "mimeType": "image/png",
+        "filesize": 195193,
+        "width": 420,
+        "height": 280,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": 300,
+            "height": 200,
+            "mimeType": "image/png",
+            "filesize": 136977,
+            "filename": "сайт-1-300x200.png",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт-1-300x200.png"
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 607,
+            "filename": "сайт-1-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт-1-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 5784,
+            "filename": "сайт-1-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт-1-210x140.webp"
+          },
+          "promoRetina": {
+            "width": 420,
+            "height": 280,
+            "mimeType": "image/webp",
+            "filesize": 18212,
+            "filename": "сайт-1-420x280.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт-1-420x280.webp"
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "6a1da44154a9a8d3c6f69ad9",
+        "url": "https://www.invitro.ru/golk/cms/images/file/%D1%81%D0%B0%D0%B9%D1%82-1.png",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [],
+        "aglomerations": [],
+        "showToAll": true
+      },
+      "sponsorInfo": "Реклама ",
+      "title": "Дарите бонусы близким",
+      "enabled": true,
+      "platform": [
+        "web",
+        "app"
+      ],
+      "id": "6a1d942354a9a8d3c6f4787d"
+    },
+    {
+      "createdAt": "2026-06-01T14:01:04.538Z",
+      "updatedAt": "2026-06-10T16:30:21.870Z",
+      "colors": {
+        "backgroundColor": "#6ED2E6",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "premium-medicina-u-vas-doma-2026-moskva",
+            "id": "6a19714654a9a8d3c68c25e5"
+          },
+          "id": "6a1d91ab9bcd7aaed16f3b3d"
+        }
+      ],
+      "targetPage": [
+        "home"
+      ],
+      "order": 7,
+      "_status": "published",
+      "buttonText": "Подробнее",
+      "image": {
+        "createdAt": "2026-06-01T15:06:17.420Z",
+        "updatedAt": "2026-06-01T15:06:17.420Z",
+        "alt": "gghfhfh",
+        "prefix": "images",
+        "filename": "в слайдер (1)gggg.png",
+        "mimeType": "image/png",
+        "filesize": 152986,
+        "width": 420,
+        "height": 280,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": 300,
+            "height": 200,
+            "mimeType": "image/png",
+            "filesize": 107940,
+            "filename": "в слайдер (1)gggg-300x200.png",
+            "url": "https://www.invitro.ru/golk/cms/images/file/в слайдер (1)gggg-300x200.png"
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 604,
+            "filename": "в слайдер (1)gggg-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/в слайдер (1)gggg-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 4636,
+            "filename": "в слайдер (1)gggg-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/в слайдер (1)gggg-210x140.webp"
+          },
+          "promoRetina": {
+            "width": 420,
+            "height": 280,
+            "mimeType": "image/webp",
+            "filesize": 16576,
+            "filename": "в слайдер (1)gggg-420x280.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/в слайдер (1)gggg-420x280.webp"
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "6a1d9fe954a9a8d3c6f60e0f",
+        "url": "https://www.invitro.ru/golk/cms/images/file/%D0%B2%20%D1%81%D0%BB%D0%B0%D0%B9%D0%B4%D0%B5%D1%80%20(1)gggg.png",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [
+          {
+            "id": "f1c3c4f0-3426-4cda-8449-e5d326e02f97",
+            "name": "Москва",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "c0c46e12-71b4-44a9-b695-5572ec30810a",
+            "name": "Истра",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "13ca8295-65dc-44ef-a86b-422eccbef7ed",
+            "name": "Одинцово",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "d5cf60b7-695b-4297-bc08-e33bd57b5b6b",
+            "name": "Нахабино",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "315db2dc-f040-4bdb-a03d-a316ce3a17ac",
+            "name": "Красногорск",
+            "type": "city",
+            "isExcluded": false
+          }
+        ],
+        "aglomerations": []
+      },
+      "sponsorInfo": "Реклама 2Ranynt72AN",
+      "title": "Премиум-выезд на дом",
+      "backgroundImage": null,
+      "enabled": true,
+      "platform": [
+        "web",
+        "app"
+      ],
+      "id": "6a1d90a054a9a8d3c6f400a1"
+    },
+    {
+      "createdAt": "2026-03-03T12:56:22.052Z",
+      "updatedAt": "2026-06-01T07:47:59.960Z",
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "planirovanie-beremennosti-2025-rf",
+            "id": "69a038582bd0faca27efca70"
+          },
+          "id": "69a6daca5b719d9455f9f330"
+        }
+      ],
+      "targetPage": [
+        "home"
+      ],
+      "_status": "published",
+      "buttonText": "Подробнее",
+      "description": "Исследования при планировании беременности",
+      "image": {
+        "createdAt": "2026-03-03T15:04:40.499Z",
+        "updatedAt": "2026-03-03T15:04:40.499Z",
+        "alt": "Тест на беременность",
+        "prefix": "images",
+        "filename": "Image8.png",
+        "mimeType": "image/png",
+        "filesize": 48817,
+        "width": 163,
+        "height": 140,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "url": null
+          },
+          "promoThumbnail": {
+            "url": null
+          },
+          "promoRetina": {
+            "url": null
+          },
+          "promoRetinaHD": {
+            "url": null
+          }
+        },
+        "id": "69a6f888da6f003c6baf7203",
+        "url": "https://www.invitro.ru/golk/cms/images/file/Image8.png",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [],
+        "aglomerations": [],
+        "showToAll": true
+      },
+      "sponsorInfo": "Реклама 2RanynC4xC2",
+      "title": "Хочу стать мамой ",
+      "colors": {
+        "backgroundColor": "#EFCECA",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "order": 7,
+      "enabled": true,
+      "platform": [],
+      "id": "69a6da76da6f003c6baf6410"
+    },
+    {
+      "createdAt": "2026-03-03T15:31:38.515Z",
+      "updatedAt": "2026-05-14T11:49:32.300Z",
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "vazhno-zaranee-08-2024-rf",
+            "id": "69a0327c2bd0faca27efbb08"
+          },
+          "id": "69a6fedf228fe27514265b5f"
+        }
+      ],
+      "targetPage": [
+        "home"
+      ],
+      "_status": "published",
+      "buttonText": "Подробнее",
+      "description": "Неинвазивный пренатальный тест",
+      "image": {
+        "createdAt": "2026-03-03T15:32:51.547Z",
+        "updatedAt": "2026-03-03T15:32:51.547Z",
+        "alt": "Женщина",
+        "prefix": "images",
+        "filename": "Image7.png",
+        "mimeType": "image/png",
+        "filesize": 51306,
+        "width": 187,
+        "height": 140,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "url": null
+          },
+          "promoThumbnail": {
+            "url": null
+          },
+          "promoRetina": {
+            "url": null
+          },
+          "promoRetinaHD": {
+            "url": null
+          }
+        },
+        "id": "69a6ff23da6f003c6baf7daf",
+        "url": "https://www.invitro.ru/golk/cms/images/file/Image7.png",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [],
+        "aglomerations": [],
+        "showToAll": true
+      },
+      "title": "Важно заранее",
+      "sponsorInfo": "Реклама 2RanykoywZk",
+      "colors": {
+        "backgroundColor": "#BFD3FD",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "order": 9,
+      "enabled": true,
+      "platform": [],
+      "id": "69a6fedada6f003c6baf7ce1"
+    },
+    {
+      "createdAt": "2026-04-06T08:00:43.015Z",
+      "updatedAt": "2026-06-10T16:30:44.854Z",
+      "colors": {
+        "backgroundColor": "#6ED2E6",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "voda-i-pochva-04-08-2026-rf",
+            "id": "69cce58757ea95218bbf2197"
+          },
+          "id": "69d36e8603644c4df1cbf9bb"
+        }
+      ],
+      "targetPage": [
+        "home"
+      ],
+      "_status": "published",
+      "promotionsTargetGeography": {
+        "cities": [
+          {
+            "id": "7b227cee-95e7-4837-825c-fb4888ec53f3",
+            "name": "Новосибирск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "90e70e97-e7ec-4107-a85b-0991297ac741",
+            "name": "Бердск",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "2937f0c7-8c00-43ec-b3c5-f33189cc0fa6",
+            "name": "Искитим",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "8c754525-e9f2-45f3-99d1-8882e857c350",
+            "name": "Ордынское",
+            "type": "city",
+            "isExcluded": false
+          },
+          {
+            "id": "736ac31d-17a7-4a50-8c7c-33e965c0d297",
+            "name": "Пашино",
+            "type": "city",
+            "isExcluded": false
+          }
+        ],
+        "aglomerations": [
+          {
+            "id": "5737b9b1-147b-4ac0-8d48-79140af39f45",
+            "name": "Москва",
+            "type": "aglomeration",
+            "isExcluded": false
+          },
+          {
+            "id": "e194b417-09c4-e911-80d3-00155d908605",
+            "name": "Москва",
+            "type": "aglomeration",
+            "isExcluded": false
+          },
+          {
+            "id": "d3a73275-1bd8-4247-b2d3-efdbd12e2771",
+            "name": "Северный Кавказ",
+            "type": "aglomeration",
+            "isExcluded": false
+          },
+          {
+            "id": "a71409b4-08c4-e911-80d3-00155d908605",
+            "name": "Северный Кавказ",
+            "type": "aglomeration",
+            "isExcluded": false
+          },
+          {
+            "id": "bba61900-2432-4532-988b-65b793e27e33",
+            "name": "Юг",
+            "type": "aglomeration",
+            "isExcluded": false
+          },
+          {
+            "id": "24e7b29a-08c4-e911-80d3-00155d908605",
+            "name": "Юг",
+            "type": "aglomeration",
+            "isExcluded": false
+          },
+          {
+            "id": "7a330dc5-10d3-4492-ac26-35b9a9ead3bb",
+            "name": "Урал",
+            "type": "aglomeration",
+            "isExcluded": false
+          },
+          {
+            "id": "24eb4cb1-02c4-e911-80d3-00155d908605",
+            "name": "Урал",
+            "type": "aglomeration",
+            "isExcluded": false
+          },
+          {
+            "id": "f846ca72-8a28-473b-b84f-f50c8fdee31c",
+            "name": "Северо-Запад",
+            "type": "aglomeration",
+            "isExcluded": false
+          },
+          {
+            "id": "61a17a7a-02c4-e911-80d3-00155d908605",
+            "name": "Северо-Запад",
+            "type": "aglomeration",
+            "isExcluded": false
+          },
+          {
+            "id": "c524e84a-1909-4d57-ba8a-8dcf85efa8e3",
+            "name": "Приволжье",
+            "type": "aglomeration",
+            "isExcluded": false
+          },
+          {
+            "id": "27638b81-08c4-e911-80d3-00155d908605",
+            "name": "Приволжье",
+            "type": "aglomeration",
+            "isExcluded": false
+          }
+        ],
+        "showToAll": false
+      },
+      "title": "Проверьте качество воды и почвы",
+      "buttonText": "Подробнее",
+      "image": {
+        "createdAt": "2026-04-06T08:27:27.645Z",
+        "updatedAt": "2026-04-06T08:27:27.645Z",
+        "alt": "апвпвп",
+        "prefix": "images",
+        "filename": "Проверить качество воды и почвы.png",
+        "mimeType": "image/png",
+        "filesize": 131306,
+        "width": 420,
+        "height": 280,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": 300,
+            "height": 200,
+            "mimeType": "image/png",
+            "filesize": 104052,
+            "filename": "Проверить качество воды и почвы-300x200.png",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Проверить качество воды и почвы-300x200.png"
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 567,
+            "filename": "Проверить качество воды и почвы-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Проверить качество воды и почвы-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 3688,
+            "filename": "Проверить качество воды и почвы-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Проверить качество воды и почвы-210x140.webp"
+          },
+          "promoRetina": {
+            "width": 420,
+            "height": 280,
+            "mimeType": "image/webp",
+            "filesize": 12622,
+            "filename": "Проверить качество воды и почвы-420x280.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Проверить качество воды и почвы-420x280.webp"
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "69d36e6fc58535b2823d4d44",
+        "url": "https://www.invitro.ru/golk/cms/images/file/%D0%9F%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%B8%D1%82%D1%8C%20%D0%BA%D0%B0%D1%87%D0%B5%D1%81%D1%82%D0%B2%D0%BE%20%D0%B2%D0%BE%D0%B4%D1%8B%20%D0%B8%C2%A0%D0%BF%D0%BE%D1%87%D0%B2%D1%8B.png",
+        "thumbnailURL": null
+      },
+      "sponsorInfo": "Реклама 2RanymzNo8W",
+      "order": 10,
+      "enabled": true,
+      "platform": [
+        "web",
+        "app"
+      ],
+      "id": "69d3682bc58535b2823cff48"
+    },
+    {
+      "createdAt": "2026-03-26T10:56:14.628Z",
+      "updatedAt": "2026-06-10T16:36:22.994Z",
+      "colors": {
+        "backgroundColor": "#EFCECA",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "oldPageLink",
+          "oldPageUrl": "https://www.invitro.ru/loyalty/",
+          "id": "69c510f0e8384935f560cfae"
+        }
+      ],
+      "targetPage": [
+        "home",
+        "promotions"
+      ],
+      "_status": "published",
+      "buttonText": "Подробнее",
+      "description": "Получайте кешбэк в ИНВИТРО",
+      "image": {
+        "createdAt": "2026-03-26T10:57:56.805Z",
+        "updatedAt": "2026-03-26T10:57:56.805Z",
+        "alt": "Лояльность 2",
+        "prefix": "images",
+        "filename": "Лояльность 2.png",
+        "mimeType": "image/png",
+        "filesize": 78179,
+        "width": 420,
+        "height": 280,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": 300,
+            "height": 200,
+            "mimeType": "image/png",
+            "filesize": 64894,
+            "filename": "Лояльность 2-300x200.png",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Лояльность 2-300x200.png"
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 595,
+            "filename": "Лояльность 2-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Лояльность 2-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 7720,
+            "filename": "Лояльность 2-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Лояльность 2-210x140.webp"
+          },
+          "promoRetina": {
+            "width": 420,
+            "height": 280,
+            "mimeType": "image/webp",
+            "filesize": 15646,
+            "filename": "Лояльность 2-420x280.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Лояльность 2-420x280.webp"
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "69c5113457ea95218b96fdab",
+        "url": "https://www.invitro.ru/golk/cms/images/file/%D0%9B%D0%BE%D1%8F%D0%BB%D1%8C%D0%BD%D0%BE%D1%81%D1%82%D1%8C%202.png",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [],
+        "aglomerations": [],
+        "showToAll": true
+      },
+      "sponsorInfo": "Реклама ",
+      "title": "Следите за здоровьем",
+      "order": 10,
+      "enabled": true,
+      "platform": [
+        "web",
+        "app"
+      ],
+      "id": "69c510ce57ea95218b96fc5c"
+    },
+    {
+      "createdAt": "2026-05-15T09:32:16.468Z",
+      "updatedAt": "2026-06-10T16:31:54.907Z",
+      "colors": {
+        "backgroundColor": "#E7E7E6",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "15-na-chipirovanie-pitomcev-05-06-2026-moskva",
+            "id": "6a057ceac72ece0fa75120f6"
+          },
+          "id": "6a06e92f1a35fd452c99c3cd"
+        }
+      ],
+      "targetPage": [
+        "home",
+        "promotions"
+      ],
+      "order": 15,
+      "_status": "published",
+      "description": "На чипирование питомца",
+      "image": {
+        "createdAt": "2026-05-15T09:34:23.327Z",
+        "updatedAt": "2026-05-15T09:34:23.327Z",
+        "alt": "апрар",
+        "prefix": "images",
+        "filename": "Вет юнион_баннер.jpg",
+        "mimeType": "image/jpeg",
+        "filesize": 34782,
+        "width": 420,
+        "height": 280,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": 300,
+            "height": 200,
+            "mimeType": "image/jpeg",
+            "filesize": 9899,
+            "filename": "Вет юнион_баннер-300x200.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Вет юнион_баннер-300x200.jpg"
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 590,
+            "filename": "Вет юнион_баннер-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Вет юнион_баннер-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 4228,
+            "filename": "Вет юнион_баннер-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Вет юнион_баннер-210x140.webp"
+          },
+          "promoRetina": {
+            "width": 420,
+            "height": 280,
+            "mimeType": "image/webp",
+            "filesize": 15910,
+            "filename": "Вет юнион_баннер-420x280.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Вет юнион_баннер-420x280.webp"
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "6a06e89f9d383c04da811b04",
+        "url": "https://www.invitro.ru/golk/cms/images/file/%D0%92%D0%B5%D1%82%20%D1%8E%D0%BD%D0%B8%D0%BE%D0%BD_%D0%B1%D0%B0%D0%BD%D0%BD%D0%B5%D1%80.jpg",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [],
+        "aglomerations": [
+          {
+            "id": "5737b9b1-147b-4ac0-8d48-79140af39f45",
+            "name": "Москва",
+            "type": "aglomeration",
+            "isExcluded": false
+          }
+        ],
+        "showToAll": false
+      },
+      "sponsorInfo": "Реклама 2RanynhchkE",
+      "title": "-15%",
+      "buttonText": "Подробнее",
+      "enabled": true,
+      "platform": [
+        "web",
+        "app"
+      ],
+      "id": "6a06e8209d383c04da80ed60"
+    }
+  ],
+  "totalDocs": 28,
+  "limit": 28,
+  "totalPages": 1,
+  "page": 1,
+  "pagingCounter": 1,
+  "hasPrevPage": false,
+  "hasNextPage": false,
+  "prevPage": null,
+  "nextPage": null
+}

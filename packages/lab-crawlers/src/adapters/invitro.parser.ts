@@ -40,6 +40,33 @@ export type InvitroActionsParseResult = {
   parsedCount: number;
 };
 
+export type InvitroApiProduct = {
+  id?: string;
+  product_id?: string;
+  bitrix_id?: number | string;
+  category_bitrix_id?: number | string;
+  category_name?: string;
+  code?: string;
+  deadline?: number | string;
+  price?: number | string;
+  product_type?: 'TEST' | 'COMPLEX' | string;
+  title?: string;
+  subtitle?: string;
+  is_promo?: boolean;
+  additional_services?: Array<{
+    id?: string;
+    price?: number | string;
+    title?: string;
+  }>;
+};
+
+export type InvitroApiCatalogParseResult = {
+  tests: ProviderTestRecord[];
+  prices: ProviderTestPriceRecord[];
+  productsSeen: number;
+  parsedCount: number;
+};
+
 export function parseInvitroCatalogHtml(
   html: string,
   context: ScraperContext,
@@ -62,6 +89,76 @@ export function parseInvitroCatalogHtml(
     cardsSeen: cards.length,
     parsedCount: parsed.length,
     links: extractInvitroCatalogLinks(html, sourceUrl),
+  };
+}
+
+export function parseInvitroApiCatalogJson(
+  input: unknown,
+  context: ScraperContext,
+  options: {
+    fetchedAt?: string;
+    sourceUrl?: string;
+    defaultKind?: ProviderTestRecord['kind'];
+    maxItems?: number;
+  } = {},
+): InvitroApiCatalogParseResult {
+  const fetchedAt = options.fetchedAt ?? context.fetchedAt ?? new Date().toISOString();
+  const products = extractInvitroApiProducts(input).slice(0, options.maxItems ?? Number.POSITIVE_INFINITY);
+  const parsed = products
+    .map((product) => mapInvitroApiProduct(product, context, fetchedAt, {
+      endpointUrl: options.sourceUrl,
+      defaultKind: options.defaultKind,
+    }))
+    .filter((item): item is { test: ProviderTestRecord; price: ProviderTestPriceRecord } => item !== undefined);
+
+  return {
+    tests: parsed.map((item) => item.test),
+    prices: parsed.map((item) => item.price),
+    productsSeen: products.length,
+    parsedCount: parsed.length,
+  };
+}
+
+export function parseInvitroApiPromotionsJson(
+  input: unknown,
+  context: ScraperContext,
+  options: {
+    fetchedAt?: string;
+    sourceUrl?: string;
+    maxItems?: number;
+  } = {},
+): InvitroActionsParseResult {
+  const fetchedAt = options.fetchedAt ?? context.fetchedAt ?? new Date().toISOString();
+  const docs = extractInvitroPromotionDocs(input).slice(0, options.maxItems ?? Number.POSITIVE_INFINITY);
+  const sourceUrl = options.sourceUrl ?? INVITRO_MOSCOW_ACTIONS_URL;
+  const promotions: LabPromotionRecord[] = docs
+    .flatMap((doc, index): LabPromotionRecord[] => {
+      const title = stringValue(doc.title);
+      if (!title) {
+        return [];
+      }
+      const slug = extractPromotionSlug(doc);
+      return [{
+        providerCode: 'invitro',
+        regionCode: context.region.code,
+        externalId: stringValue(doc.id) ?? slug ?? `invitro-api-promo-${index + 1}`,
+        title,
+        description: stringValue(doc.description),
+        offerType: 'promo' as const,
+        regionScope: context.region.city,
+        sourceUrl: slug ? normalizeInvitroUrl(`/${context.region.code}/ak/${slug}/`, sourceUrl) : sourceUrl,
+        fetchedAt,
+        rawPayload: {
+          parser: 'invitro-promotions-api',
+          doc,
+        },
+      }];
+    });
+
+  return {
+    promotions,
+    links: promotions.map((promotion) => ({ url: promotion.sourceUrl, text: promotion.title })),
+    parsedCount: promotions.length,
   };
 }
 
@@ -147,6 +244,138 @@ export function extractInvitroActionLinks(html: string, sourceUrl = INVITRO_MOSC
     .filter((link) => link.text.length > 2)
     .map((link) => ({ url: normalizeInvitroUrl(link.href, sourceUrl), text: link.text }))
     .filter((link) => uniqueByUrl(seen, link.url));
+}
+
+function extractInvitroApiProducts(input: unknown): InvitroApiProduct[] {
+  if (Array.isArray(input)) {
+    return input.filter(isRecord) as InvitroApiProduct[];
+  }
+
+  if (!isRecord(input)) {
+    return [];
+  }
+
+  if (Array.isArray(input.data)) {
+    return input.data.flatMap((category) => {
+      if (!isRecord(category) || !Array.isArray(category.products)) {
+        return [];
+      }
+      return category.products
+        .filter(isRecord)
+        .map((product) => ({
+          category_name: stringValue(category.category_name),
+          ...product,
+        })) as InvitroApiProduct[];
+    });
+  }
+
+  if (Array.isArray(input.products)) {
+    return input.products.filter(isRecord) as InvitroApiProduct[];
+  }
+
+  return [];
+}
+
+function mapInvitroApiProduct(
+  product: InvitroApiProduct,
+  context: ScraperContext,
+  fetchedAt: string,
+  options: {
+    endpointUrl?: string;
+    defaultKind?: ProviderTestRecord['kind'];
+  } = {},
+): { test: ProviderTestRecord; price: ProviderTestPriceRecord } | undefined {
+  const name = cleanText(product.title ?? '');
+  const regularPriceRub = toRubles(product.price);
+  if (!name || regularPriceRub === undefined) {
+    return undefined;
+  }
+
+  const externalCode = stringValue(product.code) ?? stringValue(product.bitrix_id);
+  const externalId = stringValue(product.id) ?? stringValue(product.product_id) ?? externalCode;
+  const productKind = product.product_type === 'COMPLEX' ? 'profile' : options.defaultKind ?? classifyInvitroTest(name);
+  const itemSourceUrl = buildInvitroProductUrl(product, productKind);
+  const biomaterialService = product.additional_services?.find((service) => /взятие|кров/i.test(service.title ?? ''));
+  const biomaterialPriceRub = toRubles(biomaterialService?.price);
+  const price: ProviderTestPriceRecord = {
+    providerCode: 'invitro',
+    regionCode: context.region.code,
+    city: context.region.city,
+    externalId,
+    externalCode,
+    currency: 'RUB',
+    regularPriceRub,
+    effectivePriceRub: effectivePriceRub({ regularPriceRub }),
+    biomaterialPriceRub,
+    offerType: product.is_promo ? 'promo' : 'regular',
+    sourceUrl: itemSourceUrl,
+    fetchedAt,
+    rawPayload: {
+      parser: 'invitro-tests-api',
+      endpointUrl: options.endpointUrl,
+      product,
+    },
+  };
+
+  return {
+    test: {
+      providerCode: 'invitro',
+      regionCode: context.region.code,
+      externalId,
+      externalCode,
+      name,
+      normalizedName: normalizeProviderName(name),
+      kind: productKind,
+      category: stringValue(product.category_name),
+      biomaterial: biomaterialService?.title,
+      turnaroundTime: product.deadline === undefined ? undefined : `${product.deadline} дн.`,
+      sourceUrl: itemSourceUrl,
+      matchStatus: 'unmatched',
+      fetchedAt,
+      rawPayload: {
+        parser: 'invitro-tests-api',
+        endpointUrl: options.endpointUrl,
+        price,
+        product,
+      },
+    },
+    price,
+  };
+}
+
+function buildInvitroProductUrl(product: InvitroApiProduct, kind: ProviderTestRecord['kind']): string {
+  const categoryBitrixId = stringValue(product.category_bitrix_id);
+  const bitrixId = stringValue(product.bitrix_id);
+  if (categoryBitrixId && bitrixId) {
+    const section = kind === 'profile' ? 'profi' : 'for-doctors';
+    return `${INVITRO_BASE_URL}/analizes/${section}/${categoryBitrixId}/${bitrixId}/`;
+  }
+
+  return INVITRO_MOSCOW_CATALOG_URL;
+}
+
+function extractInvitroPromotionDocs(input: unknown): Array<Record<string, unknown>> {
+  if (!isRecord(input) || !Array.isArray(input.docs)) {
+    return [];
+  }
+  return input.docs.filter(isRecord);
+}
+
+function extractPromotionSlug(doc: Record<string, unknown>): string | undefined {
+  const page = doc.page;
+  if (!Array.isArray(page)) {
+    return undefined;
+  }
+  for (const item of page) {
+    if (!isRecord(item) || !isRecord(item.newPage)) {
+      continue;
+    }
+    const slug = stringValue(item.newPage.slug);
+    if (slug) {
+      return slug;
+    }
+  }
+  return undefined;
 }
 
 function parseInvitroCatalogCards(html: string, sourceUrl: string): InvitroCatalogCard[] {
@@ -291,6 +520,18 @@ function attr(html: string, name: string): string | undefined {
 
 function matchFirst(value: string, pattern: RegExp, group = 1): string | undefined {
   return value.match(pattern)?.[group];
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function stringValue(value: unknown): string | undefined {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+  const stringified = String(value).trim();
+  return stringified || undefined;
 }
 
 function cleanText(value: string): string {

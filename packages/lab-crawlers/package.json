@@ -19,6 +19,7 @@
     "sync:gemotest": "pnpm build && node dist/scripts/sync-gemotest.js",
     "crawler:run": "pnpm build && node dist/scripts/crawler-run.js",
     "invitro:probe": "pnpm build && node dist/scripts/invitro-probe.js",
+    "invitro:api-probe": "pnpm build && node dist/scripts/invitro-api-probe.js",
     "compare:db": "pnpm build && node dist/scripts/compare-db.js",
     "compare:matrix": "pnpm build && node dist/scripts/compare-matrix.js",
     "compare:market": "pnpm build && node dist/scripts/compare-market.js",
