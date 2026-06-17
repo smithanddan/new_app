@@ -316,6 +316,7 @@ export {
   type GemotestProductCard,
 } from './adapters/gemotest.parser.js';
 export { InvitroScraper } from './adapters/invitro.scraper.js';
+export { InvitroApiScraper } from './adapters/invitro-api.scraper.js';
 export {
   INVITRO_BASE_URL,
   INVITRO_MOSCOW_ACTIONS_URL,

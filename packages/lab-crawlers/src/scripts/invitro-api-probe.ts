@@ -56,11 +56,11 @@ async function probeInvitroApi(args: Args) {
   });
   const tests = parseInvitroApiCatalogJson(snapshotPayload(snapshots, 'tests-page-1'), context, {
     fetchedAt,
-    sourceUrl: `https://www.invitro.ru/golk/tests/api/v1/tests?cityID=${cityId}&page=1&limit=25`,
+    sourceUrl: `https://www.invitro.ru/golk/tests/api/v1/tests?cityID=${cityId}&limit=25&offset=0`,
   });
   const complexes = parseInvitroApiCatalogJson(snapshotPayload(snapshots, 'complexes-page-1'), context, {
     fetchedAt,
-    sourceUrl: `https://www.invitro.ru/golk/tests/api/v1/complexes?cityID=${cityId}&page=1&limit=25`,
+    sourceUrl: `https://www.invitro.ru/golk/tests/api/v1/complexes?cityID=${cityId}&limit=25&offset=0`,
     defaultKind: 'profile',
   });
   const promotions = parseInvitroApiPromotionsJson(snapshotPayload(snapshots, 'promotions-home'), context, {
@@ -123,8 +123,8 @@ async function fetchSnapshots(cityId: string): Promise<ApiSnapshot[]> {
 
     const endpoints = [
       ['popular', `/golk/tests/api/v1/popular?cityID=${cityId}`],
-      ['tests-page-1', `/golk/tests/api/v1/tests?cityID=${cityId}&page=1&limit=25`],
-      ['complexes-page-1', `/golk/tests/api/v1/complexes?cityID=${cityId}&page=1&limit=25`],
+      ['tests-page-1', `/golk/tests/api/v1/tests?cityID=${cityId}&limit=25&offset=0`],
+      ['complexes-page-1', `/golk/tests/api/v1/complexes?cityID=${cityId}&limit=25&offset=0`],
       ['promotions-home', `/golk/cms/cms-proxy/promotions/filtered?targetPage=home&cityId=${cityId}&depth=3`],
     ] as const;
 

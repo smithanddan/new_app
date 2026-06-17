@@ -5,7 +5,7 @@ import type { ProviderCode, ProviderTestPriceRecord, ProviderTestRecord } from '
 import { DnkomLiveScraper } from './adapters/dnkom-live.scraper.js';
 import { GemotestLiveScraper } from './adapters/gemotest-live.scraper.js';
 import { GEMOTEST_MOSCOW_CATALOG_SECTION_URLS } from './adapters/gemotest.parser.js';
-import { InvitroScraper } from './adapters/invitro.scraper.js';
+import { InvitroApiScraper } from './adapters/invitro-api.scraper.js';
 import {
   createExpansionProviderScraper,
   getExpansionProviderConfig,
@@ -70,14 +70,14 @@ export function createProviderAdapter(provider: CrawlerProviderKey): ProviderAda
   }
 
   if (provider === 'invitro') {
-    return new ScraperProviderAdapter(provider, new InvitroScraper(), createInvitroContext);
+    return new ScraperProviderAdapter(provider, createInvitroScraper(), createInvitroContext);
   }
 
   return new ScraperProviderAdapter(provider, createExpansionProviderScraper(provider), createExpansionProviderContext(provider));
 }
 
 export function buildCrawlerTransport(provider: ProviderCode): CrawlerTransport {
-  return provider === 'dnkom' || provider === 'gemotest'
+  return provider === 'dnkom' || provider === 'gemotest' || provider === 'invitro'
     ? { mode: 'playwright' }
     : { mode: 'http', fallback: 'playwright' };
 }
@@ -128,6 +128,22 @@ function createGemotestScraper(): GemotestLiveScraper {
   });
 }
 
+function createInvitroScraper(): InvitroApiScraper {
+  const fixturesDir = path.join(packageRoot, 'fixtures/invitro');
+  const useFixturesOnly = process.env.INVITRO_FIXTURE_ONLY === '1';
+
+  return new InvitroApiScraper({
+    maxCatalogItems: Number(process.env.INVITRO_SYNC_LIMIT ?? 50),
+    maxComplexItems: Number(process.env.INVITRO_COMPLEX_SYNC_LIMIT ?? 25),
+    pageSize: Number(process.env.INVITRO_PAGE_SIZE ?? 25),
+    useFixturesOnly,
+    fixturePopularJson: useFixturesOnly ? readJsonFixture(fixturesDir, 'api-popular.json') : undefined,
+    fixtureTestsPageJson: useFixturesOnly ? readJsonFixture(fixturesDir, 'api-tests-page-1.json') : undefined,
+    fixtureComplexesPageJson: useFixturesOnly ? readJsonFixture(fixturesDir, 'api-complexes-page-1.json') : undefined,
+    fixturePromotionsJson: useFixturesOnly ? readJsonFixture(fixturesDir, 'api-promotions-home.json') : undefined,
+  });
+}
+
 function createDnkomContext(region: string): ScraperContext {
   return {
     providerCode: 'dnkom',
@@ -156,6 +172,7 @@ function createInvitroContext(region: string): ScraperContext {
       code: resolveProviderRegion('invitro', region),
       city: 'Москва',
       urlPrefix: '/moscow',
+      providerCityId: 'f1c3c4f0-3426-4cda-8449-e5d326e02f97',
     },
   };
 }
@@ -190,6 +207,11 @@ function readGemotestCatalogUrls(): string[] | undefined {
 function readFixture(fixturesDir: string, name: string): string | undefined {
   const filePath = path.join(fixturesDir, name);
   return fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : undefined;
+}
+
+function readJsonFixture(fixturesDir: string, name: string): unknown {
+  const filePath = path.join(fixturesDir, name);
+  return fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf8')) : undefined;
 }
 
 function readFixturePages(fixturesDir: string): Array<{ html: string; sourceUrl?: string }> {
