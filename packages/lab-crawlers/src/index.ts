@@ -406,6 +406,18 @@ export {
   type SingleProviderBasket,
 } from './product-layer.js';
 export {
+  buildLocalBasket,
+  compareLocalMarket,
+  getDefaultInvitroSnapshotPath,
+  loadLocalMarketDataset,
+  writeLocalMarketSnapshot,
+  type LocalBasketResult,
+  type LocalCompareResult,
+  type LocalMarketDataset,
+  type LocalMarketSnapshot,
+  type LocalOffer,
+} from './local-market.js';
+export {
   normalizeReferralItems,
   normalizeReferralText,
   parseReferralText,

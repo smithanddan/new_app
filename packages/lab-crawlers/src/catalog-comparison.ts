@@ -109,6 +109,15 @@ export const DEFAULT_CANONICAL_TESTS: CanonicalTestRecord[] = [
     category: 'kidney',
     aliases: ['креатинин', 'creatinine'],
   },
+  {
+    id: 'BIOCHEM',
+    code: 'BIOCHEM',
+    nameRu: 'Биохимия крови',
+    nameEn: 'Blood biochemistry',
+    kind: 'panel',
+    category: 'biochemistry',
+    aliases: ['биохимия крови', 'биохимия базовая', 'биохимический анализ крови', 'базовая биохимия', 'blood biochemistry'],
+  },
 ];
 
 export function matchProviderTestToCanonical(
