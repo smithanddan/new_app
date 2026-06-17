@@ -99,6 +99,31 @@ const apiPromotions = parseInvitroApiPromotionsJson(readJsonFixture('api-promoti
 assert.equal(apiPromotions.promotions.length, 17, 'promotions API fixture should parse promotions');
 assert.ok(apiPromotions.promotions.some((promotion) => promotion.title === 'Скидка до 45%'));
 
+const detailProduct = parseInvitroApiCatalogJson({
+  id: 'bdca4fdd-0427-4e88-8a34-becd8f78aa7b',
+  bitrix_id: 2245,
+  code: '51',
+  title: 'Ферритин (Ferritin)',
+  price: 935,
+  deadline: 1,
+  categories: [
+    { bitrix_id: 140, title: 'Биохимические исследования' },
+    { bitrix_id: 2572, title: 'Белки, участвующие в обмене железа' },
+  ],
+  additional_services: [
+    { id: '718f4d00-210d-43f1-9c9c-e97733d38972', price: 310, title: 'Взятие крови из вены' },
+  ],
+}, context, {
+  fetchedAt,
+  sourceUrl: 'https://www.invitro.ru/golk/tests/api/v1/tests/bdca4fdd-0427-4e88-8a34-becd8f78aa7b',
+});
+assert.equal(detailProduct.tests.length, 1, 'detail API product should parse as one test');
+assert.equal(detailProduct.tests[0]?.externalCode, '51');
+assert.equal(detailProduct.tests[0]?.category, 'Белки, участвующие в обмене железа');
+assert.ok(detailProduct.tests[0]?.sourceUrl.includes('/analizes/for-doctors/2572/2245/'));
+assert.equal(detailProduct.prices[0]?.regularPriceRub, 935);
+assert.equal(detailProduct.prices[0]?.biomaterialPriceRub, 310);
+
 assertNoCentsKeys(catalog);
 assertNoCentsKeys(actions);
 assertNoCentsKeys(apiPopular);

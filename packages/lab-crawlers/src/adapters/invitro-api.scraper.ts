@@ -22,6 +22,7 @@ type InvitroApiScraperOptions = {
   maxCatalogItems?: number;
   maxComplexItems?: number;
   pageSize?: number;
+  pageTimeoutMs?: number;
   useFixturesOnly?: boolean;
   fixturePopularJson?: unknown;
   fixtureTestsPageJson?: unknown;
@@ -42,6 +43,7 @@ export class InvitroApiScraper implements ProviderScraper {
   private readonly maxCatalogItems: number;
   private readonly maxComplexItems: number;
   private readonly pageSize: number;
+  private readonly pageTimeoutMs: number;
   private readonly useFixturesOnly: boolean;
   private readonly fixturePopularJson?: unknown;
   private readonly fixtureTestsPageJson?: unknown;
@@ -53,6 +55,7 @@ export class InvitroApiScraper implements ProviderScraper {
     this.maxCatalogItems = options.maxCatalogItems ?? 50;
     this.maxComplexItems = options.maxComplexItems ?? 25;
     this.pageSize = options.pageSize ?? 25;
+    this.pageTimeoutMs = options.pageTimeoutMs ?? 45_000;
     this.useFixturesOnly = options.useFixturesOnly ?? false;
     this.fixturePopularJson = options.fixturePopularJson;
     this.fixtureTestsPageJson = options.fixtureTestsPageJson;
@@ -237,26 +240,39 @@ export class InvitroApiScraper implements ProviderScraper {
     const page = await browser.newPage({
       userAgent: context.userAgent ?? 'Mozilla/5.0 lab-crawlers-invitro-api/1.0',
     });
-    await page.goto(`${INVITRO_BASE_URL}/analizes`, { waitUntil: 'domcontentloaded', timeout: 45_000 });
+    const notes = [
+      'INVITRO catalog is loaded through /golk/tests/api/v1 endpoints from browser context.',
+      'Direct non-browser API requests may return the GMonit shell instead of JSON.',
+    ];
+    try {
+      await page.goto(`${INVITRO_BASE_URL}/analizes`, { waitUntil: 'domcontentloaded', timeout: this.pageTimeoutMs });
+    } catch (error) {
+      notes.push(`Shell bootstrap timed out or failed; continuing with browser context: ${error instanceof Error ? error.message : String(error)}`);
+      try {
+        await page.goto(INVITRO_BASE_URL, { waitUntil: 'commit', timeout: 10_000 });
+        notes.push('Fallback shell bootstrap committed on INVITRO base URL.');
+      } catch (fallbackError) {
+        notes.push(`Fallback shell bootstrap also failed: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`);
+      }
+    }
     await page.waitForTimeout(1_500);
+    const cookies = await page.context().cookies().catch(() => []);
+    const localStorage = await page.evaluate(() => Object.fromEntries(Object.entries(window.localStorage))).catch(() => ({}));
 
     const probe: ProviderRegionProbeResult = {
       providerCode: 'invitro',
       regionCode: context.region.code,
       detectedCity: context.region.city,
-      cookies: (await page.context().cookies())
+      cookies: cookies
         .filter((cookie) => /city|geo|location|session|token/i.test(cookie.name))
         .map((cookie) => ({
           name: cookie.name,
           valuePreview: cookie.value.slice(0, 24),
           domain: cookie.domain,
         })),
-      localStorage: await page.evaluate(() => Object.fromEntries(Object.entries(window.localStorage))),
+      localStorage,
       networkRequests: [],
-      notes: [
-        'INVITRO catalog is loaded through /golk/tests/api/v1 endpoints from browser context.',
-        'Direct non-browser API requests may return the GMonit shell instead of JSON.',
-      ],
+      notes,
       rawPayload: {
         mode: 'playwright',
         cityId: resolveInvitroCityId(context),
@@ -279,7 +295,7 @@ export class InvitroApiScraper implements ProviderScraper {
         } catch {
           throw new Error(`INVITRO API ${path} returned non-JSON: ${text.slice(0, 300)}`);
         }
-      }, endpoint),
+      }, endpoint.startsWith('http') ? endpoint : `${INVITRO_BASE_URL}${endpoint}`),
       close: async () => {
         await browser.close();
       },

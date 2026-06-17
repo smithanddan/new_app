@@ -46,6 +46,10 @@ export type InvitroApiProduct = {
   bitrix_id?: number | string;
   category_bitrix_id?: number | string;
   category_name?: string;
+  categories?: Array<{
+    bitrix_id?: number | string;
+    title?: string;
+  }>;
   code?: string;
   deadline?: number | string;
   price?: number | string;
@@ -255,6 +259,10 @@ function extractInvitroApiProducts(input: unknown): InvitroApiProduct[] {
     return [];
   }
 
+  if (input.title !== undefined && input.price !== undefined) {
+    return [input as InvitroApiProduct];
+  }
+
   if (Array.isArray(input.data)) {
     return input.data.flatMap((category) => {
       if (!isRecord(category) || !Array.isArray(category.products)) {
@@ -326,7 +334,7 @@ function mapInvitroApiProduct(
       name,
       normalizedName: normalizeProviderName(name),
       kind: productKind,
-      category: stringValue(product.category_name),
+      category: getInvitroProductCategoryName(product),
       biomaterial: biomaterialService?.title,
       turnaroundTime: product.deadline === undefined ? undefined : `${product.deadline} дн.`,
       sourceUrl: itemSourceUrl,
@@ -344,7 +352,7 @@ function mapInvitroApiProduct(
 }
 
 function buildInvitroProductUrl(product: InvitroApiProduct, kind: ProviderTestRecord['kind']): string {
-  const categoryBitrixId = stringValue(product.category_bitrix_id);
+  const categoryBitrixId = getInvitroProductCategoryBitrixId(product);
   const bitrixId = stringValue(product.bitrix_id);
   if (categoryBitrixId && bitrixId) {
     const section = kind === 'profile' ? 'profi' : 'for-doctors';
@@ -352,6 +360,30 @@ function buildInvitroProductUrl(product: InvitroApiProduct, kind: ProviderTestRe
   }
 
   return INVITRO_MOSCOW_CATALOG_URL;
+}
+
+function getInvitroProductCategoryBitrixId(product: InvitroApiProduct): string | undefined {
+  const directCategoryId = stringValue(product.category_bitrix_id);
+  if (directCategoryId) {
+    return directCategoryId;
+  }
+
+  return product.categories
+    ?.map((category) => stringValue(category.bitrix_id))
+    .filter((value): value is string => value !== undefined)
+    .at(-1);
+}
+
+function getInvitroProductCategoryName(product: InvitroApiProduct): string | undefined {
+  const directCategoryName = stringValue(product.category_name);
+  if (directCategoryName) {
+    return directCategoryName;
+  }
+
+  return product.categories
+    ?.map((category) => stringValue(category.title))
+    .filter((value): value is string => value !== undefined)
+    .at(-1);
 }
 
 function extractInvitroPromotionDocs(input: unknown): Array<Record<string, unknown>> {

@@ -136,6 +136,7 @@ function createInvitroScraper(): InvitroApiScraper {
     maxCatalogItems: Number(process.env.INVITRO_SYNC_LIMIT ?? 50),
     maxComplexItems: Number(process.env.INVITRO_COMPLEX_SYNC_LIMIT ?? 25),
     pageSize: Number(process.env.INVITRO_PAGE_SIZE ?? 25),
+    pageTimeoutMs: Number(process.env.INVITRO_PAGE_TIMEOUT_MS ?? 45_000),
     useFixturesOnly,
     fixturePopularJson: useFixturesOnly ? readJsonFixture(fixturesDir, 'api-popular.json') : undefined,
     fixtureTestsPageJson: useFixturesOnly ? readJsonFixture(fixturesDir, 'api-tests-page-1.json') : undefined,
