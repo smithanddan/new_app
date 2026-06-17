@@ -22,4 +22,4 @@ RUN pnpm --filter @web-monitor/admin build
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "pnpm --filter @web-monitor/admin exec next start -p ${PORT:-8080} -H 0.0.0.0"]
+CMD ["pnpm", "--filter", "@web-monitor/admin", "exec", "next", "start", "-p", "8080", "-H", "0.0.0.0"]
