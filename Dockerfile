@@ -20,6 +20,6 @@ COPY . .
 
 RUN pnpm --filter @web-monitor/admin build
 
-EXPOSE 3000
+EXPOSE 8080
 
-CMD ["pnpm", "--filter", "@web-monitor/admin", "start"]
+CMD ["sh", "-c", "pnpm --filter @web-monitor/admin start -- -p ${PORT:-8080}"]
