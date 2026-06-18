@@ -4,11 +4,12 @@ export default function HomePage() {
   const links = [
     { href: "/search", title: "Public search", description: "Публичный вход: поиск анализа или корзины" },
     { href: "/scan", title: "Direction scanner", description: "Фото/текст направления → корзина анализов" },
-    { href: "/test/ferritin", title: "SEO test page", description: "Programmatic SEO страница анализа" },
+    { href: "/analizy/ferritin", title: "SEO analysis page", description: "Canonical vertical SEO страница анализа" },
     { href: "/basket/anemia-panel", title: "SEO basket page", description: "Programmatic SEO страница корзины" },
     { href: "/api-docs", title: "API docs", description: "B2B API packaging и примеры" },
     { href: "/pricing", title: "Pricing", description: "SaaS тарифы и lead capture" },
     { href: "/dashboard", title: "Dashboard", description: "Качество базы, coverage, market spreads и последние запуски" },
+    { href: "/seo/pages", title: "SEO verticals", description: "Vertical configs, services и indexability inventory" },
     { href: "/compare", title: "Сравнение", description: "Поиск анализа и таблица цен по лабораториям" },
     { href: "/basket", title: "Корзина", description: "Расчёт минимальной стоимости набора анализов" },
     { href: "/match", title: "Матчинг", description: "Unmatched, candidates и blocked позиции" },
