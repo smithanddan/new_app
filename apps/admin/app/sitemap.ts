@@ -1,9 +1,12 @@
 import type { MetadataRoute } from "next";
-import { getCanonicalSlug, getSeoTestsSafe, getSiteUrl, SEO_BASKETS, SEO_CITIES } from "./lib/seo";
+import { getSiteUrl, SEO_BASKETS } from "./lib/seo";
+import { getIndexableSeoPages } from "./lib/seo-verticals";
+
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
-  const tests = await getSeoTestsSafe();
+  const seoPages = await getIndexableSeoPages();
   const now = new Date();
   const urls: MetadataRoute.Sitemap = [
     route(siteUrl, "/search", now, "daily", 0.8),
@@ -12,20 +15,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     route(siteUrl, "/pricing", now, "monthly", 0.6),
   ];
 
-  for (const test of tests) {
-    const slug = getCanonicalSlug(test);
-    urls.push(route(siteUrl, `/test/${slug}`, now, "daily", 0.9));
-    urls.push(route(siteUrl, `/compare/${slug}`, now, "daily", 1));
-    for (const city of SEO_CITIES) {
-      urls.push(route(siteUrl, `/city/${city.slug}/${slug}-price`, now, "daily", 0.95));
-    }
+  for (const page of seoPages) {
+    urls.push(route(siteUrl, page.canonicalPath, now, "daily", page.kind === "compare_service" ? 1 : 0.9));
   }
 
   for (const basket of SEO_BASKETS) {
     urls.push(route(siteUrl, `/basket/${basket.slug}`, now, "daily", 0.85));
   }
 
-  return urls;
+  return dedupeRoutes(urls);
 }
 
 function route(
@@ -41,4 +39,13 @@ function route(
     changeFrequency,
     priority,
   };
+}
+
+function dedupeRoutes(routes: MetadataRoute.Sitemap): MetadataRoute.Sitemap {
+  const seen = new Set<string>();
+  return routes.filter((item) => {
+    if (seen.has(item.url)) return false;
+    seen.add(item.url);
+    return true;
+  });
 }
