@@ -251,7 +251,7 @@ set seo_slug = case
   when code = 'lab_fer' then 'ferritin'
   when code = 'lab_glu' then 'glucose'
   when code = 'lab_tsh' then 'tsh'
-  when code = 'lab_uam' then 'urinalysis'
+  when code in ('lab_ua', 'lab_uam') then 'urinalysis'
   when code = 'lab_vitd' then 'vitamin-d'
   else regexp_replace(lower(coalesce(seo_slug, code)), '[^a-z0-9]+', '-', 'g')
 end
