@@ -200,7 +200,7 @@ export type DbProviderTestMatchCandidate = {
   confidence: number;
   reason: string;
   provider_test_kind: ProviderTestNameKind;
-  status: 'exact_name' | 'safe_alias';
+  status: 'exact_name' | 'exact_provider_code' | 'safe_alias';
 };
 
 export type DbProviderTestBlockedCandidate = {
@@ -366,6 +366,7 @@ export class LabCatalogRepository {
     });
     const payload = {
       provider_id: input.providerId,
+      canonical_test_id: input.test.canonicalCode ? await this.resolveCanonicalTestIdByCode(input.test.canonicalCode) : undefined,
       external_id: input.test.externalId,
       external_code: input.test.externalCode,
       name: input.test.name,
@@ -795,7 +796,11 @@ export class LabCatalogRepository {
       .map<DbProviderTestMatchCandidate | DbProviderTestBlockedCandidate | undefined>((test) => {
         const normalizedName = test.normalized_name ?? normalizeProviderName(test.name);
         const providerTestKind = classifyProviderTestName(normalizedName);
-        const match = findCanonicalMatchForName(normalizedName, canonicalTests, providerTestKind);
+        const match = findStrongProviderCodeCanonicalMatch({
+          providerCode: provider.code,
+          externalCode: test.external_code ?? undefined,
+          canonicalTests,
+        }) ?? findCanonicalMatchForName(normalizedName, canonicalTests, providerTestKind);
 
         if (!match) {
           return undefined;
@@ -1132,6 +1137,16 @@ export class LabCatalogRepository {
       .maybeSingle();
     assertNoError(error, 'select provider_tests by normalized_name/source_url');
     return data ?? undefined;
+  }
+
+  private async resolveCanonicalTestIdByCode(code: string): Promise<string | undefined> {
+    const { data, error } = await this.supabase
+      .from('canonical_tests')
+      .select('id')
+      .eq('code', code)
+      .maybeSingle();
+    assertNoError(error, 'select canonical_tests by code');
+    return data?.id;
   }
 
   private async findPromotion(input: {
@@ -1583,6 +1598,31 @@ function getCanonicalAliases(canonical: DbCanonicalTestRow): Array<{ raw: string
     .filter(Boolean)
     .map((value) => ({ raw: value, normalized: normalizeProviderName(value) }))
     .filter((value) => value.normalized.length > 1);
+}
+
+function findStrongProviderCodeCanonicalMatch(input: {
+  providerCode: string;
+  externalCode?: string;
+  canonicalTests: DbCanonicalTestRow[];
+}): {
+  canonical: DbCanonicalTestRow;
+  confidence: number;
+  reason: string;
+  status: 'exact_provider_code';
+} | undefined {
+  if (input.providerCode === 'cmd' && input.externalCode === '190204') {
+    const canonical = input.canonicalTests.find((test) => test.code === 'KARYOTYPE');
+    if (canonical) {
+      return {
+        canonical,
+        confidence: 1,
+        reason: 'exact_provider_code',
+        status: 'exact_provider_code',
+      };
+    }
+  }
+
+  return undefined;
 }
 
 function findCanonicalMatchForName(

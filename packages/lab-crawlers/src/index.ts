@@ -277,6 +277,19 @@ from upsert_test;`;
 }
 
 export { createFixtureLabAdapter, fixtureLabAdapters, mockLabAdapter } from './adapters/mock.adapter.js';
+export { CmdLiveScraper } from './adapters/cmd-live.scraper.js';
+export {
+  CMD_BASE_URL,
+  CMD_KARYOTYPE_SEARCH_TERMS,
+  CMD_MOSCOW_CATALOG_URL,
+  buildCmdAnalyzeSearchUrl,
+  isKaryotypeCandidate,
+  parseCmdAnalyzeCard,
+  parseCmdAnalyzeCards,
+  parseCmdCatalogHtml,
+  type CmdAnalyzeCard,
+  type CmdCatalogParseResult,
+} from './adapters/cmd.parser.js';
 export {
   autoMatchProviderTests,
   compareProviderPrices,

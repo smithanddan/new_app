@@ -118,12 +118,26 @@ export const DEFAULT_CANONICAL_TESTS: CanonicalTestRecord[] = [
     category: 'biochemistry',
     aliases: ['биохимия крови', 'биохимия базовая', 'биохимический анализ крови', 'базовая биохимия', 'blood biochemistry'],
   },
+  {
+    id: 'KARYOTYPE',
+    code: 'KARYOTYPE',
+    nameRu: 'Исследование кариотипа',
+    nameEn: 'Karyotype analysis',
+    kind: 'analysis',
+    category: 'genetics/cytogenetics',
+    aliases: ['кариотип', 'кариотипирование', 'исследование кариотипа', 'цитогенетическое исследование кариотипа', 'karyotype'],
+  },
 ];
 
 export function matchProviderTestToCanonical(
   test: ProviderTestRecord,
   canonicalTests: CanonicalTestRecord[] = DEFAULT_CANONICAL_TESTS,
 ): CanonicalMatchResult {
+  const providerCodeMatch = findStrongProviderCodeMatch(test, canonicalTests);
+  if (providerCodeMatch) {
+    return providerCodeMatch;
+  }
+
   const normalizedName = normalizeProviderName(test.name);
 
   for (const canonical of canonicalTests) {
@@ -154,6 +168,25 @@ export function matchProviderTestToCanonical(
   }
 
   return { confidence: 0, status: 'unmatched', reason: 'no_alias_match' };
+}
+
+function findStrongProviderCodeMatch(
+  test: ProviderTestRecord,
+  canonicalTests: CanonicalTestRecord[],
+): CanonicalMatchResult | undefined {
+  if (test.providerCode === 'cmd' && test.externalCode === '190204') {
+    const canonical = canonicalTests.find((item) => item.code === 'KARYOTYPE');
+    if (canonical) {
+      return {
+        canonicalCode: canonical.code,
+        confidence: 1,
+        status: 'auto_matched',
+        reason: 'exact_provider_code',
+      };
+    }
+  }
+
+  return undefined;
 }
 
 function isSafeAliasMatch(normalizedName: string, normalizedAlias: string): boolean {
