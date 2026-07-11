@@ -44,6 +44,8 @@ The repository started as a generic web-monitor starter, but the current directi
 ```
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full architecture.
+See [docs/PROJECT_MEMORY.md](docs/PROJECT_MEMORY.md) for the current handoff memory for new AI chats.
+See [docs/OFFLINE.md](docs/OFFLINE.md) for the local-demo workflow while Supabase is paused.
 See [docs/GEO.md](docs/GEO.md) for the Geo Intelligence roadmap and no-maps v1 behavior.
 See [docs/PRODUCTION.md](docs/PRODUCTION.md) for CI/CD, Timeweb deploy, scheduled crawlers, and run safety.
 See [docs/TIMEWEB.md](docs/TIMEWEB.md) for the exact Timeweb App Platform setup.

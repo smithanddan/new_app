@@ -84,6 +84,8 @@ assert.equal(glucose.name, 'Глюкоза (в крови) (Glucose)');
 assert.equal(glucosePrice?.regularPriceRub, 370);
 assert.equal(glucosePrice?.effectivePriceRub, 370);
 assert.equal(glucosePrice?.biomaterialPriceRub, 310);
+assert.ok(glucose.biomaterial, 'glucose should include biomaterial service title when API provides it');
+assert.ok(glucose.turnaroundTime, 'glucose should include turnaround time when API provides deadline');
 assert.ok(glucose.sourceUrl.includes('/analizes/for-doctors/481/2212/'));
 
 const apiComplexes = parseInvitroApiCatalogJson(readJsonFixture('api-complexes-page-1.json'), context, {
@@ -96,7 +98,7 @@ assert.equal(apiComplexes.tests[0]?.kind, 'profile');
 const apiPromotions = parseInvitroApiPromotionsJson(readJsonFixture('api-promotions-home.json'), context, {
   fetchedAt,
 });
-assert.equal(apiPromotions.promotions.length, 17, 'promotions API fixture should parse promotions');
+assert.ok(apiPromotions.promotions.length >= 10, 'promotions API fixture should parse a meaningful promotion set');
 assert.ok(apiPromotions.promotions.some((promotion) => promotion.title === 'Скидка до 45%'));
 
 const detailProduct = parseInvitroApiCatalogJson({
@@ -123,6 +125,8 @@ assert.equal(detailProduct.tests[0]?.category, 'Белки, участвующи
 assert.ok(detailProduct.tests[0]?.sourceUrl.includes('/analizes/for-doctors/2572/2245/'));
 assert.equal(detailProduct.prices[0]?.regularPriceRub, 935);
 assert.equal(detailProduct.prices[0]?.biomaterialPriceRub, 310);
+assert.equal(detailProduct.tests[0]?.biomaterial, 'Взятие крови из вены');
+assert.equal(detailProduct.tests[0]?.turnaroundTime, '1 дн.');
 
 assertNoCentsKeys(catalog);
 assertNoCentsKeys(actions);

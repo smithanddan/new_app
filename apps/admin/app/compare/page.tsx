@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { GeoLocationFields } from "../components/GeoLocationFields";
 import { buildCheckoutHref } from "../lib/checkout";
-import { getComparePageData, DEFAULT_CITY } from "../lib/lab-data";
+import { getComparePageData, DEFAULT_CITY, getLabDataSource } from "../lib/lab-data";
 import type { ProductOffer } from "@labmind/lab-crawlers/src/product-layer";
 
 type PageProps = {
@@ -18,6 +18,7 @@ export default async function ComparePage({ searchParams }: PageProps) {
   const sort = params.sort || "price";
   const hasGeo = Boolean(lat && lng);
   const data = await getComparePageData({ test, city, lat, lng, sort });
+  const dataSource = getLabDataSource();
   const row = data.rows[0];
   const offers = row?.offers ?? [];
   const providerGroups = row?.provider_groups ?? [];
@@ -27,6 +28,11 @@ export default async function ComparePage({ searchParams }: PageProps) {
     <main className="min-h-screen bg-slate-50 px-4 py-5 text-slate-950 sm:px-6 sm:py-8">
       <div className="mx-auto max-w-7xl">
         <Header title="Сравнение цен" />
+        {dataSource === "local_demo" ? (
+          <div className="mt-4 border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+            Demo mode: сравнение считает цены из локальных fixtures и snapshot, без Supabase.
+          </div>
+        ) : null}
 
         <form className="mt-6 grid gap-3 border-y border-slate-200 bg-white p-4 shadow-sm md:grid-cols-[1fr_160px_140px_auto]">
           <input

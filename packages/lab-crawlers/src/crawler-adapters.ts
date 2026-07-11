@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { ProviderCode, ProviderTestPriceRecord, ProviderTestRecord } from './catalog-types.js';
+import { CmdLiveScraper } from './adapters/cmd-live.scraper.js';
 import { DnkomLiveScraper } from './adapters/dnkom-live.scraper.js';
 import { GemotestLiveScraper } from './adapters/gemotest-live.scraper.js';
 import { GEMOTEST_MOSCOW_CATALOG_SECTION_URLS } from './adapters/gemotest.parser.js';
@@ -71,6 +72,10 @@ export function createProviderAdapter(provider: CrawlerProviderKey): ProviderAda
 
   if (provider === 'invitro') {
     return new ScraperProviderAdapter(provider, createInvitroScraper(), createInvitroContext);
+  }
+
+  if (provider === 'cmd') {
+    return new ScraperProviderAdapter(provider, createCmdScraper(), createExpansionProviderContext(provider));
   }
 
   return new ScraperProviderAdapter(provider, createExpansionProviderScraper(provider), createExpansionProviderContext(provider));
@@ -145,6 +150,21 @@ function createInvitroScraper(): InvitroApiScraper {
   });
 }
 
+function createCmdScraper(): CmdLiveScraper {
+  const fixturesDir = path.join(packageRoot, 'fixtures/cmd');
+  const useFixturesOnly = process.env.CMD_FIXTURE_ONLY === '1';
+
+  return new CmdLiveScraper({
+    catalogUrls: readCmdCatalogUrls(),
+    searchUrls: readCmdSearchUrls(),
+    fixtureCatalogHtml: readFixture(fixturesDir, 'catalog-msk.html'),
+    fixtureSearchHtmls: readNamedFixturePages(fixturesDir, /^search-.+\.html$/),
+    maxCatalogItems: Number(process.env.CMD_SYNC_LIMIT ?? 75),
+    pageTimeoutMs: Number(process.env.CMD_PAGE_TIMEOUT_MS ?? 30_000),
+    useFixturesOnly,
+  });
+}
+
 function createDnkomContext(region: string): ScraperContext {
   return {
     providerCode: 'dnkom',
@@ -205,9 +225,48 @@ function readGemotestCatalogUrls(): string[] | undefined {
   return undefined;
 }
 
+function readCmdCatalogUrls(): string[] | undefined {
+  return readCommaSeparatedEnv('CMD_CATALOG_URLS');
+}
+
+function readCmdSearchUrls(): string[] | undefined {
+  return readCommaSeparatedEnv('CMD_SEARCH_URLS');
+}
+
+function readCommaSeparatedEnv(name: string): string[] | undefined {
+  const value = process.env[name];
+  if (!value) {
+    return undefined;
+  }
+
+  return value.split(',').map((url) => url.trim()).filter(Boolean);
+}
+
 function readFixture(fixturesDir: string, name: string): string | undefined {
   const filePath = path.join(fixturesDir, name);
   return fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : undefined;
+}
+
+function readNamedFixturePages(fixturesDir: string, pattern: RegExp): Array<{ html: string; sourceUrl?: string }> {
+  if (!fs.existsSync(fixturesDir)) {
+    return [];
+  }
+
+  return fs.readdirSync(fixturesDir)
+    .filter((name) => pattern.test(name))
+    .sort()
+    .map((name) => ({
+      html: fs.readFileSync(path.join(fixturesDir, name), 'utf8'),
+      sourceUrl: sourceUrlFromNamedFixture(name),
+    }));
+}
+
+function sourceUrlFromNamedFixture(name: string): string | undefined {
+  if (name === 'search-karyotype.html') {
+    return 'https://www.cmd-online.ru/search/?q=%D0%BA%D0%B0%D1%80%D0%B8%D0%BE%D1%82%D0%B8%D0%BF&type=analyzes&action=popup';
+  }
+
+  return undefined;
 }
 
 function readJsonFixture(fixturesDir: string, name: string): unknown {

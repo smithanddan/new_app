@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { DEFAULT_CITY, getRepository } from "../../../lib/lab-data";
-import { getMarketSummary } from "@labmind/lab-crawlers/src/product-layer";
+import { DEFAULT_CITY, getComparePageData } from "../../../lib/lab-data";
 import { getQueryParam, logMonetizationEvent, jsonError, requireApiKey } from "../../../lib/monetization";
 
 export async function GET(request: NextRequest) {
@@ -13,11 +12,8 @@ export async function GET(request: NextRequest) {
     return jsonError("test is required");
   }
 
-  const data = await getMarketSummary({
-    repository: getRepository(),
-    city,
-    test,
-  });
+  const comparison = await getComparePageData({ test, city });
+  const data = comparison.rows[0]?.market_summary ?? null;
   await logMonetizationEvent({
     eventType: "api_request",
     city,

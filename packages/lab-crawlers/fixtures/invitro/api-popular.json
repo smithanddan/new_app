@@ -2,6 +2,7 @@
   {
     "bitrix_id": 6760,
     "category_bitrix_id": 908,
+    "code": "ОБС73",
     "is_favorite": false,
     "loyalty_bonus": 222,
     "price": 7390,
@@ -12,6 +13,7 @@
   {
     "bitrix_id": 6742,
     "category_bitrix_id": 898,
+    "code": "ОБС54",
     "is_favorite": false,
     "loyalty_bonus": 50,
     "price": 1650,
@@ -22,6 +24,7 @@
   {
     "bitrix_id": 2849,
     "category_bitrix_id": 5146,
+    "code": "928",
     "is_favorite": false,
     "loyalty_bonus": 76,
     "price": 2525,
@@ -32,6 +35,7 @@
   {
     "bitrix_id": 6671,
     "category_bitrix_id": 156,
+    "code": "1515",
     "is_favorite": false,
     "loyalty_bonus": 28,
     "price": 940,
@@ -42,6 +46,7 @@
   {
     "bitrix_id": 2245,
     "category_bitrix_id": 2572,
+    "code": "51",
     "is_favorite": false,
     "loyalty_bonus": 28,
     "price": 935,

@@ -57,6 +57,11 @@ type EnrichedSearchItem = {
   regularPriceRub?: number;
   effectivePriceRub?: number;
   biomaterialPriceRub?: number;
+  biomaterial?: string;
+  preparation?: string;
+  turnaroundTime?: string;
+  offerType?: string;
+  specialConditions: string[];
   sourceUrl?: string;
   detailEndpoint: string;
 };
@@ -246,9 +251,42 @@ async function fetchDetail(
     regularPriceRub: price?.regularPriceRub,
     effectivePriceRub: price?.effectivePriceRub,
     biomaterialPriceRub: price?.biomaterialPriceRub,
+    biomaterial: test?.biomaterial,
+    preparation: test?.preparation,
+    turnaroundTime: test?.turnaroundTime,
+    offerType: price?.offerType,
+    specialConditions: buildSpecialConditions(test, price),
     sourceUrl: test?.sourceUrl,
     detailEndpoint: `${INVITRO_BASE_URL}${detailEndpoint}`,
   };
+}
+
+function buildSpecialConditions(
+  test: ReturnType<typeof parseInvitroApiCatalogJson>['tests'][number] | undefined,
+  price: ReturnType<typeof parseInvitroApiCatalogJson>['prices'][number] | undefined,
+): string[] {
+  const conditions: string[] = [];
+
+  if (test?.biomaterial) {
+    conditions.push(`Биоматериал: ${test.biomaterial}`);
+  }
+  if (price?.biomaterialPriceRub !== undefined && price.biomaterialPriceRub > 0) {
+    conditions.push(`Забор биоматериала: ${price.biomaterialPriceRub} RUB`);
+  }
+  if (test?.turnaroundTime) {
+    conditions.push(`Срок: ${test.turnaroundTime}`);
+  }
+  if (test?.preparation) {
+    conditions.push(`Подготовка: ${test.preparation}`);
+  }
+  if (price?.promoPriceRub !== undefined || price?.offerType === 'promo') {
+    conditions.push('Акционная цена');
+  }
+  if (price?.validFrom || price?.validTo) {
+    conditions.push(`Период действия: ${price.validFrom ?? 'сейчас'} - ${price.validTo ?? 'не указан'}`);
+  }
+
+  return [...new Set(conditions)];
 }
 
 async function fetchJson<T>(page: Page, endpoint: string): Promise<T> {
@@ -292,6 +330,7 @@ function printTable(report: Awaited<ReturnType<typeof searchInvitro>>): void {
     regular: item.regularPriceRub,
     biomaterial: item.biomaterialPriceRub ?? 0,
     total: (item.effectivePriceRub ?? 0) + (item.biomaterialPriceRub ?? 0),
+    conditions: item.specialConditions.join('; '),
     url: item.sourceUrl,
   })));
 }

@@ -277,6 +277,19 @@ from upsert_test;`;
 }
 
 export { createFixtureLabAdapter, fixtureLabAdapters, mockLabAdapter } from './adapters/mock.adapter.js';
+export { CmdLiveScraper } from './adapters/cmd-live.scraper.js';
+export {
+  CMD_BASE_URL,
+  CMD_KARYOTYPE_SEARCH_TERMS,
+  CMD_MOSCOW_CATALOG_URL,
+  buildCmdAnalyzeSearchUrl,
+  isKaryotypeCandidate,
+  parseCmdAnalyzeCard,
+  parseCmdAnalyzeCards,
+  parseCmdCatalogHtml,
+  type CmdAnalyzeCard,
+  type CmdCatalogParseResult,
+} from './adapters/cmd.parser.js';
 export {
   autoMatchProviderTests,
   compareProviderPrices,
@@ -439,10 +452,34 @@ export {
   type PickupType,
   type RankedLabLocation,
 } from './geo-service.js';
+export {
+  DiscoveryRunner,
+  ManualSeedDiscoveryAdapter,
+  TwoGisDiscoveryAdapter,
+  buildDiscoveryAdapter,
+  extractDomain,
+  normalizeDiscoveryCandidate,
+  normalizeDiscoveryText,
+  normalizeDomain,
+  normalizePhone,
+  type DiscoveryAdapter,
+  type DiscoveryInput,
+  type DiscoveryRunMode,
+  type DiscoveryRunReport,
+  type DiscoverySourceType,
+  type NormalizedProviderDiscoveryCandidate,
+  type ProviderDiscoveryCandidate,
+  type ProviderDiscoveryDuplicate,
+  type ProviderDiscoveryRepository,
+  type ProviderDiscoveryStatus,
+} from './provider-discovery.js';
 export { createLabCrawlerSupabaseClient, type LabCrawlerSupabaseClient } from './supabase-client.js';
 export {
   LabCatalogRepository,
   type DbCanonicalPriceComparison,
+  type DbProviderCandidate,
+  type DbProviderDiscoveryQuery,
+  type DbProviderDiscoveryRun,
   type DbManualMatchResult,
   type DbPriceComparisonOffer,
   type DbProviderTestMatchCandidate,

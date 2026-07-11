@@ -1,6 +1,7 @@
 import type {
   LabPromotionRecord,
   ProviderCode,
+  ProviderRegionProbeResult,
   ProviderTestPriceRecord,
   ProviderTestRecord,
 } from '../catalog-types.js';
@@ -184,6 +185,17 @@ export class ExpansionProviderScraper implements ProviderScraper {
       },
     };
   }
+
+  async probeRegion(context: ScraperContext): Promise<ProviderRegionProbeResult> {
+    if (this.config.providerCode !== 'kdl') {
+      return createExpansionProbe(this.config, context, 'mock_probe_not_required');
+    }
+
+    return createExpansionProbe(this.config, context, 'kdl_live_probe_pending', [
+      'KDL remains a no-write scaffold until a public catalog/search endpoint or Playwright flow is verified.',
+      'The known public entry point is recorded for the next ingestion increment.',
+    ]);
+  }
 }
 
 export function createExpansionProviderScraper(provider: ExpansionProviderCode): ExpansionProviderScraper {
@@ -227,5 +239,32 @@ function buildRawPayload(
     sourceUrl: catalogItem?.sourceUrl,
     canonicalHint: catalogItem?.canonicalHint,
     note: 'Public URL/seed value for parser expansion. Do not treat as a completed live scraper.',
+  };
+}
+
+function createExpansionProbe(
+  config: ExpansionProviderConfig,
+  context: ScraperContext,
+  status: string,
+  notes: string[] = [],
+): ProviderRegionProbeResult {
+  return {
+    providerCode: config.providerCode,
+    regionCode: context.region.code,
+    detectedCity: context.region.city,
+    cookies: [],
+    localStorage: {},
+    networkRequests: config.catalogUrl ? [{ url: config.catalogUrl, method: 'GET' }] : [],
+    notes: [
+      ...notes,
+      `status:${status}`,
+    ],
+    rawPayload: {
+      mode: 'provider_expansion_probe_scaffold',
+      provider: config.providerCode,
+      catalogUrl: config.catalogUrl,
+      promotionsUrl: config.promotionsUrl,
+      status,
+    },
   };
 }

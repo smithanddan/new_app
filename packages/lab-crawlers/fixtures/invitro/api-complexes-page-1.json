@@ -4,8 +4,8 @@
   "offset": 0,
   "data": [
     {
-      "category_bitrix_id": 3464,
-      "category_id": "4d10a595-8ad2-4ca4-94e1-a45addd900fb",
+      "category_bitrix_id": 98030,
+      "category_id": "8dc3f64a-ffb4-4789-b55c-cb36bae6bb7b",
       "category_name": "Женское здоровье",
       "products": [
         {
@@ -17,43 +17,28 @@
             }
           ],
           "available_at_home": false,
-          "bitrix_id": 75085,
+          "bitrix_id": 98030,
           "category_bitrix_id": 3464,
-          "code": "ОБС266",
-          "deadline": 1,
-          "id": "36406f91-a8f9-ef11-80f1-00155d3be302",
+          "code": "ОБС305",
+          "deadline": 6,
+          "id": "c01c7033-2ca0-f011-80f3-00155d52d061",
           "is_favorite": false,
           "is_promo": false,
-          "is_weekdays_only": false,
+          "is_weekdays_only": true,
           "keywords": null,
-          "loyalty_bonus": 180,
-          "price": 5990,
-          "subtitle": "Базовый комплекс лабораторных тестов для первичной оценки состояния здоровья женщины.",
-          "title": "Женское здоровье 18-45: базовое обследование (Women's Health 18-45: Basic Examination)"
-        },
-        {
-          "additional_services": [
-            {
-              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
-              "price": 310,
-              "title": "Взятие крови из вены"
-            }
-          ],
-          "available_at_home": false,
-          "bitrix_id": 75086,
-          "category_bitrix_id": 3464,
-          "code": "ОБС267",
-          "deadline": 2,
-          "id": "73173948-bbf9-ef11-80f1-00155d3be302",
-          "is_favorite": false,
-          "is_promo": false,
-          "is_weekdays_only": false,
-          "keywords": null,
-          "loyalty_bonus": 411,
-          "price": 13690,
-          "subtitle": "Оптимальный комплекс лабораторных тестов для эффективной оценки состояния женского здоровья (предпочтительно в возрасте от 18 до 55-60 лет).",
-          "title": "Женское здоровье 18-45: оптимальное обследование (Women's Health 18-45: Optimal Examination)"
-        },
+          "loyalty_bonus": 999,
+          "price": 33290,
+          "result_info_markup": "",
+          "subtitle": "Комплекс тестов для профилактического обследования женщин в возрасте 45-65 лет.",
+          "title": "Женское здоровье 45-65: расширенное обследование (Women's Health 45-65: Extended Examination)"
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 95727,
+      "category_id": "8dc3f64a-ffb4-4789-b55c-cb36bae6bb7b",
+      "category_name": "Женское здоровье",
+      "products": [
         {
           "additional_services": [
             {
@@ -74,9 +59,79 @@
           "keywords": null,
           "loyalty_bonus": 795,
           "price": 26490,
+          "result_info_markup": "",
           "subtitle": "Расширенный комплекс подойдет женщинам (предпочтительно в возрасте от 18 до 55-60 лет), которые хотят уделить серьезное внимание своему здоровью. Тесты профиля применяют для оценки состояния белкового, углеводного, липидного и минерального обмена, статуса витамина D, определения риска развития сахарного диабета и атеросклероза, для оценки функций печени, почек, щитовидной железы, выявления признаков анемии, воспалительных процессов.",
           "title": "Женское здоровье 18-45: расширенное обследование (Women's Health 18-45 Extended Examination)"
-        },
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 100178,
+      "category_id": "8dc3f64a-ffb4-4789-b55c-cb36bae6bb7b",
+      "category_name": "Женское здоровье",
+      "products": [
+        {
+          "additional_services": [
+            {
+              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
+              "price": 310,
+              "title": "Взятие крови из вены"
+            }
+          ],
+          "available_at_home": false,
+          "bitrix_id": 100178,
+          "category_bitrix_id": 3464,
+          "code": "ОБС336",
+          "deadline": 3,
+          "id": "463d1d65-571d-f111-a65c-00155d52d169",
+          "is_favorite": false,
+          "is_promo": false,
+          "is_weekdays_only": true,
+          "keywords": null,
+          "loyalty_bonus": 417,
+          "price": 13890,
+          "result_info_markup": "",
+          "subtitle": "Комплекс тестов для оценки состояния основных систем организма для женщин старше 56 лет.<br>\r\n <br>\r\nОбращаем ваше внимание, что в профиль входят анализы, выполняемые из разных видов биоматериала (кровь, моча, кал).  Заранее изучите правила подготовки к исследованиям и особенности сбора биоматериала.",
+          "title": "Женское здоровье 56+: оптимальное обследование (Women's health 56+: Optimal Examination)"
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 100177,
+      "category_id": "8dc3f64a-ffb4-4789-b55c-cb36bae6bb7b",
+      "category_name": "Женское здоровье",
+      "products": [
+        {
+          "additional_services": [
+            {
+              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
+              "price": 310,
+              "title": "Взятие крови из вены"
+            }
+          ],
+          "available_at_home": false,
+          "bitrix_id": 100177,
+          "category_bitrix_id": 3464,
+          "code": "ОБС334",
+          "deadline": 3,
+          "id": "a1a06dde-521d-f111-a65c-00155d52d169",
+          "is_favorite": false,
+          "is_promo": false,
+          "is_weekdays_only": true,
+          "keywords": null,
+          "loyalty_bonus": 282,
+          "price": 9390,
+          "result_info_markup": "",
+          "subtitle": "Рациональный комплекс тестов для оценки состояния основных систем организма женщин в возрасте 46-55 лет.<br>\r\n <br>\r\nОбращаем ваше внимание, что в профиль входят анализы, выполняемые из разных видов биоматериала (кровь, моча, кал).  Заранее изучите правила подготовки к исследованиям и особенности сбора биоматериала.",
+          "title": "Женское здоровье 46-55: оптимальное обследование (Women's health 46-55: Optimal Examination)"
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 95729,
+      "category_id": "8dc3f64a-ffb4-4789-b55c-cb36bae6bb7b",
+      "category_name": "Женское здоровье",
+      "products": [
         {
           "additional_services": [
             {
@@ -102,9 +157,17 @@
           "keywords": null,
           "loyalty_bonus": 1344,
           "price": 44790,
+          "result_info_markup": "",
           "subtitle": "VIP-обследование для женщин (предпочтительно, в возрасте от 18 до 55-60 лет) включает расширенный комплекс лабораторных тестов разной направленности и предназначено для профилактического обследования. В состав профиля входят общеклинические, биохимические и гормональные тесты, маркёры инфекций (ВИЧ, гепатитов В и С, сифилиса) и аутоиммунных заболеваний, а также генетическая панель для оценки генетических рисков.",
           "title": "Женское здоровье 18-45: VIP обследование (Women's Health 18-45: VIP Examination)"
-        },
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 100179,
+      "category_id": "8dc3f64a-ffb4-4789-b55c-cb36bae6bb7b",
+      "category_name": "Женское здоровье",
+      "products": [
         {
           "additional_services": [
             {
@@ -114,43 +177,59 @@
             }
           ],
           "available_at_home": false,
-          "bitrix_id": 100177,
+          "bitrix_id": 100179,
           "category_bitrix_id": 3464,
-          "code": "ОБС334",
-          "deadline": 3,
-          "id": "a1a06dde-521d-f111-a65c-00155d52d169",
-          "is_favorite": false,
-          "is_promo": false,
-          "is_weekdays_only": true,
-          "keywords": null,
-          "loyalty_bonus": 282,
-          "price": 9390,
-          "subtitle": "Рациональный комплекс тестов для оценки состояния основных систем организма женщин в возрасте 46-55 лет.<br>\r\n <br>\r\nОбращаем ваше внимание, что в профиль входят анализы, выполняемые из разных видов биоматериала (кровь, моча, кал).  Заранее изучите правила подготовки к исследованиям и особенности сбора биоматериала.",
-          "title": "Женское здоровье 46-55: оптимальное обследование (Women's health 46-55: Optimal Examination)"
-        },
-        {
-          "additional_services": [
-            {
-              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
-              "price": 310,
-              "title": "Взятие крови из вены"
-            }
-          ],
-          "available_at_home": false,
-          "bitrix_id": 98030,
-          "category_bitrix_id": 3464,
-          "code": "ОБС305",
+          "code": "ОБС335",
           "deadline": 6,
-          "id": "c01c7033-2ca0-f011-80f3-00155d52d061",
+          "id": "b8b8b05f-501d-f111-a65c-00155d52d169",
           "is_favorite": false,
           "is_promo": false,
           "is_weekdays_only": true,
           "keywords": null,
-          "loyalty_bonus": 999,
-          "price": 33290,
-          "subtitle": "Комплекс тестов для профилактического обследования женщин в возрасте 45-65 лет.",
-          "title": "Женское здоровье 45-65: расширенное обследование (Women's Health 45-65: Extended Examination)"
-        },
+          "loyalty_bonus": 555,
+          "price": 18490,
+          "result_info_markup": "",
+          "subtitle": "Лабораторный чекап для комплексной оценки здоровья, ранней диагностики возрастных заболеваний и выявления скрытых рисков у женщин старше 56 лет.<br>\r\n <br>\r\nОбращаем ваше внимание, что в профиль входят анализы, выполняемые из разных видов биоматериала (кровь, моча, кал).  Заранее изучите правила подготовки к исследованиям и особенности сбора биоматериала.",
+          "title": "Женское здоровье 56+: расширенное обследование (Women's health 56+: Extended Examination)"
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 75085,
+      "category_id": "8dc3f64a-ffb4-4789-b55c-cb36bae6bb7b",
+      "category_name": "Женское здоровье",
+      "products": [
+        {
+          "additional_services": [
+            {
+              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
+              "price": 310,
+              "title": "Взятие крови из вены"
+            }
+          ],
+          "available_at_home": false,
+          "bitrix_id": 75085,
+          "category_bitrix_id": 3464,
+          "code": "ОБС266",
+          "deadline": 1,
+          "id": "36406f91-a8f9-ef11-80f1-00155d3be302",
+          "is_favorite": false,
+          "is_promo": false,
+          "is_weekdays_only": false,
+          "keywords": null,
+          "loyalty_bonus": 180,
+          "price": 5990,
+          "result_info_markup": "",
+          "subtitle": "Базовый комплекс лабораторных тестов для первичной оценки состояния здоровья женщины.",
+          "title": "Женское здоровье 18-45: базовое обследование (Women's Health 18-45: Basic Examination)"
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 98031,
+      "category_id": "8dc3f64a-ffb4-4789-b55c-cb36bae6bb7b",
+      "category_name": "Женское здоровье",
+      "products": [
         {
           "additional_services": [
             {
@@ -176,60 +255,139 @@
           "keywords": null,
           "loyalty_bonus": 2250,
           "price": 74990,
+          "result_info_markup": "",
           "subtitle": "VIP-обследование для женщин от 45 до 65 лет включает расширенный комплекс лабораторных тестов для профилактического обследования. В состав профиля входят общеклинические, биохимические и гормональные тесты, маркеры инфекций (ВИЧ, гепатитов В и С, сифилиса) и аутоиммунных заболеваний, показатели витаминно-минерального и антиоксидантного статуса, а также генетическая панель.",
           "title": "Женское здоровье 45-65: VIP обследование (Women's Health 45-65: VIP Examination)"
-        },
-        {
-          "additional_services": [
-            {
-              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
-              "price": 310,
-              "title": "Взятие крови из вены"
-            }
-          ],
-          "available_at_home": false,
-          "bitrix_id": 100178,
-          "category_bitrix_id": 3464,
-          "code": "ОБС336",
-          "deadline": 3,
-          "id": "463d1d65-571d-f111-a65c-00155d52d169",
-          "is_favorite": false,
-          "is_promo": false,
-          "is_weekdays_only": true,
-          "keywords": null,
-          "loyalty_bonus": 417,
-          "price": 13890,
-          "subtitle": "Комплекс тестов для оценки состояния основных систем организма для женщин старше 56 лет.<br>\r\n <br>\r\nОбращаем ваше внимание, что в профиль входят анализы, выполняемые из разных видов биоматериала (кровь, моча, кал).  Заранее изучите правила подготовки к исследованиям и особенности сбора биоматериала.",
-          "title": "Женское здоровье 56+: оптимальное обследование (Women's health 56+: Optimal Examination)"
-        },
-        {
-          "additional_services": [
-            {
-              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
-              "price": 310,
-              "title": "Взятие крови из вены"
-            }
-          ],
-          "available_at_home": false,
-          "bitrix_id": 100179,
-          "category_bitrix_id": 3464,
-          "code": "ОБС335",
-          "deadline": 6,
-          "id": "b8b8b05f-501d-f111-a65c-00155d52d169",
-          "is_favorite": false,
-          "is_promo": false,
-          "is_weekdays_only": true,
-          "keywords": null,
-          "loyalty_bonus": 555,
-          "price": 18490,
-          "subtitle": "Лабораторный чекап для комплексной оценки здоровья, ранней диагностики возрастных заболеваний и выявления скрытых рисков у женщин старше 56 лет.<br>\r\n <br>\r\nОбращаем ваше внимание, что в профиль входят анализы, выполняемые из разных видов биоматериала (кровь, моча, кал).  Заранее изучите правила подготовки к исследованиям и особенности сбора биоматериала.",
-          "title": "Женское здоровье 56+: расширенное обследование (Women's health 56+: Extended Examination)"
         }
       ]
     },
     {
-      "category_bitrix_id": 3145,
-      "category_id": "1a0574a5-7b46-416f-8960-1d9e033de3a6",
+      "category_bitrix_id": 75086,
+      "category_id": "8dc3f64a-ffb4-4789-b55c-cb36bae6bb7b",
+      "category_name": "Женское здоровье",
+      "products": [
+        {
+          "additional_services": [
+            {
+              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
+              "price": 310,
+              "title": "Взятие крови из вены"
+            }
+          ],
+          "available_at_home": false,
+          "bitrix_id": 75086,
+          "category_bitrix_id": 3464,
+          "code": "ОБС267",
+          "deadline": 2,
+          "id": "73173948-bbf9-ef11-80f1-00155d3be302",
+          "is_favorite": false,
+          "is_promo": false,
+          "is_weekdays_only": false,
+          "keywords": null,
+          "loyalty_bonus": 411,
+          "price": 13690,
+          "result_info_markup": "",
+          "subtitle": "Оптимальный комплекс лабораторных тестов для эффективной оценки состояния женского здоровья (предпочтительно в возрасте от 18 до 55-60 лет).",
+          "title": "Женское здоровье 18-45: оптимальное обследование (Women's Health 18-45: Optimal Examination)"
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 74910,
+      "category_id": "c27e4b3f-4df7-45c3-b1db-335d1f592df2",
+      "category_name": "Мужское здоровье",
+      "products": [
+        {
+          "additional_services": [
+            {
+              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
+              "price": 310,
+              "title": "Взятие крови из вены"
+            }
+          ],
+          "available_at_home": false,
+          "bitrix_id": 74910,
+          "category_bitrix_id": 3145,
+          "code": "ОБС258",
+          "deadline": 1,
+          "id": "68ea0c7a-0be3-ef11-80f1-00155d3be302",
+          "is_favorite": false,
+          "is_promo": false,
+          "is_weekdays_only": false,
+          "keywords": null,
+          "loyalty_bonus": 242,
+          "price": 8080,
+          "result_info_markup": "",
+          "subtitle": "Профиль предназначен для установления возможной причины гинекомастии (увеличение размера грудных желез у мужчин). Обследование может быть рекомендовано перед назначением медикаментозного лечения гинекомастии.",
+          "title": "Гинекомастия (Gynecomastia)"
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 67368,
+      "category_id": "c27e4b3f-4df7-45c3-b1db-335d1f592df2",
+      "category_name": "Мужское здоровье",
+      "products": [
+        {
+          "additional_services": [
+            {
+              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
+              "price": 310,
+              "title": "Взятие крови из вены"
+            }
+          ],
+          "available_at_home": true,
+          "bitrix_id": 67368,
+          "category_bitrix_id": 3145,
+          "code": "ОБС183",
+          "deadline": 1,
+          "id": "8d3601ee-58b6-ec11-80e0-00155d0f074f",
+          "is_favorite": false,
+          "is_promo": false,
+          "is_weekdays_only": false,
+          "keywords": null,
+          "loyalty_bonus": 144,
+          "price": 4790,
+          "result_info_markup": "",
+          "subtitle": "•&nbsp; &nbsp; &nbsp;Комплексное исследование уровня гормонов, участвующих в регуляции мужской репродуктивной системы (гормональный статус).<br>\r\n •&nbsp; &nbsp; &nbsp;Тесты используются для диагностики причин снижения либидо, эректильной дисфункции, бесплодия.<br>\r\n <br>",
+          "title": "Комплексное гормональное обследование для мужчин"
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 64297,
+      "category_id": "c27e4b3f-4df7-45c3-b1db-335d1f592df2",
+      "category_name": "Мужское здоровье",
+      "products": [
+        {
+          "additional_services": [
+            {
+              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
+              "price": 310,
+              "title": "Взятие крови из вены"
+            }
+          ],
+          "available_at_home": true,
+          "bitrix_id": 64297,
+          "category_bitrix_id": 3145,
+          "code": "ОБС171",
+          "deadline": 1,
+          "id": "f4d000a6-41c4-eb11-80dd-00155df8a91c",
+          "is_favorite": false,
+          "is_promo": false,
+          "is_weekdays_only": false,
+          "keywords": null,
+          "loyalty_bonus": 186,
+          "price": 6190,
+          "result_info_markup": "",
+          "subtitle": "Профиль «Гипогонадизм у мужчин» предназначен для выявления андрогенной недостаточности у мужчин.",
+          "title": "Гипогонадизм у мужчин"
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 95822,
+      "category_id": "c27e4b3f-4df7-45c3-b1db-335d1f592df2",
       "category_name": "Мужское здоровье",
       "products": [
         {
@@ -252,55 +410,17 @@
           "keywords": null,
           "loyalty_bonus": 204,
           "price": 6790,
+          "result_info_markup": "",
           "subtitle": "Базовый комплекс лабораторных тестов для первичной оценки состояния здоровья мужчины.",
           "title": "Мужское здоровье 18-45: базовое обследование (Men's Health 18-45: basic examination)"
-        },
-        {
-          "additional_services": [
-            {
-              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
-              "price": 310,
-              "title": "Взятие крови из вены"
-            }
-          ],
-          "available_at_home": false,
-          "bitrix_id": 95824,
-          "category_bitrix_id": 3145,
-          "code": "ОБС280",
-          "deadline": 1,
-          "id": "cf9d55e0-bd25-f011-80f1-00155d3be302",
-          "is_favorite": false,
-          "is_promo": false,
-          "is_weekdays_only": false,
-          "keywords": null,
-          "loyalty_bonus": 393,
-          "price": 13090,
-          "subtitle": "Оптимальный комплекс лабораторных тестов для эффективной оценки состояния мужского здоровья (предпочтительно в возрасте от 18 до 60-65 лет).",
-          "title": "Мужское здоровье 18-45: оптимальное обследование (Men's Health 18-45: optimal examination)"
-        },
-        {
-          "additional_services": [
-            {
-              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
-              "price": 310,
-              "title": "Взятие крови из вены"
-            }
-          ],
-          "available_at_home": false,
-          "bitrix_id": 95798,
-          "category_bitrix_id": 3145,
-          "code": "ОБС281",
-          "deadline": 5,
-          "id": "045d7456-c625-f011-80f1-00155d3be302",
-          "is_favorite": false,
-          "is_promo": false,
-          "is_weekdays_only": true,
-          "keywords": null,
-          "loyalty_bonus": 819,
-          "price": 27290,
-          "subtitle": "Расширенный комплекс подойдет мужчинам (предпочтительно в возрасте от 18 до 60-65 лет), которые хотят уделить серьезное внимание своему здоровью. Тесты профиля применяют для оценки состояния белкового, углеводного, липидного и минерального обмена, статуса витамина D, определения риска развития сахарного диабета и атеросклероза, для оценки функций печени, почек, щитовидной железы, выявления признаков анемии, воспалительных процессов.",
-          "title": "Мужское здоровье 18-45: расширенное обследование (Men's Health 18-45: extended examination)"
-        },
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 95823,
+      "category_id": "c27e4b3f-4df7-45c3-b1db-335d1f592df2",
+      "category_name": "Мужское здоровье",
+      "products": [
         {
           "additional_services": [
             {
@@ -326,55 +446,17 @@
           "keywords": null,
           "loyalty_bonus": 1395,
           "price": 46490,
+          "result_info_markup": "",
           "subtitle": "VIP обследование для мужчин (предпочтительно в возрасте от 18 до 60-65 лет) включает расширенный комплекс лабораторных тестов разной направленности и предназначено для профилактического обследования. В состав профиля входят общеклинические, биохимические и гормональные тесты, маркёры инфекций (ВИЧ, гепатитов В и С, сифилиса) и аутоиммунных заболеваний, а также генетическая панель.",
           "title": "Мужское здоровье 18-45: VIP обследование (с оценкой генетических рисков) (Men's Health 18-45: VIP profile (with genetic risk assessment))"
-        },
-        {
-          "additional_services": [
-            {
-              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
-              "price": 310,
-              "title": "Взятие крови из вены"
-            }
-          ],
-          "available_at_home": false,
-          "bitrix_id": 100241,
-          "category_bitrix_id": 3145,
-          "code": "ОБС339",
-          "deadline": 3,
-          "id": "75a836c5-9c22-f111-a65c-00155d52d169",
-          "is_favorite": false,
-          "is_promo": false,
-          "is_weekdays_only": true,
-          "keywords": null,
-          "loyalty_bonus": 360,
-          "price": 11990,
-          "subtitle": "<p>\r\n\t Комплекс тестов для оценки состояния основных систем организма мужчин в возрасте 46-65 лет.\r\n</p>\r\n<p>\r\n\t Обращаем ваше внимание, что в профиль входят анализы, выполняемые из разных видов биоматериала (кровь, моча, кал). Заранее изучите правила подготовки к исследованиям и особенности сбора биоматериала. Потребуется два контейнера для сбора мочи: один для первой порции утренней мочи в целях неинвазивной диагностики инфекций, передаваемых половым путем (см. <a href=\"https://www.invitro.ru/upload/docs/Mocha-razovaya-PCR-11-2024.pdf\">инструкцию по сбору биоматериала</a>), второй – для средней порции мочи для общего анализа мочи (см. <a href=\"https://www.invitro.ru/upload/docs/Mocha_razovaya_Analiz_mochi_obshchiy_s_mikroskopiyey_osadka.pdf\">инструкцию по сбору биоматериала</a>). Потребуется отдельный контейнер для кала (см. <a href=\"https://www.invitro.ru/upload/docs/Kal_Klinicheskiye-issledovaniya.pdf\">инструкцию по сбору биоматериала</a>).\r\n</p>",
-          "title": "Мужское здоровье 46-65: оптимальное обследование "
-        },
-        {
-          "additional_services": [
-            {
-              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
-              "price": 310,
-              "title": "Взятие крови из вены"
-            }
-          ],
-          "available_at_home": false,
-          "bitrix_id": 98033,
-          "category_bitrix_id": 3145,
-          "code": "ОБС306",
-          "deadline": 5,
-          "id": "161a7802-32a0-f011-80f3-00155d52d061",
-          "is_favorite": false,
-          "is_promo": false,
-          "is_weekdays_only": true,
-          "keywords": null,
-          "loyalty_bonus": 1089,
-          "price": 36290,
-          "subtitle": "Комплекс тестов для профилактического обследования мужчин в возрасте 45-65 лет.",
-          "title": "Мужское здоровье 45-65: расширенное обследование (Men's Health 45-65: Extended Examination)"
-        },
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 98032,
+      "category_id": "c27e4b3f-4df7-45c3-b1db-335d1f592df2",
+      "category_name": "Мужское здоровье",
+      "products": [
         {
           "additional_services": [
             {
@@ -400,9 +482,17 @@
           "keywords": null,
           "loyalty_bonus": 2361,
           "price": 78690,
+          "result_info_markup": "",
           "subtitle": "VIP-обследование для мужчин в возрасте 45-65 лет включает расширенный комплекс лабораторных тестов для профилактического обследования. В состав профиля входят общеклинические, биохимические и гормональные тесты, маркеры инфекций (ВИЧ, гепатитов В и С, сифилиса) и аутоиммунных заболеваний, показатели витаминно-минерального и антиоксидантного статуса, а также генетическая панель.",
           "title": "Мужское здоровье 45-65: VIP обследование (Men's Health 45-65: VIP Examination)"
-        },
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 100240,
+      "category_id": "c27e4b3f-4df7-45c3-b1db-335d1f592df2",
+      "category_name": "Мужское здоровье",
+      "products": [
         {
           "additional_services": [
             {
@@ -423,9 +513,17 @@
           "keywords": null,
           "loyalty_bonus": 390,
           "price": 12990,
+          "result_info_markup": "",
           "subtitle": "Комплекс тестов для оценки состояния основных систем организма для мужчин после 66 лет.<br>\r\n <br>\r\nОбращаем ваше внимание, что в профиль входят анализы, выполняемые из разных видов биоматериала (кровь, моча, кал).  Заранее изучите правила подготовки к исследованиям и особенности сбора биоматериала.",
           "title": "Мужское здоровье 66+: оптимальное обследование"
-        },
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 99756,
+      "category_id": "c27e4b3f-4df7-45c3-b1db-335d1f592df2",
+      "category_name": "Мужское здоровье",
+      "products": [
         {
           "additional_services": [
             {
@@ -435,20 +533,53 @@
             }
           ],
           "available_at_home": false,
-          "bitrix_id": 73250,
+          "bitrix_id": 99756,
           "category_bitrix_id": 3145,
-          "code": "ОБС224",
+          "code": "ОБС323",
           "deadline": 1,
-          "id": "076148e6-31a3-ee11-80ed-00155d52cf66",
+          "id": "58b7997e-b308-f111-a65c-00155d52d169",
+          "is_favorite": false,
+          "is_promo": false,
+          "is_weekdays_only": false,
+          "keywords": null,
+          "loyalty_bonus": 147,
+          "price": 4890,
+          "result_info_markup": "",
+          "subtitle": "Комплексное исследование для оценки состояния органов и систем пациентов на фоне заместительной терапии тестостероном.",
+          "title": "Лабораторный контроль заместительной терапии тестостероном у мужчин (Laboratory monitoring of testosterone replacement therapy in men)"
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 74421,
+      "category_id": "c27e4b3f-4df7-45c3-b1db-335d1f592df2",
+      "category_name": "Мужское здоровье",
+      "products": [
+        {
+          "additional_services": null,
+          "available_at_home": false,
+          "bitrix_id": 74421,
+          "category_bitrix_id": 3145,
+          "code": "ОБС227",
+          "deadline": 1,
+          "id": "3c992a71-24e5-ee11-80ed-00155d52cf66",
           "is_favorite": false,
           "is_promo": false,
           "is_weekdays_only": true,
           "keywords": null,
-          "loyalty_bonus": 159,
-          "price": 5290,
-          "subtitle": "Комплексное обследование предназначено для мужчин при подготовке к зачатию ребенка.",
-          "title": "Хочу стать папой: общеклинические и гормональные исследования (Become a father: Clinical and hormonal blood tests)"
-        },
+          "loyalty_bonus": 213,
+          "price": 7090,
+          "result_info_markup": "",
+          "subtitle": "Исследования первой линии в диагностике мужского бесплодия.",
+          "title": "Мужское бесплодие (спермограмма с MAR-тестом) (Male infertility (Spermogram with MAR-test))"
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 73251,
+      "category_id": "c27e4b3f-4df7-45c3-b1db-335d1f592df2",
+      "category_name": "Мужское здоровье",
+      "products": [
         {
           "additional_services": [
             {
@@ -474,26 +605,79 @@
           "keywords": null,
           "loyalty_bonus": 156,
           "price": 5190,
+          "result_info_markup": "",
           "subtitle": "Комплексное обследование на инфекции, передаваемые половым путем (ИППП), предназначено для мужчин при подготовке к зачатию ребенка.",
           "title": "Хочу стать папой: обследование на инфекции, передаваемые половым путем (Become a father: screening for sexually transmitted infections)"
-        },
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 95798,
+      "category_id": "c27e4b3f-4df7-45c3-b1db-335d1f592df2",
+      "category_name": "Мужское здоровье",
+      "products": [
         {
-          "additional_services": null,
+          "additional_services": [
+            {
+              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
+              "price": 310,
+              "title": "Взятие крови из вены"
+            }
+          ],
           "available_at_home": false,
-          "bitrix_id": 74421,
+          "bitrix_id": 95798,
           "category_bitrix_id": 3145,
-          "code": "ОБС227",
-          "deadline": 1,
-          "id": "3c992a71-24e5-ee11-80ed-00155d52cf66",
+          "code": "ОБС281",
+          "deadline": 5,
+          "id": "045d7456-c625-f011-80f1-00155d3be302",
           "is_favorite": false,
           "is_promo": false,
           "is_weekdays_only": true,
           "keywords": null,
-          "loyalty_bonus": 213,
-          "price": 7090,
-          "subtitle": "Исследования первой линии в диагностике мужского бесплодия.",
-          "title": "Мужское бесплодие (спермограмма с MAR-тестом) (Male infertility (Spermogram with MAR-test))"
-        },
+          "loyalty_bonus": 819,
+          "price": 27290,
+          "result_info_markup": "",
+          "subtitle": "Расширенный комплекс подойдет мужчинам (предпочтительно в возрасте от 18 до 60-65 лет), которые хотят уделить серьезное внимание своему здоровью. Тесты профиля применяют для оценки состояния белкового, углеводного, липидного и минерального обмена, статуса витамина D, определения риска развития сахарного диабета и атеросклероза, для оценки функций печени, почек, щитовидной железы, выявления признаков анемии, воспалительных процессов.",
+          "title": "Мужское здоровье 18-45: расширенное обследование (Men's Health 18-45: extended examination)"
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 100241,
+      "category_id": "c27e4b3f-4df7-45c3-b1db-335d1f592df2",
+      "category_name": "Мужское здоровье",
+      "products": [
+        {
+          "additional_services": [
+            {
+              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
+              "price": 310,
+              "title": "Взятие крови из вены"
+            }
+          ],
+          "available_at_home": false,
+          "bitrix_id": 100241,
+          "category_bitrix_id": 3145,
+          "code": "ОБС339",
+          "deadline": 3,
+          "id": "75a836c5-9c22-f111-a65c-00155d52d169",
+          "is_favorite": false,
+          "is_promo": false,
+          "is_weekdays_only": true,
+          "keywords": null,
+          "loyalty_bonus": 360,
+          "price": 11990,
+          "result_info_markup": "",
+          "subtitle": "<p>\r\n\t Комплекс тестов для оценки состояния основных систем организма мужчин в возрасте 46-65 лет.\r\n</p>\r\n<p>\r\n\t Обращаем ваше внимание, что в профиль входят анализы, выполняемые из разных видов биоматериала (кровь, моча, кал). Заранее изучите правила подготовки к исследованиям и особенности сбора биоматериала. Потребуется два контейнера для сбора мочи: один для первой порции утренней мочи в целях неинвазивной диагностики инфекций, передаваемых половым путем (см. <a href=\"https://www.invitro.ru/upload/docs/Mocha-razovaya-PCR-11-2024.pdf\">инструкцию по сбору биоматериала</a>), второй – для средней порции мочи для общего анализа мочи (см. <a href=\"https://www.invitro.ru/upload/docs/Mocha_razovaya_Analiz_mochi_obshchiy_s_mikroskopiyey_osadka.pdf\">инструкцию по сбору биоматериала</a>). Потребуется отдельный контейнер для кала (см. <a href=\"https://www.invitro.ru/upload/docs/Kal_Klinicheskiye-issledovaniya.pdf\">инструкцию по сбору биоматериала</a>).\r\n</p>",
+          "title": "Мужское здоровье 46-65: оптимальное обследование "
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 68963,
+      "category_id": "c27e4b3f-4df7-45c3-b1db-335d1f592df2",
+      "category_name": "Мужское здоровье",
+      "products": [
         {
           "additional_services": [
             {
@@ -514,55 +698,17 @@
           "keywords": null,
           "loyalty_bonus": 77,
           "price": 2560,
+          "result_info_markup": "",
           "subtitle": "•&nbsp; &nbsp; Комплексное исследование предназначено для выявления возможных причин эректильной дисфункции (сахарного диабета, атеросклероза артерий, гипогонадизма).<br>\r\n •&nbsp; &nbsp; Включает оценку состояния углеводного и липидного обмена, уровня тестостерона в крови.&nbsp;<br>\r\n <br>",
           "title": "Сексуальная дисфункция у мужчин. Первичное лабораторное обследование"
-        },
-        {
-          "additional_services": [
-            {
-              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
-              "price": 310,
-              "title": "Взятие крови из вены"
-            }
-          ],
-          "available_at_home": true,
-          "bitrix_id": 67368,
-          "category_bitrix_id": 3145,
-          "code": "ОБС183",
-          "deadline": 1,
-          "id": "8d3601ee-58b6-ec11-80e0-00155d0f074f",
-          "is_favorite": false,
-          "is_promo": false,
-          "is_weekdays_only": false,
-          "keywords": null,
-          "loyalty_bonus": 144,
-          "price": 4790,
-          "subtitle": "•&nbsp; &nbsp; &nbsp;Комплексное исследование уровня гормонов, участвующих в регуляции мужской репродуктивной системы (гормональный статус).<br>\r\n •&nbsp; &nbsp; &nbsp;Тесты используются для диагностики причин снижения либидо, эректильной дисфункции, бесплодия.<br>\r\n <br>",
-          "title": "Комплексное гормональное обследование для мужчин"
-        },
-        {
-          "additional_services": [
-            {
-              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
-              "price": 310,
-              "title": "Взятие крови из вены"
-            }
-          ],
-          "available_at_home": true,
-          "bitrix_id": 64297,
-          "category_bitrix_id": 3145,
-          "code": "ОБС171",
-          "deadline": 1,
-          "id": "f4d000a6-41c4-eb11-80dd-00155df8a91c",
-          "is_favorite": false,
-          "is_promo": false,
-          "is_weekdays_only": false,
-          "keywords": null,
-          "loyalty_bonus": 186,
-          "price": 6190,
-          "subtitle": "Профиль «Гипогонадизм у мужчин» предназначен для выявления андрогенной недостаточности у мужчин.",
-          "title": "Гипогонадизм у мужчин"
-        },
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 95824,
+      "category_id": "c27e4b3f-4df7-45c3-b1db-335d1f592df2",
+      "category_name": "Мужское здоровье",
+      "products": [
         {
           "additional_services": [
             {
@@ -572,20 +718,28 @@
             }
           ],
           "available_at_home": false,
-          "bitrix_id": 74910,
+          "bitrix_id": 95824,
           "category_bitrix_id": 3145,
-          "code": "ОБС258",
+          "code": "ОБС280",
           "deadline": 1,
-          "id": "68ea0c7a-0be3-ef11-80f1-00155d3be302",
+          "id": "cf9d55e0-bd25-f011-80f1-00155d3be302",
           "is_favorite": false,
           "is_promo": false,
           "is_weekdays_only": false,
           "keywords": null,
-          "loyalty_bonus": 242,
-          "price": 8080,
-          "subtitle": "Профиль предназначен для установления возможной причины гинекомастии (увеличение размера грудных желез у мужчин). Обследование может быть рекомендовано перед назначением медикаментозного лечения гинекомастии.",
-          "title": "Гинекомастия (Gynecomastia)"
-        },
+          "loyalty_bonus": 393,
+          "price": 13090,
+          "result_info_markup": "",
+          "subtitle": "Оптимальный комплекс лабораторных тестов для эффективной оценки состояния мужского здоровья (предпочтительно в возрасте от 18 до 60-65 лет).",
+          "title": "Мужское здоровье 18-45: оптимальное обследование (Men's Health 18-45: optimal examination)"
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 98033,
+      "category_id": "c27e4b3f-4df7-45c3-b1db-335d1f592df2",
+      "category_name": "Мужское здоровье",
+      "products": [
         {
           "additional_services": [
             {
@@ -595,19 +749,51 @@
             }
           ],
           "available_at_home": false,
-          "bitrix_id": 99756,
+          "bitrix_id": 98033,
           "category_bitrix_id": 3145,
-          "code": "ОБС323",
-          "deadline": 1,
-          "id": "58b7997e-b308-f111-a65c-00155d52d169",
+          "code": "ОБС306",
+          "deadline": 5,
+          "id": "161a7802-32a0-f011-80f3-00155d52d061",
           "is_favorite": false,
           "is_promo": false,
-          "is_weekdays_only": false,
+          "is_weekdays_only": true,
           "keywords": null,
-          "loyalty_bonus": 147,
-          "price": 4890,
-          "subtitle": "Комплексное исследование для оценки состояния органов и систем пациентов на фоне заместительной терапии тестостероном.",
-          "title": "Лабораторный контроль заместительной терапии тестостероном у мужчин (Laboratory monitoring of testosterone replacement therapy in men)"
+          "loyalty_bonus": 1089,
+          "price": 36290,
+          "result_info_markup": "",
+          "subtitle": "Комплекс тестов для профилактического обследования мужчин в возрасте 45-65 лет.",
+          "title": "Мужское здоровье 45-65: расширенное обследование (Men's Health 45-65: Extended Examination)"
+        }
+      ]
+    },
+    {
+      "category_bitrix_id": 73250,
+      "category_id": "c27e4b3f-4df7-45c3-b1db-335d1f592df2",
+      "category_name": "Мужское здоровье",
+      "products": [
+        {
+          "additional_services": [
+            {
+              "id": "718f4d00-210d-43f1-9c9c-e97733d38972",
+              "price": 310,
+              "title": "Взятие крови из вены"
+            }
+          ],
+          "available_at_home": false,
+          "bitrix_id": 73250,
+          "category_bitrix_id": 3145,
+          "code": "ОБС224",
+          "deadline": 1,
+          "id": "076148e6-31a3-ee11-80ed-00155d52cf66",
+          "is_favorite": false,
+          "is_promo": false,
+          "is_weekdays_only": true,
+          "keywords": null,
+          "loyalty_bonus": 159,
+          "price": 5290,
+          "result_info_markup": "",
+          "subtitle": "Комплексное обследование предназначено для мужчин при подготовке к зачатию ребенка.",
+          "title": "Хочу стать папой: общеклинические и гормональные исследования (Become a father: Clinical and hormonal blood tests)"
         }
       ]
     }

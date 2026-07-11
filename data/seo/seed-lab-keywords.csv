@@ -1,0 +1,26 @@
+query,region,monthly_impressions,source,source_fetched_at,intent,canonical_test_code,landing_slug,priority
+кариотип,Москва,,manual_seed,2026-06-22,price_compare,KARYOTYPE,karyotype,100
+кариотипирование цена,Москва,,manual_seed,2026-06-22,price_compare,KARYOTYPE,karyotype,98
+исследование кариотипа цена,Москва,,manual_seed,2026-06-22,price_compare,KARYOTYPE,karyotype,96
+цитогенетическое исследование кариотипа,Москва,,manual_seed,2026-06-22,test_info,KARYOTYPE,karyotype,92
+ферритин цена,Москва,,manual_seed,2026-06-22,price_compare,FER,ferritin,95
+анализ ферритин цена,Москва,,manual_seed,2026-06-22,price_compare,FER,ferritin,93
+ферритин где сдать,Москва,,manual_seed,2026-06-22,nearby,FER,ferritin,88
+ттг цена,Москва,,manual_seed,2026-06-22,price_compare,TSH,tsh,94
+анализ ттг цена,Москва,,manual_seed,2026-06-22,price_compare,TSH,tsh,92
+тиреотропный гормон цена,Москва,,manual_seed,2026-06-22,price_compare,TSH,tsh,85
+глюкоза анализ цена,Москва,,manual_seed,2026-06-22,price_compare,GLU,glucose,90
+глюкоза крови цена,Москва,,manual_seed,2026-06-22,price_compare,GLU,glucose,86
+сдать глюкозу,Москва,,manual_seed,2026-06-22,nearby,GLU,glucose,82
+витамин d анализ цена,Москва,,manual_seed,2026-06-22,price_compare,VITD,vitamin-d,90
+25 oh витамин d цена,Москва,,manual_seed,2026-06-22,price_compare,VITD,vitamin-d,84
+витамин д где сдать,Москва,,manual_seed,2026-06-22,nearby,VITD,vitamin-d,80
+общий анализ крови цена,Москва,,manual_seed,2026-06-22,price_compare,CBC,complete-blood-count,91
+оак цена,Москва,,manual_seed,2026-06-22,price_compare,CBC,complete-blood-count,89
+клинический анализ крови цена,Москва,,manual_seed,2026-06-22,price_compare,CBC,complete-blood-count,86
+общий анализ мочи цена,Москва,,manual_seed,2026-06-22,price_compare,UA,urinalysis,88
+оам цена,Москва,,manual_seed,2026-06-22,price_compare,UA,urinalysis,84
+креатинин цена,Москва,,manual_seed,2026-06-22,price_compare,CREA,creatinine,82
+холестерин общий цена,Москва,,manual_seed,2026-06-22,price_compare,CHOL,cholesterol-total,82
+биохимия крови цена,Москва,,manual_seed,2026-06-22,price_compare,BIOCHEM,biochemistry-blood,80
+биохимический анализ крови цена,Москва,,manual_seed,2026-06-22,price_compare,BIOCHEM,biochemistry-blood,78
