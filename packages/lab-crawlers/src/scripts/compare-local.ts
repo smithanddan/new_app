@@ -49,6 +49,7 @@ function printCompare(output: LocalCompareResult): void {
     'Забор': formatRub(offer.biomaterialPriceRub),
     'Итог': formatRub(offer.totalPriceRub),
     'Тип': offer.offerType,
+    'Условия': offer.specialConditions.join('; ') || '-',
     'Ссылка': offer.sourceUrl,
   })));
 }

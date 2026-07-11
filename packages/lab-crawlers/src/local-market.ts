@@ -18,6 +18,10 @@ import {
   parseDnkomActionsHtml,
   parseDnkomCatalogHtml,
 } from './adapters/dnkom.parser.js';
+import {
+  CMD_MOSCOW_CATALOG_URL,
+  parseCmdCatalogHtml,
+} from './adapters/cmd.parser.js';
 import { parseGemotestCatalogHtml } from './adapters/gemotest.parser.js';
 import {
   parseInvitroApiCatalogJson,
@@ -62,6 +66,10 @@ export type LocalOffer = {
   biomaterialPriceRub: number;
   totalPriceRub: number;
   offerType: ProviderTestPriceRecord['offerType'];
+  biomaterial?: string;
+  preparation?: string;
+  turnaroundTime?: string;
+  specialConditions: string[];
   sourceUrl: string;
   fetchedAt: string;
 };
@@ -104,6 +112,7 @@ export function loadLocalMarketDataset(input: {
   if (includeFixtures) {
     snapshots.push(loadDnkomFixtureSnapshot());
     snapshots.push(loadGemotestFixtureSnapshot());
+    snapshots.push(loadCmdFixtureSnapshot());
   }
 
   const invitroSnapshotPath = input.invitroSnapshotPath ?? getDefaultInvitroSnapshotPath('moscow');
@@ -199,6 +208,38 @@ export function writeLocalMarketSnapshot(filePath: string, snapshot: LocalMarket
   fs.writeFileSync(filePath, `${JSON.stringify(snapshot, null, 2)}\n`, 'utf8');
 }
 
+function dedupeProviderTests(tests: ProviderTestRecord[]): ProviderTestRecord[] {
+  const seen = new Set<string>();
+  return tests.filter((test) => {
+    const key = [
+      test.providerCode,
+      test.externalCode ?? test.externalId ?? normalizeProviderName(test.sourceUrl),
+    ].join(':');
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+function dedupeProviderPrices(prices: ProviderTestPriceRecord[]): ProviderTestPriceRecord[] {
+  const seen = new Set<string>();
+  return prices.filter((price) => {
+    const key = [
+      price.providerCode,
+      price.externalCode ?? price.externalId ?? normalizeProviderName(price.sourceUrl),
+      price.offerType,
+      price.effectivePriceRub ?? price.regularPriceRub ?? price.promoPriceRub ?? 'no-price',
+    ].join(':');
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
 function loadDnkomFixtureSnapshot(): LocalMarketSnapshot {
   const fetchedAt = '2026-06-11T00:00:00.000Z';
   const context = createContext('dnkom', 'moscow', fetchedAt);
@@ -244,6 +285,38 @@ function loadGemotestFixtureSnapshot(): LocalMarketSnapshot {
     fetchedAt,
     tests: catalog.tests,
     prices: catalog.prices,
+    promotions: [],
+    promotionItems: [],
+  };
+}
+
+function loadCmdFixtureSnapshot(): LocalMarketSnapshot {
+  const fetchedAt = '2026-06-19T00:00:00.000Z';
+  const context = createContext('cmd', 'msk', fetchedAt);
+  const catalog = parseCmdCatalogHtml(
+    readText(path.join(packageRoot, 'fixtures/cmd/catalog-msk.html')),
+    context,
+    {
+      fetchedAt,
+      sourceUrl: CMD_MOSCOW_CATALOG_URL,
+    },
+  );
+  const targetedSearch = parseCmdCatalogHtml(
+    readText(path.join(packageRoot, 'fixtures/cmd/search-karyotype.html')),
+    context,
+    {
+      fetchedAt,
+      sourceUrl: `${CMD_MOSCOW_CATALOG_URL}?q=${encodeURIComponent('кариотип')}`,
+    },
+  );
+
+  return {
+    provider: 'cmd',
+    region: 'msk',
+    city: 'Москва',
+    fetchedAt,
+    tests: dedupeProviderTests([...catalog.tests, ...targetedSearch.tests]),
+    prices: dedupeProviderPrices([...catalog.prices, ...targetedSearch.prices]),
     promotions: [],
     promotionItems: [],
   };
@@ -331,6 +404,7 @@ function mapLocalOffer(
     return undefined;
   }
   const biomaterialPriceRub = price.biomaterialPriceRub ?? 0;
+  const specialConditions = buildSpecialConditions(test, price, biomaterialPriceRub);
 
   return {
     canonicalCode: canonicalTest.code,
@@ -345,9 +419,52 @@ function mapLocalOffer(
     biomaterialPriceRub,
     totalPriceRub: resolvedPrice + biomaterialPriceRub,
     offerType: price.offerType,
+    biomaterial: test.biomaterial,
+    preparation: test.preparation,
+    turnaroundTime: test.turnaroundTime,
+    specialConditions,
     sourceUrl: price.sourceUrl,
     fetchedAt: price.fetchedAt,
   };
+}
+
+function buildSpecialConditions(
+  test: ProviderTestRecord,
+  price: ProviderTestPriceRecord,
+  biomaterialPriceRub: number,
+): string[] {
+  const conditions: string[] = [];
+
+  if (test.biomaterial) {
+    conditions.push(`Биоматериал: ${test.biomaterial}`);
+  }
+  if (biomaterialPriceRub > 0) {
+    conditions.push(`Забор биоматериала: ${biomaterialPriceRub} RUB`);
+  }
+  if (test.turnaroundTime) {
+    conditions.push(`Срок: ${test.turnaroundTime}`);
+  }
+  if (test.preparation) {
+    conditions.push(`Подготовка: ${test.preparation}`);
+  }
+  if (price.promoPriceRub !== undefined || price.offerType === 'promo') {
+    conditions.push('Акционная цена');
+  }
+  if (price.validFrom || price.validTo) {
+    conditions.push(`Период действия: ${price.validFrom ?? 'сейчас'} - ${price.validTo ?? 'не указан'}`);
+  }
+
+  const rawPayload = test.rawPayload;
+  if (isRecord(rawPayload)) {
+    if (rawPayload.urgentAvailable === true) {
+      conditions.push('Есть срочное выполнение');
+    }
+    if (rawPayload.homeCollectionAvailable === true) {
+      conditions.push('Доступен выезд на дом');
+    }
+  }
+
+  return [...new Set(conditions)];
 }
 
 function dedupeLocalOffers(offers: LocalOffer[]): LocalOffer[] {
@@ -379,7 +496,14 @@ function formatProviderName(providerCode: string): string {
   if (providerCode === 'invitro') {
     return 'INVITRO';
   }
+  if (providerCode === 'cmd') {
+    return 'CMD';
+  }
   return providerCode;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
 function readText(filePath: string): string {

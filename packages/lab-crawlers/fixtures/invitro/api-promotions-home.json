@@ -146,238 +146,8 @@
       "id": "6a1db04d54a9a8d3c6f81ec7"
     },
     {
-      "createdAt": "2026-06-01T16:28:54.225Z",
-      "updatedAt": "2026-06-10T17:35:03.788Z",
-      "colors": {
-        "backgroundColor": "#6ED2E6",
-        "textColor": "#121313",
-        "buttonVariant": "black"
-      },
-      "page": [
-        {
-          "blockType": "newPageLink",
-          "newPage": {
-            "slug": "vitamin-v12-so-skidkoj-15-06-07-2026-rf",
-            "id": "6a1d412354a9a8d3c6e8728c"
-          },
-          "id": "6a1db37b4317d4fb1d2a6cc4"
-        }
-      ],
-      "targetPage": [
-        "home",
-        "promotions"
-      ],
-      "order": 2,
-      "_status": "published",
-      "buttonText": "Подробнее",
-      "description": "со скидкой 15%",
-      "image": {
-        "createdAt": "2026-06-02T08:10:17.413Z",
-        "updatedAt": "2026-06-02T08:10:17.413Z",
-        "alt": "sdfsfsf",
-        "prefix": "images",
-        "filename": "сайт (2)-1.png",
-        "mimeType": "image/png",
-        "filesize": 131000,
-        "width": 420,
-        "height": 280,
-        "focalX": 50,
-        "focalY": 50,
-        "sizes": {
-          "thumbnail": {
-            "width": 300,
-            "height": 200,
-            "mimeType": "image/png",
-            "filesize": 94748,
-            "filename": "сайт (2)-1-300x200.png",
-            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (2)-1-300x200.png"
-          },
-          "medium": {
-            "width": null,
-            "height": null,
-            "mimeType": null,
-            "filesize": null,
-            "filename": null,
-            "url": null
-          },
-          "large": {
-            "width": null,
-            "height": null,
-            "mimeType": null,
-            "filesize": null,
-            "filename": null,
-            "url": null
-          },
-          "promoLQIP": {
-            "width": 21,
-            "height": 14,
-            "mimeType": "image/jpeg",
-            "filesize": 589,
-            "filename": "сайт (2)-1-21x14.jpg",
-            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (2)-1-21x14.jpg"
-          },
-          "promoThumbnail": {
-            "width": 210,
-            "height": 140,
-            "mimeType": "image/webp",
-            "filesize": 3166,
-            "filename": "сайт (2)-1-210x140.webp",
-            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (2)-1-210x140.webp"
-          },
-          "promoRetina": {
-            "width": 420,
-            "height": 280,
-            "mimeType": "image/webp",
-            "filesize": 8698,
-            "filename": "сайт (2)-1-420x280.webp",
-            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (2)-1-420x280.webp"
-          },
-          "promoRetinaHD": {
-            "width": null,
-            "height": null,
-            "mimeType": null,
-            "filesize": null,
-            "filename": null,
-            "url": null
-          }
-        },
-        "id": "6a1e8fe954a9a8d3c60d5d60",
-        "url": "https://www.invitro.ru/golk/cms/images/file/%D1%81%D0%B0%D0%B9%D1%82%20(2)-1.png",
-        "thumbnailURL": null
-      },
-      "promotionsTargetGeography": {
-        "cities": [],
-        "aglomerations": [],
-        "showToAll": true
-      },
-      "sponsorInfo": "Реклама 2Ranymn1EV9",
-      "title": "Найдите причину усталости",
-      "backgroundImage": null,
-      "enabled": true,
-      "endDate": "2026-07-15T12:00:00.000Z",
-      "platform": [
-        "web",
-        "app"
-      ],
-      "startDate": "2026-06-01T12:00:00.000Z",
-      "id": "6a1db34654a9a8d3c6f88499"
-    },
-    {
-      "createdAt": "2026-06-03T15:24:48.338Z",
-      "updatedAt": "2026-06-10T16:42:50.032Z",
-      "colors": {
-        "backgroundColor": "#BFD3FD",
-        "textColor": "#121313",
-        "buttonVariant": "black"
-      },
-      "page": [
-        {
-          "blockType": "newPageLink",
-          "newPage": {
-            "slug": "sprosite-ginekologa-rf",
-            "id": "69a0464d2bd0faca27efda3d"
-          },
-          "id": "6a2047a7758ea773f17f0e00"
-        }
-      ],
-      "targetPage": [
-        "home"
-      ],
-      "order": 3,
-      "_status": "published",
-      "buttonText": "Подробнее",
-      "description": "Запишитесь на приём в ИНВИТРО",
-      "image": {
-        "createdAt": "2026-06-03T15:26:09.140Z",
-        "updatedAt": "2026-06-03T15:26:09.140Z",
-        "alt": "гиня",
-        "prefix": "images",
-        "filename": "Img_action_Gynecologist.png",
-        "mimeType": "image/png",
-        "filesize": 29086,
-        "width": 210,
-        "height": 140,
-        "focalX": 50,
-        "focalY": 50,
-        "sizes": {
-          "thumbnail": {
-            "width": null,
-            "height": null,
-            "mimeType": null,
-            "filesize": null,
-            "filename": null,
-            "url": null
-          },
-          "medium": {
-            "width": null,
-            "height": null,
-            "mimeType": null,
-            "filesize": null,
-            "filename": null,
-            "url": null
-          },
-          "large": {
-            "width": null,
-            "height": null,
-            "mimeType": null,
-            "filesize": null,
-            "filename": null,
-            "url": null
-          },
-          "promoLQIP": {
-            "width": 21,
-            "height": 14,
-            "mimeType": "image/jpeg",
-            "filesize": 594,
-            "filename": "Img_action_Gynecologist-21x14.jpg",
-            "url": "https://www.invitro.ru/golk/cms/images/file/Img_action_Gynecologist-21x14.jpg"
-          },
-          "promoThumbnail": {
-            "width": 210,
-            "height": 140,
-            "mimeType": "image/webp",
-            "filesize": 4408,
-            "filename": "Img_action_Gynecologist-210x140.webp",
-            "url": "https://www.invitro.ru/golk/cms/images/file/Img_action_Gynecologist-210x140.webp"
-          },
-          "promoRetina": {
-            "width": null,
-            "height": null,
-            "mimeType": null,
-            "filesize": null,
-            "filename": null,
-            "url": null
-          },
-          "promoRetinaHD": {
-            "width": null,
-            "height": null,
-            "mimeType": null,
-            "filesize": null,
-            "filename": null,
-            "url": null
-          }
-        },
-        "id": "6a20479154a9a8d3c644c879",
-        "url": "https://www.invitro.ru/golk/cms/images/file/Img_action_Gynecologist.png",
-        "thumbnailURL": null
-      },
-      "promotionsTargetGeography": {
-        "cities": [],
-        "aglomerations": [],
-        "showToAll": true
-      },
-      "sponsorInfo": "",
-      "title": "Ваш гинеколог рядом",
-      "enabled": true,
-      "platform": [
-        "web",
-        "app"
-      ],
-      "id": "6a20474054a9a8d3c644bdc1"
-    },
-    {
       "createdAt": "2026-04-06T13:53:49.053Z",
-      "updatedAt": "2026-06-01T10:11:38.910Z",
+      "updatedAt": "2026-06-23T11:15:32.432Z",
       "title": "Выезд за 1 рубль",
       "promotionsTargetGeography": {
         "cities": [
@@ -926,6 +696,12 @@
             "name": "Семилуки",
             "type": "city",
             "isExcluded": false
+          },
+          {
+            "id": "db0653bd-2a7a-481e-93b5-6c5bca6de096",
+            "name": "Петропавловск-Камчатский",
+            "type": "city",
+            "isExcluded": false
           }
         ],
         "aglomerations": []
@@ -1025,16 +801,17 @@
       "buttonText": "Подробнее",
       "sponsorInfo": "Реклама  2RanymTGjhL",
       "_status": "published",
-      "order": 3,
+      "order": 2,
       "enabled": true,
       "platform": [],
+      "endDate": "2026-09-30T12:00:00.000Z",
       "id": "69d3baedc58535b282404662"
     },
     {
-      "createdAt": "2026-06-03T15:29:00.528Z",
-      "updatedAt": "2026-06-10T16:42:39.147Z",
+      "createdAt": "2026-06-03T15:24:48.338Z",
+      "updatedAt": "2026-06-10T16:42:50.032Z",
       "colors": {
-        "backgroundColor": "#E7E7E6",
+        "backgroundColor": "#BFD3FD",
         "textColor": "#121313",
         "buttonVariant": "black"
       },
@@ -1042,27 +819,27 @@
         {
           "blockType": "newPageLink",
           "newPage": {
-            "slug": "sprosite-vracha-terapevta-rf",
-            "id": "69986486414a47722c140c15"
+            "slug": "sprosite-ginekologa-rf",
+            "id": "69a0464d2bd0faca27efda3d"
           },
-          "id": "6a204862758ea773f17f0e01"
+          "id": "6a2047a7758ea773f17f0e00"
         }
       ],
       "targetPage": [
         "home"
       ],
-      "order": 4,
+      "order": 3,
       "_status": "published",
       "buttonText": "Подробнее",
-      "description": "Запишитесь на приём",
+      "description": "Запишитесь на приём в ИНВИТРО",
       "image": {
-        "createdAt": "2026-06-03T15:29:22.529Z",
-        "updatedAt": "2026-06-03T15:29:22.529Z",
-        "alt": "ывпывп",
+        "createdAt": "2026-06-03T15:26:09.140Z",
+        "updatedAt": "2026-06-03T15:26:09.140Z",
+        "alt": "гиня",
         "prefix": "images",
-        "filename": "Image_Action-2.png",
+        "filename": "Img_action_Gynecologist.png",
         "mimeType": "image/png",
-        "filesize": 31509,
+        "filesize": 29086,
         "width": 210,
         "height": 140,
         "focalX": 50,
@@ -1096,17 +873,17 @@
             "width": 21,
             "height": 14,
             "mimeType": "image/jpeg",
-            "filesize": 583,
-            "filename": "Image_Action-2-21x14.jpg",
-            "url": "https://www.invitro.ru/golk/cms/images/file/Image_Action-2-21x14.jpg"
+            "filesize": 594,
+            "filename": "Img_action_Gynecologist-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Img_action_Gynecologist-21x14.jpg"
           },
           "promoThumbnail": {
             "width": 210,
             "height": 140,
             "mimeType": "image/webp",
-            "filesize": 5160,
-            "filename": "Image_Action-2-210x140.webp",
-            "url": "https://www.invitro.ru/golk/cms/images/file/Image_Action-2-210x140.webp"
+            "filesize": 4408,
+            "filename": "Img_action_Gynecologist-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Img_action_Gynecologist-210x140.webp"
           },
           "promoRetina": {
             "width": null,
@@ -1125,8 +902,8 @@
             "url": null
           }
         },
-        "id": "6a20485254a9a8d3c644e3f0",
-        "url": "https://www.invitro.ru/golk/cms/images/file/Image_Action-2.png",
+        "id": "6a20479154a9a8d3c644c879",
+        "url": "https://www.invitro.ru/golk/cms/images/file/Img_action_Gynecologist.png",
         "thumbnailURL": null
       },
       "promotionsTargetGeography": {
@@ -1134,17 +911,18 @@
         "aglomerations": [],
         "showToAll": true
       },
-      "title": "Ваш терапевт рядом",
+      "sponsorInfo": "",
+      "title": "Ваш гинеколог рядом",
       "enabled": true,
       "platform": [
         "web",
         "app"
       ],
-      "id": "6a20483c54a9a8d3c644e0bd"
+      "id": "6a20474054a9a8d3c644bdc1"
     },
     {
-      "createdAt": "2026-05-31T21:24:05.713Z",
-      "updatedAt": "2026-06-10T16:38:08.919Z",
+      "createdAt": "2026-06-01T16:28:54.225Z",
+      "updatedAt": "2026-06-18T13:01:30.691Z",
       "colors": {
         "backgroundColor": "#6ED2E6",
         "textColor": "#121313",
@@ -1154,10 +932,10 @@
         {
           "blockType": "newPageLink",
           "newPage": {
-            "slug": "uznajte-prichinu-sezonnoj-allergii-06-07-2026-rf",
-            "id": "6a18190454a9a8d3c6679791"
+            "slug": "vitamin-v12-so-skidkoj-15-06-07-2026-rf",
+            "id": "6a1d412354a9a8d3c6e8728c"
           },
-          "id": "6a1ca826410f36e67279a9a1"
+          "id": "6a1db37b4317d4fb1d2a6cc4"
         }
       ],
       "targetPage": [
@@ -1166,17 +944,16 @@
       ],
       "order": 4,
       "_status": "published",
-      "backgroundImage": null,
       "buttonText": "Подробнее",
-      "description": "Повышенный кешбэк 15%",
+      "description": "со скидкой 15%",
       "image": {
-        "createdAt": "2026-05-31T21:28:38.045Z",
-        "updatedAt": "2026-05-31T21:28:38.045Z",
-        "alt": "ghghj",
+        "createdAt": "2026-06-02T08:10:17.413Z",
+        "updatedAt": "2026-06-02T08:10:17.413Z",
+        "alt": "sdfsfsf",
         "prefix": "images",
-        "filename": "сайт (1).png",
+        "filename": "сайт (2)-1.png",
         "mimeType": "image/png",
-        "filesize": 192331,
+        "filesize": 131000,
         "width": 420,
         "height": 280,
         "focalX": 50,
@@ -1186,9 +963,9 @@
             "width": 300,
             "height": 200,
             "mimeType": "image/png",
-            "filesize": 145149,
-            "filename": "сайт (1)-300x200.png",
-            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (1)-300x200.png"
+            "filesize": 94748,
+            "filename": "сайт (2)-1-300x200.png",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (2)-1-300x200.png"
           },
           "medium": {
             "width": null,
@@ -1210,25 +987,25 @@
             "width": 21,
             "height": 14,
             "mimeType": "image/jpeg",
-            "filesize": 586,
-            "filename": "сайт (1)-21x14.jpg",
-            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (1)-21x14.jpg"
+            "filesize": 589,
+            "filename": "сайт (2)-1-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (2)-1-21x14.jpg"
           },
           "promoThumbnail": {
             "width": 210,
             "height": 140,
             "mimeType": "image/webp",
-            "filesize": 5780,
-            "filename": "сайт (1)-210x140.webp",
-            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (1)-210x140.webp"
+            "filesize": 3166,
+            "filename": "сайт (2)-1-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (2)-1-210x140.webp"
           },
           "promoRetina": {
             "width": 420,
             "height": 280,
             "mimeType": "image/webp",
-            "filesize": 18620,
-            "filename": "сайт (1)-420x280.webp",
-            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (1)-420x280.webp"
+            "filesize": 8698,
+            "filename": "сайт (2)-1-420x280.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (2)-1-420x280.webp"
           },
           "promoRetinaHD": {
             "width": null,
@@ -1239,8 +1016,8 @@
             "url": null
           }
         },
-        "id": "6a1ca80654a9a8d3c6db8c31",
-        "url": "https://www.invitro.ru/golk/cms/images/file/%D1%81%D0%B0%D0%B9%D1%82%20(1).png",
+        "id": "6a1e8fe954a9a8d3c60d5d60",
+        "url": "https://www.invitro.ru/golk/cms/images/file/%D1%81%D0%B0%D0%B9%D1%82%20(2)-1.png",
         "thumbnailURL": null
       },
       "promotionsTargetGeography": {
@@ -1248,128 +1025,17 @@
         "aglomerations": [],
         "showToAll": true
       },
-      "sponsorInfo": "Реклама 2RanyngKpaE",
-      "title": "Узнайте причину сезонной аллергии",
+      "sponsorInfo": "Реклама 2Ranymn1EV9",
+      "title": "Найдите причину усталости",
+      "backgroundImage": null,
       "enabled": true,
+      "endDate": "2026-07-15T12:00:00.000Z",
       "platform": [
         "web",
         "app"
       ],
-      "id": "6a1ca6f554a9a8d3c6db7d69"
-    },
-    {
-      "createdAt": "2026-05-28T16:56:12.182Z",
-      "updatedAt": "2026-06-11T07:22:33.784Z",
-      "colors": {
-        "backgroundColor": "#00ACC6",
-        "textColor": "#121313",
-        "buttonVariant": "black"
-      },
-      "page": [
-        {
-          "blockType": "newPageLink",
-          "newPage": {
-            "slug": "nipt-2026-rf",
-            "id": "6a0eecbe54a9a8d3c6751494"
-          },
-          "id": "6a1874c6ef32b311fd737af8"
-        }
-      ],
-      "targetPage": [
-        "home",
-        "promotions"
-      ],
-      "order": 4,
-      "_status": "published",
-      "buttonText": "Подробнее",
-      "description": "Кешбэк 15% на оценку генетических рисков",
-      "image": {
-        "createdAt": "2026-05-22T09:02:37.599Z",
-        "updatedAt": "2026-05-22T09:02:37.599Z",
-        "alt": "апвапвп",
-        "prefix": "images",
-        "filename": "слайдер.png",
-        "mimeType": "image/png",
-        "filesize": 61375,
-        "width": 210,
-        "height": 140,
-        "focalX": 50,
-        "focalY": 50,
-        "sizes": {
-          "thumbnail": {
-            "width": null,
-            "height": null,
-            "mimeType": null,
-            "filesize": null,
-            "filename": null,
-            "url": null
-          },
-          "medium": {
-            "width": null,
-            "height": null,
-            "mimeType": null,
-            "filesize": null,
-            "filename": null,
-            "url": null
-          },
-          "large": {
-            "width": null,
-            "height": null,
-            "mimeType": null,
-            "filesize": null,
-            "filename": null,
-            "url": null
-          },
-          "promoLQIP": {
-            "width": 21,
-            "height": 14,
-            "mimeType": "image/jpeg",
-            "filesize": 595,
-            "filename": "слайдер-21x14.jpg",
-            "url": "https://www.invitro.ru/golk/cms/images/file/слайдер-21x14.jpg"
-          },
-          "promoThumbnail": {
-            "width": 210,
-            "height": 140,
-            "mimeType": "image/webp",
-            "filesize": 5990,
-            "filename": "слайдер-210x140.webp",
-            "url": "https://www.invitro.ru/golk/cms/images/file/слайдер-210x140.webp"
-          },
-          "promoRetina": {
-            "width": null,
-            "height": null,
-            "mimeType": null,
-            "filesize": null,
-            "filename": null,
-            "url": null
-          },
-          "promoRetinaHD": {
-            "width": null,
-            "height": null,
-            "mimeType": null,
-            "filesize": null,
-            "filename": null,
-            "url": null
-          }
-        },
-        "id": "6a101bad54a9a8d3c6952cb0",
-        "url": "https://www.invitro.ru/golk/cms/images/file/%D1%81%D0%BB%D0%B0%D0%B9%D0%B4%D0%B5%D1%80.png",
-        "thumbnailURL": null
-      },
-      "promotionsTargetGeography": {
-        "cities": [],
-        "aglomerations": [],
-        "showToAll": true
-      },
-      "sponsorInfo": "Реклама 2RanymxTfd4",
-      "title": "Неинвазивный пренатальный тест",
-      "enabled": true,
-      "platform": [
-        "web",
-        "app"
-      ],
-      "id": "6a1873ac54a9a8d3c673a95e"
+      "startDate": "2026-06-01T12:00:00.000Z",
+      "id": "6a1db34654a9a8d3c6f88499"
     },
     {
       "createdAt": "2026-06-03T15:33:21.072Z",
@@ -1482,6 +1148,118 @@
         "app"
       ],
       "id": "6a20494154a9a8d3c6450834"
+    },
+    {
+      "createdAt": "2026-06-03T15:29:00.528Z",
+      "updatedAt": "2026-06-18T13:04:38.393Z",
+      "colors": {
+        "backgroundColor": "#E7E7E6",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "sprosite-vracha-terapevta-rf",
+            "id": "69986486414a47722c140c15"
+          },
+          "id": "6a204862758ea773f17f0e01"
+        }
+      ],
+      "targetPage": [
+        "home"
+      ],
+      "order": 5,
+      "_status": "published",
+      "buttonText": "Подробнее",
+      "description": "Запишитесь на приём",
+      "image": {
+        "createdAt": "2026-06-03T15:29:22.529Z",
+        "updatedAt": "2026-06-03T15:29:22.529Z",
+        "alt": "ывпывп",
+        "prefix": "images",
+        "filename": "Image_Action-2.png",
+        "mimeType": "image/png",
+        "filesize": 31509,
+        "width": 210,
+        "height": 140,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 583,
+            "filename": "Image_Action-2-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Image_Action-2-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 5160,
+            "filename": "Image_Action-2-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/Image_Action-2-210x140.webp"
+          },
+          "promoRetina": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "6a20485254a9a8d3c644e3f0",
+        "url": "https://www.invitro.ru/golk/cms/images/file/Image_Action-2.png",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [],
+        "aglomerations": [],
+        "showToAll": true
+      },
+      "title": "Ваш терапевт рядом",
+      "enabled": true,
+      "platform": [
+        "web",
+        "app"
+      ],
+      "id": "6a20483c54a9a8d3c644e0bd"
     },
     {
       "createdAt": "2026-04-06T06:45:19.437Z",
@@ -1829,6 +1607,121 @@
       "id": "6a1d942354a9a8d3c6f4787d"
     },
     {
+      "createdAt": "2026-05-31T21:24:05.713Z",
+      "updatedAt": "2026-06-18T13:05:41.849Z",
+      "colors": {
+        "backgroundColor": "#6ED2E6",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "uznajte-prichinu-sezonnoj-allergii-06-07-2026-rf",
+            "id": "6a18190454a9a8d3c6679791"
+          },
+          "id": "6a1ca826410f36e67279a9a1"
+        }
+      ],
+      "targetPage": [
+        "home",
+        "promotions"
+      ],
+      "order": 6,
+      "_status": "published",
+      "backgroundImage": null,
+      "buttonText": "Подробнее",
+      "description": "Повышенный кешбэк 15%",
+      "image": {
+        "createdAt": "2026-05-31T21:28:38.045Z",
+        "updatedAt": "2026-05-31T21:28:38.045Z",
+        "alt": "ghghj",
+        "prefix": "images",
+        "filename": "сайт (1).png",
+        "mimeType": "image/png",
+        "filesize": 192331,
+        "width": 420,
+        "height": 280,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": 300,
+            "height": 200,
+            "mimeType": "image/png",
+            "filesize": 145149,
+            "filename": "сайт (1)-300x200.png",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (1)-300x200.png"
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 586,
+            "filename": "сайт (1)-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (1)-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 5780,
+            "filename": "сайт (1)-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (1)-210x140.webp"
+          },
+          "promoRetina": {
+            "width": 420,
+            "height": 280,
+            "mimeType": "image/webp",
+            "filesize": 18620,
+            "filename": "сайт (1)-420x280.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/сайт (1)-420x280.webp"
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "6a1ca80654a9a8d3c6db8c31",
+        "url": "https://www.invitro.ru/golk/cms/images/file/%D1%81%D0%B0%D0%B9%D1%82%20(1).png",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [],
+        "aglomerations": [],
+        "showToAll": true
+      },
+      "sponsorInfo": "Реклама 2RanyngKpaE",
+      "title": "Узнайте причину сезонной аллергии",
+      "enabled": true,
+      "platform": [
+        "web",
+        "app"
+      ],
+      "id": "6a1ca6f554a9a8d3c6db7d69"
+    },
+    {
       "createdAt": "2026-06-01T14:01:04.538Z",
       "updatedAt": "2026-06-10T16:30:21.870Z",
       "colors": {
@@ -1972,6 +1865,120 @@
       "id": "6a1d90a054a9a8d3c6f400a1"
     },
     {
+      "createdAt": "2026-05-28T16:56:12.182Z",
+      "updatedAt": "2026-06-18T13:05:56.871Z",
+      "colors": {
+        "backgroundColor": "#00ACC6",
+        "textColor": "#121313",
+        "buttonVariant": "black"
+      },
+      "page": [
+        {
+          "blockType": "newPageLink",
+          "newPage": {
+            "slug": "nipt-2026-rf",
+            "id": "6a0eecbe54a9a8d3c6751494"
+          },
+          "id": "6a1874c6ef32b311fd737af8"
+        }
+      ],
+      "targetPage": [
+        "home",
+        "promotions"
+      ],
+      "order": 7,
+      "_status": "published",
+      "buttonText": "Подробнее",
+      "description": "Кешбэк 15% на оценку генетических рисков",
+      "image": {
+        "createdAt": "2026-05-22T09:02:37.599Z",
+        "updatedAt": "2026-05-22T09:02:37.599Z",
+        "alt": "апвапвп",
+        "prefix": "images",
+        "filename": "слайдер.png",
+        "mimeType": "image/png",
+        "filesize": 61375,
+        "width": 210,
+        "height": 140,
+        "focalX": 50,
+        "focalY": 50,
+        "sizes": {
+          "thumbnail": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "medium": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "large": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoLQIP": {
+            "width": 21,
+            "height": 14,
+            "mimeType": "image/jpeg",
+            "filesize": 595,
+            "filename": "слайдер-21x14.jpg",
+            "url": "https://www.invitro.ru/golk/cms/images/file/слайдер-21x14.jpg"
+          },
+          "promoThumbnail": {
+            "width": 210,
+            "height": 140,
+            "mimeType": "image/webp",
+            "filesize": 5990,
+            "filename": "слайдер-210x140.webp",
+            "url": "https://www.invitro.ru/golk/cms/images/file/слайдер-210x140.webp"
+          },
+          "promoRetina": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          },
+          "promoRetinaHD": {
+            "width": null,
+            "height": null,
+            "mimeType": null,
+            "filesize": null,
+            "filename": null,
+            "url": null
+          }
+        },
+        "id": "6a101bad54a9a8d3c6952cb0",
+        "url": "https://www.invitro.ru/golk/cms/images/file/%D1%81%D0%BB%D0%B0%D0%B9%D0%B4%D0%B5%D1%80.png",
+        "thumbnailURL": null
+      },
+      "promotionsTargetGeography": {
+        "cities": [],
+        "aglomerations": [],
+        "showToAll": true
+      },
+      "sponsorInfo": "Реклама 2RanymxTfd4",
+      "title": "Неинвазивный пренатальный тест",
+      "enabled": true,
+      "platform": [
+        "web",
+        "app"
+      ],
+      "id": "6a1873ac54a9a8d3c673a95e"
+    },
+    {
       "createdAt": "2026-03-03T12:56:22.052Z",
       "updatedAt": "2026-06-01T07:47:59.960Z",
       "page": [
@@ -2060,96 +2067,6 @@
       "enabled": true,
       "platform": [],
       "id": "69a6da76da6f003c6baf6410"
-    },
-    {
-      "createdAt": "2026-03-03T15:31:38.515Z",
-      "updatedAt": "2026-05-14T11:49:32.300Z",
-      "page": [
-        {
-          "blockType": "newPageLink",
-          "newPage": {
-            "slug": "vazhno-zaranee-08-2024-rf",
-            "id": "69a0327c2bd0faca27efbb08"
-          },
-          "id": "69a6fedf228fe27514265b5f"
-        }
-      ],
-      "targetPage": [
-        "home"
-      ],
-      "_status": "published",
-      "buttonText": "Подробнее",
-      "description": "Неинвазивный пренатальный тест",
-      "image": {
-        "createdAt": "2026-03-03T15:32:51.547Z",
-        "updatedAt": "2026-03-03T15:32:51.547Z",
-        "alt": "Женщина",
-        "prefix": "images",
-        "filename": "Image7.png",
-        "mimeType": "image/png",
-        "filesize": 51306,
-        "width": 187,
-        "height": 140,
-        "focalX": 50,
-        "focalY": 50,
-        "sizes": {
-          "thumbnail": {
-            "width": null,
-            "height": null,
-            "mimeType": null,
-            "filesize": null,
-            "filename": null,
-            "url": null
-          },
-          "medium": {
-            "width": null,
-            "height": null,
-            "mimeType": null,
-            "filesize": null,
-            "filename": null,
-            "url": null
-          },
-          "large": {
-            "width": null,
-            "height": null,
-            "mimeType": null,
-            "filesize": null,
-            "filename": null,
-            "url": null
-          },
-          "promoLQIP": {
-            "url": null
-          },
-          "promoThumbnail": {
-            "url": null
-          },
-          "promoRetina": {
-            "url": null
-          },
-          "promoRetinaHD": {
-            "url": null
-          }
-        },
-        "id": "69a6ff23da6f003c6baf7daf",
-        "url": "https://www.invitro.ru/golk/cms/images/file/Image7.png",
-        "thumbnailURL": null
-      },
-      "promotionsTargetGeography": {
-        "cities": [],
-        "aglomerations": [],
-        "showToAll": true
-      },
-      "title": "Важно заранее",
-      "sponsorInfo": "Реклама 2RanykoywZk",
-      "colors": {
-        "backgroundColor": "#BFD3FD",
-        "textColor": "#121313",
-        "buttonVariant": "black"
-      },
-      "order": 9,
-      "enabled": true,
-      "platform": [],
-      "id": "69a6fedada6f003c6baf7ce1"
     },
     {
       "createdAt": "2026-04-06T08:00:43.015Z",

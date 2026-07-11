@@ -25,6 +25,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           <nav className="flex gap-2 text-sm">
             <Link href="/compare" className="border border-slate-300 px-3 py-2">Сравнение</Link>
             <Link href="/basket" className="border border-slate-300 px-3 py-2">Корзина</Link>
+            <Link href="/seo-demand" className="border border-slate-300 px-3 py-2">SEO demand</Link>
             <Link href="/match" className="border border-slate-300 px-3 py-2">Матчинг</Link>
           </nav>
         </div>

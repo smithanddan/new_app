@@ -58,12 +58,17 @@ const SPECIAL_SLUG_BY_CODE: Record<string, string> = {
   CREA: "creatinine",
   FER: "ferritin",
   GLU: "glucose",
+  KARYOTYPE: "karyotype",
   TSH: "tsh",
+  UA: "urinalysis",
   UAM: "urinalysis",
   VITD: "vitamin-d",
 };
 
 const FALLBACK_TESTS: SeoCanonicalTest[] = [
+  canonicalFallback("KARYOTYPE", "Исследование кариотипа", "karyotype"),
+  canonicalFallback("CBC", "Общий анализ крови", "complete-blood-count"),
+  canonicalFallback("UA", "Общий анализ мочи", "urinalysis"),
   canonicalFallback("FER", "Ферритин", "ferritin"),
   canonicalFallback("GLU", "Глюкоза", "glucose"),
   canonicalFallback("TSH", "ТТГ", "tsh"),

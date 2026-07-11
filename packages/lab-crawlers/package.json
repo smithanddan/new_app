@@ -20,6 +20,7 @@
     "sync:gemotest": "pnpm build && node dist/scripts/sync-gemotest.js",
     "supabase:preflight": "pnpm build && node dist/scripts/supabase-preflight.js",
     "crawler:run": "pnpm build && node dist/scripts/crawler-run.js",
+    "discovery:providers": "pnpm build && node dist/scripts/discovery-providers.js",
     "invitro:probe": "pnpm build && node dist/scripts/invitro-probe.js",
     "invitro:api-probe": "pnpm build && node dist/scripts/invitro-api-probe.js",
     "invitro:search": "pnpm build && node dist/scripts/invitro-search.js",

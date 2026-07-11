@@ -6,6 +6,14 @@ import type {
 } from './catalog-types.js';
 import type { LabLocation, PickupType } from './geo-service.js';
 import { normalizeProviderName } from './provider-scraper.js';
+import type {
+  DiscoveryRunStatus,
+  NormalizedProviderDiscoveryCandidate,
+  ProviderDiscoveryDuplicate,
+  ProviderDiscoveryQueryRecord,
+  ProviderDiscoveryRunRecord,
+  ProviderDiscoveryWriteResult,
+} from './provider-discovery.js';
 import type { LabCrawlerSupabaseClient } from './supabase-client.js';
 
 type DbIdRow = { id: string };
@@ -182,6 +190,27 @@ export type DbCanonicalPriceComparison = {
   auto_match_suggestion?: string;
 };
 
+export type DbLabSearchSuggestion = {
+  canonical_test: DbCanonicalPriceComparison['canonical_test'];
+  match_reason: 'exact_canonical' | 'clinical_service_slug' | 'provider_test' | 'text_suggestion';
+  provider_test?: {
+    provider_test_id: string;
+    provider_test_name: string;
+    provider_test_code?: string;
+    source_url?: string;
+  };
+};
+
+export type DbLabSearchResult = {
+  query: string;
+  city: string;
+  resolved_test: DbCanonicalPriceComparison['canonical_test'] | null;
+  suggestions: DbLabSearchSuggestion[];
+  offers: DbPriceComparisonOffer[];
+  cheapest: DbPriceComparisonOffer | null;
+  source_status: 'empty_query' | 'resolved' | 'suggestions_only' | 'not_found';
+};
+
 export type DbProviderTestMatchCandidate = {
   provider: {
     id: string;
@@ -314,6 +343,73 @@ export type DbMarketQualityStats = {
   promotion_items_count: number;
   scraper_runs_count: number;
   match_status_counts: Record<string, number>;
+};
+
+export type DbProviderCandidate = {
+  id: string;
+  name: string;
+  normalized_name: string;
+  website_url?: string | null;
+  domain?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  city: string;
+  lat?: number | string | null;
+  lng?: number | string | null;
+  source_type: string;
+  confidence: number | string;
+  status: 'new' | 'needs_review' | 'accepted' | 'rejected' | 'duplicate';
+  matched_provider_id?: string | null;
+  duplicate_of_candidate_id?: string | null;
+  raw_payload?: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+  matched_provider?: {
+    id: string;
+    code: string;
+    name: string;
+    display_name?: string | null;
+  } | null;
+  duplicate_candidate?: {
+    id: string;
+    name: string;
+    city: string;
+  } | null;
+};
+
+export type DbProviderDiscoveryRun = {
+  id: string;
+  query_id?: string | null;
+  city: string;
+  source: string;
+  status: string;
+  run_source: ScraperRunSource;
+  started_at: string;
+  finished_at?: string | null;
+  stats: Record<string, unknown>;
+  error?: string | null;
+  raw_payload?: Record<string, unknown> | null;
+  query?: {
+    id: string;
+    query: string;
+    source: string;
+    city: string;
+  } | null;
+};
+
+export type DbProviderDiscoveryQuery = {
+  id: string;
+  query: string;
+  city: string;
+  source: string;
+  vertical: string;
+  canonical_test_id?: string | null;
+  priority: number;
+  enabled: boolean;
+  last_run_at?: string | null;
+  raw_payload?: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
 };
 
 export class LabCatalogRepository {
@@ -690,6 +786,62 @@ export class LabCatalogRepository {
   async listCanonicalTests(): Promise<Array<DbCanonicalPriceComparison['canonical_test']>> {
     const canonicalTests = await this.getCanonicalTests();
     return canonicalTests.map(mapCanonicalTest);
+  }
+
+  async searchLabTestsFromDb(input: {
+    query: string;
+    cityName: string;
+    limit?: number;
+  }): Promise<DbLabSearchResult> {
+    const query = input.query.trim();
+    const limit = input.limit ?? 8;
+    if (!query) {
+      return {
+        query: input.query,
+        city: input.cityName,
+        resolved_test: null,
+        suggestions: [],
+        offers: [],
+        cheapest: null,
+        source_status: 'empty_query',
+      };
+    }
+
+    const exactCanonical = await this.findCanonicalTestBySearch(query);
+    const clinicalServiceCanonical = exactCanonical ? undefined : await this.findCanonicalTestByClinicalServiceSlug(query);
+    const providerSuggestion = exactCanonical || clinicalServiceCanonical ? undefined : await this.findCanonicalTestByProviderSearch(query);
+    const resolved = exactCanonical ?? clinicalServiceCanonical ?? providerSuggestion?.canonical_test;
+    const textSuggestions = await this.findCanonicalTextSuggestions(query, limit);
+    const suggestions = dedupeLabSearchSuggestions([
+      exactCanonical ? { canonical_test: exactCanonical, match_reason: 'exact_canonical' as const } : undefined,
+      clinicalServiceCanonical ? { canonical_test: clinicalServiceCanonical, match_reason: 'clinical_service_slug' as const } : undefined,
+      providerSuggestion,
+      ...textSuggestions,
+    ]).slice(0, limit);
+
+    if (!resolved) {
+      return {
+        query,
+        city: input.cityName,
+        resolved_test: null,
+        suggestions,
+        offers: [],
+        cheapest: null,
+        source_status: suggestions.length > 0 ? 'suggestions_only' : 'not_found',
+      };
+    }
+
+    const comparison = await this.compareCanonicalTestPricesFromDb(resolved.id, input.cityName);
+    const offers = comparison.offers.slice(0, limit);
+    return {
+      query,
+      city: input.cityName,
+      resolved_test: comparison.canonical_test,
+      suggestions,
+      offers,
+      cheapest: offers[0] ?? null,
+      source_status: 'resolved',
+    };
   }
 
   async compareCanonicalTestPricesFromDb(
@@ -1070,6 +1222,371 @@ export class LabCatalogRepository {
     }));
   }
 
+  async upsertProviderDiscoveryQuery(input: {
+    query: string;
+    city: string;
+    source: string;
+    vertical?: string;
+    priority?: number;
+    enabled?: boolean;
+    rawPayload?: unknown;
+  }): Promise<ProviderDiscoveryQueryRecord> {
+    const vertical = input.vertical ?? 'lab_tests';
+    const existing = await this.selectMaybeSingle<ProviderDiscoveryQueryRecord>(
+      'provider_discovery_queries',
+      'id, query, city, source, vertical',
+      {
+        query: input.query,
+        city: input.city,
+        source: input.source,
+        vertical,
+      },
+    );
+    const payload = {
+      query: input.query,
+      city: input.city,
+      source: input.source,
+      vertical,
+      priority: input.priority ?? 100,
+      enabled: input.enabled ?? true,
+      raw_payload: input.rawPayload ?? {},
+      updated_at: new Date().toISOString(),
+    };
+
+    if (existing) {
+      const { data, error } = await this.supabase
+        .from('provider_discovery_queries')
+        .update(payload)
+        .eq('id', existing.id)
+        .select('id, query, city, source, vertical')
+        .single();
+      assertNoError(error, 'update provider_discovery_queries');
+      return requireRow<ProviderDiscoveryQueryRecord>(data as ProviderDiscoveryQueryRecord | null, 'update provider_discovery_queries');
+    }
+
+    const { data, error } = await this.supabase
+      .from('provider_discovery_queries')
+      .insert(payload)
+      .select('id, query, city, source, vertical')
+      .single();
+    assertNoError(error, 'insert provider_discovery_queries');
+    return requireRow<ProviderDiscoveryQueryRecord>(data as ProviderDiscoveryQueryRecord | null, 'insert provider_discovery_queries');
+  }
+
+  async createProviderDiscoveryRun(input: {
+    queryId?: string;
+    city: string;
+    source: string;
+    runSource?: ScraperRunSource;
+    rawPayload?: unknown;
+  }): Promise<ProviderDiscoveryRunRecord> {
+    const { data, error } = await this.supabase
+      .from('provider_discovery_runs')
+      .insert({
+        query_id: input.queryId,
+        city: input.city,
+        source: input.source,
+        run_source: input.runSource ?? 'manual',
+        status: 'running',
+        raw_payload: input.rawPayload ?? {},
+      })
+      .select('id')
+      .single();
+    assertNoError(error, 'insert provider_discovery_runs');
+    return requireRow<ProviderDiscoveryRunRecord>(data as ProviderDiscoveryRunRecord | null, 'insert provider_discovery_runs');
+  }
+
+  async finishProviderDiscoveryRun(input: {
+    runId: string;
+    status: DiscoveryRunStatus;
+    stats?: Record<string, unknown>;
+    error?: string;
+    rawPayload?: unknown;
+  }): Promise<void> {
+    const { error } = await this.supabase
+      .from('provider_discovery_runs')
+      .update({
+        status: input.status,
+        finished_at: new Date().toISOString(),
+        stats: input.stats ?? {},
+        error: input.error,
+        raw_payload: input.rawPayload,
+      })
+      .eq('id', input.runId);
+    assertNoError(error, 'update provider_discovery_runs');
+  }
+
+  async findProviderDiscoveryDuplicate(input: NormalizedProviderDiscoveryCandidate): Promise<ProviderDiscoveryDuplicate | undefined> {
+    if (input.domain) {
+      const { data: providerData, error: providerError } = await this.supabase
+        .from('lab_providers')
+        .select('id, code, name, display_name, domains')
+        .contains('domains', [input.domain])
+        .maybeSingle();
+      assertNoError(providerError, 'select lab_providers by discovery domain');
+      const provider = providerData as (DbProviderRow & { domains?: string[] | null }) | null;
+      if (provider) {
+        return {
+          status: 'duplicate',
+          matchedProviderId: provider.id,
+          reason: 'known_provider_domain',
+          message: `known provider domain: ${input.domain}`,
+        };
+      }
+    }
+
+    if (input.normalizedAddress) {
+      const { data: locationData, error: locationError } = await this.supabase
+        .from('lab_locations')
+        .select('id, provider_id, address, city')
+        .eq('city', input.city)
+        .eq('address', input.address ?? '')
+        .maybeSingle();
+      assertNoError(locationError, 'select lab_locations by discovery address');
+      const location = locationData as { id: string; provider_id?: string | null; address: string } | null;
+      if (location) {
+        return {
+          status: 'duplicate',
+          matchedProviderId: location.provider_id ?? undefined,
+          reason: 'known_location_address',
+          message: `known lab location address: ${location.address}`,
+        };
+      }
+    }
+
+    const existingCandidate = await this.findExistingProviderCandidate(input);
+    if (existingCandidate) {
+      return {
+        status: 'duplicate',
+        duplicateOfCandidateId: existingCandidate.id,
+        reason: input.domain && existingCandidate.domain === input.domain
+          ? 'existing_candidate_domain'
+          : input.normalizedPhone && normalizePhoneValue(existingCandidate.phone ?? undefined) === input.normalizedPhone
+            ? 'existing_candidate_phone'
+            : input.normalizedAddress && normalizeProviderName(existingCandidate.address ?? '') === input.normalizedAddress
+              ? 'existing_candidate_address'
+              : 'existing_candidate_name_city',
+        message: `existing discovery candidate: ${existingCandidate.name}`,
+      };
+    }
+
+    return undefined;
+  }
+
+  async upsertProviderCandidate(input: NormalizedProviderDiscoveryCandidate): Promise<ProviderDiscoveryWriteResult> {
+    const existing = await this.findExistingProviderCandidate(input);
+    const payload = {
+      name: input.name,
+      normalized_name: input.normalizedName,
+      website_url: input.websiteUrl,
+      domain: input.domain,
+      phone: input.phone,
+      address: input.address,
+      city: input.city,
+      lat: input.lat,
+      lng: input.lng,
+      source_type: input.sourceType,
+      confidence: input.confidence,
+      status: input.status,
+      matched_provider_id: input.matchedProviderId,
+      duplicate_of_candidate_id: input.duplicateOfCandidateId,
+      raw_payload: {
+        ...input.rawPayload,
+        duplicate_hint: input.duplicateHint,
+        suggested_action: input.suggestedAction,
+      },
+      updated_at: new Date().toISOString(),
+    };
+
+    if (existing) {
+      const { data, error } = await this.supabase
+        .from('provider_candidates')
+        .update(payload)
+        .eq('id', existing.id)
+        .select('id')
+        .single();
+      assertNoError(error, 'update provider_candidates');
+      return {
+        candidateId: requireRow<DbIdRow>(data, 'update provider_candidates').id,
+        action: 'updated',
+      };
+    }
+
+    const { data, error } = await this.supabase
+      .from('provider_candidates')
+      .insert(payload)
+      .select('id')
+      .single();
+    if (isUniqueViolation(error)) {
+      const duplicate = await this.findExistingProviderCandidate(input);
+      if (duplicate) {
+        return { candidateId: duplicate.id, action: 'skipped_duplicate' };
+      }
+    }
+    assertNoError(error, 'insert provider_candidates');
+    return {
+      candidateId: requireRow<DbIdRow>(data, 'insert provider_candidates').id,
+      action: 'inserted',
+    };
+  }
+
+  async upsertProviderCandidateSource(input: {
+    candidateId: string;
+    runId?: string;
+    queryId?: string;
+    sourceType: string;
+    sourceUrl?: string;
+    externalId?: string;
+    rawPayload?: unknown;
+    fetchedAt?: string;
+  }): Promise<void> {
+    const { data: existing, error: selectError } = await this.supabase
+      .from('provider_candidate_sources')
+      .select('id')
+      .eq('candidate_id', input.candidateId)
+      .eq('source_type', input.sourceType)
+      .eq('source_url', input.sourceUrl ?? '')
+      .eq('external_id', input.externalId ?? '')
+      .maybeSingle();
+    assertNoError(selectError, 'select provider_candidate_sources');
+
+    const payload = {
+      candidate_id: input.candidateId,
+      run_id: input.runId,
+      query_id: input.queryId,
+      source_type: input.sourceType,
+      source_url: input.sourceUrl,
+      external_id: input.externalId,
+      raw_payload: input.rawPayload ?? {},
+      fetched_at: input.fetchedAt ?? new Date().toISOString(),
+    };
+
+    if (existing) {
+      const { error } = await this.supabase
+        .from('provider_candidate_sources')
+        .update(payload)
+        .eq('id', (existing as DbIdRow).id);
+      assertNoError(error, 'update provider_candidate_sources');
+      return;
+    }
+
+    const { error } = await this.supabase
+      .from('provider_candidate_sources')
+      .insert(payload);
+    if (isUniqueViolation(error)) {
+      return;
+    }
+    assertNoError(error, 'insert provider_candidate_sources');
+  }
+
+  async listProviderCandidates(input: {
+    city?: string;
+    status?: string;
+    source?: string;
+    limit?: number;
+  } = {}): Promise<DbProviderCandidate[]> {
+    let query = this.supabase
+      .from('provider_candidates')
+      .select(`
+        id,
+        name,
+        normalized_name,
+        website_url,
+        domain,
+        phone,
+        address,
+        city,
+        lat,
+        lng,
+        source_type,
+        confidence,
+        status,
+        matched_provider_id,
+        duplicate_of_candidate_id,
+        raw_payload,
+        created_at,
+        updated_at,
+        matched_provider:lab_providers(id, code, name, display_name),
+        duplicate_candidate:provider_candidates!provider_candidates_duplicate_of_candidate_id_fkey(id, name, city)
+      `)
+      .order('created_at', { ascending: false })
+      .limit(input.limit ?? 100);
+
+    if (input.city) {
+      query = query.eq('city', input.city);
+    }
+    if (input.status) {
+      query = query.eq('status', input.status);
+    }
+    if (input.source) {
+      query = query.eq('source_type', input.source);
+    }
+
+    const { data, error } = await query;
+    assertNoError(error, 'select provider_candidates');
+    return ((data ?? []) as unknown as Array<DbProviderCandidate & {
+      matched_provider?: DbProviderCandidate['matched_provider'] | DbProviderCandidate['matched_provider'][];
+      duplicate_candidate?: DbProviderCandidate['duplicate_candidate'] | DbProviderCandidate['duplicate_candidate'][];
+    }>).map((candidate) => ({
+      ...candidate,
+      matched_provider: Array.isArray(candidate.matched_provider) ? candidate.matched_provider[0] ?? null : candidate.matched_provider ?? null,
+      duplicate_candidate: Array.isArray(candidate.duplicate_candidate) ? candidate.duplicate_candidate[0] ?? null : candidate.duplicate_candidate ?? null,
+    }));
+  }
+
+  async listProviderDiscoveryRuns(limit = 50): Promise<DbProviderDiscoveryRun[]> {
+    const { data, error } = await this.supabase
+      .from('provider_discovery_runs')
+      .select(`
+        id,
+        query_id,
+        city,
+        source,
+        status,
+        run_source,
+        started_at,
+        finished_at,
+        stats,
+        error,
+        raw_payload,
+        query:provider_discovery_queries(id, query, source, city)
+      `)
+      .order('started_at', { ascending: false })
+      .limit(limit);
+    assertNoError(error, 'select provider_discovery_runs');
+    return ((data ?? []) as unknown as Array<DbProviderDiscoveryRun & {
+      query?: DbProviderDiscoveryRun['query'] | DbProviderDiscoveryRun['query'][];
+    }>).map((run) => ({
+      ...run,
+      query: Array.isArray(run.query) ? run.query[0] ?? null : run.query ?? null,
+      stats: run.stats ?? {},
+    }));
+  }
+
+  async listProviderDiscoveryQueries(input: {
+    city?: string;
+    enabled?: boolean;
+    limit?: number;
+  } = {}): Promise<DbProviderDiscoveryQuery[]> {
+    let query = this.supabase
+      .from('provider_discovery_queries')
+      .select('id, query, city, source, vertical, canonical_test_id, priority, enabled, last_run_at, raw_payload, created_at, updated_at')
+      .order('priority', { ascending: true })
+      .order('city', { ascending: true })
+      .limit(input.limit ?? 100);
+
+    if (input.city) {
+      query = query.eq('city', input.city);
+    }
+    if (input.enabled !== undefined) {
+      query = query.eq('enabled', input.enabled);
+    }
+
+    const { data, error } = await query;
+    assertNoError(error, 'select provider_discovery_queries');
+    return (data ?? []) as DbProviderDiscoveryQuery[];
+  }
+
   async getMarketQualityStats(): Promise<DbMarketQualityStats> {
     const [
       providersCount,
@@ -1137,6 +1654,45 @@ export class LabCatalogRepository {
       .maybeSingle();
     assertNoError(error, 'select provider_tests by normalized_name/source_url');
     return data ?? undefined;
+  }
+
+  private async findExistingProviderCandidate(input: NormalizedProviderDiscoveryCandidate): Promise<DbProviderCandidate | undefined> {
+    if (input.domain) {
+      const { data, error } = await this.supabase
+        .from('provider_candidates')
+        .select('id, name, normalized_name, website_url, domain, phone, address, city, lat, lng, source_type, confidence, status, matched_provider_id, duplicate_of_candidate_id, raw_payload, created_at, updated_at')
+        .eq('domain', input.domain)
+        .eq('city', input.city)
+        .maybeSingle();
+      assertNoError(error, 'select provider_candidates by domain');
+      if (data) {
+        return data as DbProviderCandidate;
+      }
+    }
+
+    if (input.normalizedPhone) {
+      const { data, error } = await this.supabase
+        .from('provider_candidates')
+        .select('id, name, normalized_name, website_url, domain, phone, address, city, lat, lng, source_type, confidence, status, matched_provider_id, duplicate_of_candidate_id, raw_payload, created_at, updated_at')
+        .eq('phone', input.phone ?? input.normalizedPhone)
+        .eq('city', input.city)
+        .maybeSingle();
+      assertNoError(error, 'select provider_candidates by phone');
+      if (data) {
+        return data as DbProviderCandidate;
+      }
+    }
+
+    let query = this.supabase
+      .from('provider_candidates')
+      .select('id, name, normalized_name, website_url, domain, phone, address, city, lat, lng, source_type, confidence, status, matched_provider_id, duplicate_of_candidate_id, raw_payload, created_at, updated_at')
+      .eq('city', input.city)
+      .eq('normalized_name', input.normalizedName);
+
+    query = input.address ? query.eq('address', input.address) : query.is('address', null);
+    const { data, error } = await query.maybeSingle();
+    assertNoError(error, 'select provider_candidates by name/address');
+    return (data as DbProviderCandidate | null) ?? undefined;
   }
 
   private async resolveCanonicalTestIdByCode(code: string): Promise<string | undefined> {
@@ -1298,6 +1854,97 @@ export class LabCatalogRepository {
       .in('id', ids);
     assertNoError(error, 'select canonical_tests by ids');
     return (data ?? []) as DbCanonicalTestRow[];
+  }
+
+  private async findCanonicalTestByClinicalServiceSlug(query: string): Promise<DbCanonicalPriceComparison['canonical_test'] | undefined> {
+    const slug = normalizeServiceSlug(query);
+    if (!slug) {
+      return undefined;
+    }
+
+    const { data, error } = await this.supabase
+      .from('clinical_services')
+      .select('canonical_test_id')
+      .eq('seo_slug', slug)
+      .maybeSingle();
+
+    if (error || !data?.canonical_test_id) {
+      return undefined;
+    }
+
+    const canonical = await this.getCanonicalTest(data.canonical_test_id as string);
+    return mapCanonicalTest(canonical);
+  }
+
+  private async findCanonicalTestByProviderSearch(query: string): Promise<DbLabSearchSuggestion | undefined> {
+    const normalizedQuery = normalizeProviderName(query);
+    const exactCode = /^[\w.-]+$/i.test(query.trim()) ? query.trim() : undefined;
+    const providerTests = await this.findProviderTestsForSearch({
+      normalizedQuery,
+      exactCode,
+      limit: 10,
+    });
+    const matched = providerTests.find((test) => test.canonical_test_id);
+    if (!matched?.canonical_test_id) {
+      return undefined;
+    }
+
+    const canonical = await this.getCanonicalTest(matched.canonical_test_id);
+    return {
+      canonical_test: mapCanonicalTest(canonical),
+      match_reason: 'provider_test',
+      provider_test: {
+        provider_test_id: matched.id,
+        provider_test_name: matched.name,
+        provider_test_code: matched.external_code ?? undefined,
+        source_url: matched.source_url ?? undefined,
+      },
+    };
+  }
+
+  private async findCanonicalTextSuggestions(query: string, limit: number): Promise<DbLabSearchSuggestion[]> {
+    const normalizedQuery = normalizeProviderName(query);
+    if (!normalizedQuery) {
+      return [];
+    }
+
+    const canonicalTests = await this.getCanonicalTests();
+    return canonicalTests
+      .filter((canonical) => getCanonicalAliases(canonical).some((alias) => {
+        return alias.normalized.includes(normalizedQuery) || normalizedQuery.includes(alias.normalized);
+      }))
+      .slice(0, limit)
+      .map((canonical) => ({
+        canonical_test: mapCanonicalTest(canonical),
+        match_reason: 'text_suggestion',
+      }));
+  }
+
+  private async findProviderTestsForSearch(input: {
+    normalizedQuery: string;
+    exactCode?: string;
+    limit: number;
+  }): Promise<DbProviderTestRow[]> {
+    const rows: DbProviderTestRow[] = [];
+    if (input.exactCode) {
+      const { data, error } = await this.supabase
+        .from('provider_tests')
+        .select('id, provider_id, canonical_test_id, external_code, name, normalized_name, source_url, raw_payload')
+        .eq('external_code', input.exactCode)
+        .limit(input.limit);
+      assertNoError(error, 'select provider_tests by search external_code');
+      rows.push(...((data ?? []) as DbProviderTestRow[]));
+    }
+
+    const { data, error } = await this.supabase
+      .from('provider_tests')
+      .select('id, provider_id, canonical_test_id, external_code, name, normalized_name, source_url, raw_payload')
+      .ilike('normalized_name', `%${input.normalizedQuery}%`)
+      .limit(input.limit);
+    assertNoError(error, 'select provider_tests by search name');
+    rows.push(...((data ?? []) as DbProviderTestRow[]));
+
+    return dedupeProviderTestRows(rows).slice(0, input.limit);
   }
 
   private async getRegionsByCity(cityName: string): Promise<Array<DbRegionRow & { provider_id: string }>> {
@@ -1551,6 +2198,14 @@ function countBy(values: string[]): Record<string, number> {
   }, {});
 }
 
+function normalizePhoneValue(value: string | undefined): string | undefined {
+  const digits = value?.replace(/\D+/g, '') ?? '';
+  if (!digits) {
+    return undefined;
+  }
+  return digits.length === 11 && digits.startsWith('8') ? `7${digits.slice(1)}` : digits;
+}
+
 function isUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
@@ -1598,6 +2253,47 @@ function getCanonicalAliases(canonical: DbCanonicalTestRow): Array<{ raw: string
     .filter(Boolean)
     .map((value) => ({ raw: value, normalized: normalizeProviderName(value) }))
     .filter((value) => value.normalized.length > 1);
+}
+
+function normalizeServiceSlug(value: string): string {
+  return normalizeProviderName(value)
+    .replace(/[^0-9a-zа-яё]+/gi, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function dedupeLabSearchSuggestions(values: Array<DbLabSearchSuggestion | undefined>): DbLabSearchSuggestion[] {
+  const seen = new Set<string>();
+  const result: DbLabSearchSuggestion[] = [];
+  for (const value of values) {
+    if (!value) {
+      continue;
+    }
+
+    const key = value.canonical_test.id || value.canonical_test.code;
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    result.push(value);
+  }
+
+  return result;
+}
+
+function dedupeProviderTestRows(rows: DbProviderTestRow[]): DbProviderTestRow[] {
+  const seen = new Set<string>();
+  const result: DbProviderTestRow[] = [];
+  for (const row of rows) {
+    if (seen.has(row.id)) {
+      continue;
+    }
+
+    seen.add(row.id);
+    result.push(row);
+  }
+
+  return result;
 }
 
 function findStrongProviderCodeCanonicalMatch(input: {

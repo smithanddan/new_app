@@ -1,0 +1,21 @@
+app:
+  name: LabPrice OS Web
+  type: backend
+  project_id: 2640177
+  preset_id: 1005
+  provider_id: c6673373-a07a-4622-b271-976cb16d3a6b
+  repository_id: f468a5e4-876b-4593-a902-68d6ff80faaf
+  branch_name: main
+  commit_sha: fbdeef58e259b23edf9a454e24f24673b7aab420
+  comment: LabPrice OS Docker Next app
+  language: docker
+  framework: docker
+  dockerfile_path: Dockerfile.timeweb
+  build_cmd: ""
+  run_cmd: ""
+  is_auto_deploy: true
+  envs:
+    NODE_ENV: production
+    NEXT_TELEMETRY_DISABLED: "1"
+    PORT: "3000"
+    NEXT_PUBLIC_SITE_URL: ""

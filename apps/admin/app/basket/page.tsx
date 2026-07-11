@@ -2,7 +2,7 @@ import Link from "next/link";
 import { GeoLocationFields } from "../components/GeoLocationFields";
 import { SaveBasketButton } from "../components/SaveBasketButton";
 import { buildCheckoutHref } from "../lib/checkout";
-import { getBasketPageData, DEFAULT_CITY } from "../lib/lab-data";
+import { getBasketPageData, DEFAULT_CITY, getLabDataSource } from "../lib/lab-data";
 import type {
   BasketOptimizationResult,
   BasketRouteOption,
@@ -23,6 +23,7 @@ export default async function BasketPage({ searchParams }: PageProps) {
   const sort = params.sort || "price";
   const hasGeo = Boolean(lat && lng);
   const data = await getBasketPageData({ tests, city, mode: params.mode || "optimization", lat, lng, sort }) as BasketOptimizationResult;
+  const dataSource = getLabDataSource();
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-5 text-slate-950 sm:px-6 sm:py-8">
@@ -37,6 +38,11 @@ export default async function BasketPage({ searchParams }: PageProps) {
             <Link href="/dashboard" className="border border-slate-300 px-3 py-2 text-sm">Dashboard</Link>
           </div>
         </div>
+        {dataSource === "local_demo" ? (
+          <div className="mt-4 border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+            Demo mode: корзина оптимизируется на локальных fixtures и INVITRO snapshot, Supabase не нужен.
+          </div>
+        ) : null}
 
         <form className="mt-6 grid gap-3 border-y border-slate-200 bg-white p-4 shadow-sm md:grid-cols-[1fr_160px_140px_auto]">
           <input
